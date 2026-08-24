@@ -1,6 +1,6 @@
 # Task Progress Checklist — RecoverAI Implementation
 
-- `[ ]` **Step 1: Repository & Project Setup** — Core directories, backend setup (`config.py`, dependencies), frontend skeleton (`vite`, `package.json`).
+- `[x]` **Step 1: Repository & Project Setup** — Core directories, backend setup (`config.py`, dependencies), frontend skeleton (`vite`, `package.json`).
 - `[ ]` **Step 2: Database Architecture** — SQLAlchemy models for 13 tables, Alembic setup & initial migration.
 - `[ ]` **Step 3: Event Schema & Normalization** — Ingestion schemas & normalization pipeline.
 - `[ ]` **Step 4: State Machine Service** — Core transaction & recovery state transitions with row locking.
