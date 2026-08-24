@@ -1,0 +1,22 @@
+# Task Progress Checklist — RecoverAI Implementation
+
+- `[ ]` **Step 1: Repository & Project Setup** — Core directories, backend setup (`config.py`, dependencies), frontend skeleton (`vite`, `package.json`).
+- `[ ]` **Step 2: Database Architecture** — SQLAlchemy models for 13 tables, Alembic setup & initial migration.
+- `[ ]` **Step 3: Event Schema & Normalization** — Ingestion schemas & normalization pipeline.
+- `[ ]` **Step 4: State Machine Service** — Core transaction & recovery state transitions with row locking.
+- `[ ]` **Step 5: Audit Trail Service** — SHA-256 cryptographic hash chaining (`GENESIS_HASH`).
+- `[ ]` **Step 6: Revenue Risk Engine** — Business scenario evaluation & risk scoring.
+- `[ ]` **Step 7: Diagnosis Engine** — Precedence pipeline (Rules -> ML -> LLM -> Human).
+- `[ ]` **Step 8: Feature Extraction Pipeline** — Historical customer & transaction feature generator.
+- `[ ]` **Step 9: Action-Conditional ML Model** — XGBoost training & inference pipeline for $ENRV$.
+- `[ ]` **Step 10: Capability Resolver** — Operational capability verification & mode isolation.
+- `[ ]` **Step 11: Policy Engine** — Deterministic safety policy rules engine.
+- `[ ]` **Step 12: Action Executor Service** — Idempotent execution handler with logical keys.
+- `[ ]` **Step 13: Razorpay Integration Client** — `POST /v1/payment_links` adapter & signature verification.
+- `[ ]` **Step 14: Simulator Framework** — Synthetic 50,000+ transaction engine & response generator.
+- `[ ]` **Step 15: Reconciliation Worker** — Celery async handler for `UNKNOWN` execution states.
+- `[ ]` **Step 16: Attribution Engine** — Direct & window-based recovery outcome classifier.
+- `[ ]` **Step 17: Measurement Engine** — Incremental lift ($Treatment - Control$) & ROI metrics.
+- `[ ]` **Step 18: FastAPI Backend Routers** — REST endpoints for webhooks, transactions, analytics, & audit.
+- `[ ]` **Step 19: Frontend UI Components & Pages** — React 18 TypeScript Dashboard (9 pages).
+- `[ ]` **Step 20: E2E Verification & Evaluation Suite** — Validation scripts for Real Test Mode & 50k Synthetic Simulation.
