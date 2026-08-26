@@ -34,8 +34,10 @@ class Settings(BaseSettings):
     RAZORPAY_KEY_SECRET: str = Field(default="mock_key_secret_12345", description="Razorpay Test Key Secret")
     RAZORPAY_WEBHOOK_SECRET: str = Field(default="mock_webhook_secret_67890", description="Razorpay Webhook Signing Secret")
 
-    # LLM / AI Engine API Keys
-    OPENAI_API_KEY: Optional[str] = Field(default=None, description="OpenAI API Key for LLM Recommender")
+    # LLM / AI Engine API Keys (Groq Provider)
+    GROQ_API_KEY: Optional[str] = Field(default=None, description="Groq API Key for LLM Recommender")
+    GROQ_BASE_URL: str = Field(default="https://api.groq.com/openai/v1", description="Groq API Base URL")
+    GROQ_MODEL: str = Field(default="llama-3.3-70b-versatile", description="Groq Model Identifier")
 
     # Merchant Default Policy Thresholds (Version 1.0)
     DEFAULT_MAX_RECOVERY_AMOUNT: float = 50000.00
