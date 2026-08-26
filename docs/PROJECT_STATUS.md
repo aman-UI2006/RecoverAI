@@ -3,7 +3,7 @@
 - **Current Step:** Step 3 (Synthetic Dataset Generation)
 - **Last Verified Step:** Step 2 (Database Architecture & Alembic Migrations) & Groq LLM Verification
 - **Current Status:** VERIFIED / READY_FOR_STEP_3
-- **Last Known Good Commit:** `e77fe24` (`verify: live Groq API authentication and response validation verified`)
+- **Last Known Good Commit:** `5f2255e` (`verify: align test_groq_live with settings.GROQ_MODEL groq/compound-mini`)
 - **Blocking Issue:** None
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
 - **LLM Provider Status:** Groq API (`groq/compound-mini`) LIVE AUTHENTICATED & VERIFIED.
