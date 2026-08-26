@@ -18,11 +18,11 @@ def verify_live_groq():
         sys.exit(1)
 
     print("\n--- 2. Initialize GroqLLMService & Client ---")
-    service = GroqLLMService(model="groq/compound-mini")
+    service = GroqLLMService()
     assert service.is_configured() is True, "Service is_configured() should return True"
     client = service.client
     assert client is not None, "Client should be initialized"
-    print(f"[PASS] Groq client initialized successfully using model '{service.model}'.")
+    print(f"[PASS] Groq client initialized successfully using configured model '{service.model}'.")
 
     print(f"\n--- 3 & 4. Authenticated Request to Model '{service.model}' ---")
     recommendation = service.generate_recovery_recommendation(
