@@ -3,7 +3,7 @@
 - **Current Step:** Step 2 (Database Architecture & Alembic Migrations)
 - **Last Verified Step:** Step 2
 - **Current Status:** VERIFIED / READY_FOR_STEP_3
-- **Last Known Good Commit:** Pending Checkpoint Commit (`step-02-verified-final`)
+- **Last Known Good Commit:** `265b834` (`step-02-verified-final`)
 - **Blocking Issue:** None
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned.
 - **Test Status:** 8/8 tests passing (`pytest backend/tests -v`).
