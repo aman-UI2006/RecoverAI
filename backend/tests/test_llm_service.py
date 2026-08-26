@@ -11,11 +11,11 @@ def test_groq_config_loading():
     custom_settings = Settings(
         GROQ_API_KEY="gsk_test_key_12345",
         GROQ_BASE_URL="https://api.groq.com/openai/v1",
-        GROQ_MODEL="llama-3.3-70b-versatile"
+        GROQ_MODEL="groq/compound-mini"
     )
     assert custom_settings.GROQ_API_KEY == "gsk_test_key_12345"
     assert custom_settings.GROQ_BASE_URL == "https://api.groq.com/openai/v1"
-    assert custom_settings.GROQ_MODEL == "llama-3.3-70b-versatile"
+    assert custom_settings.GROQ_MODEL == "groq/compound-mini"
 
 
 def test_groq_service_initialization_and_unconfigured():
@@ -28,7 +28,7 @@ def test_groq_service_initialization_and_unconfigured():
 
 def test_groq_service_fallback_when_unconfigured():
     """Verify unconfigured Groq service returns deterministic fallback recommendation."""
-    service = GroqLLMService(api_key=None)
+    service = GroqLLMService(api_key="")
     recommendation = service.generate_recovery_recommendation(
         failure_category="CARD_FAILURE",
         failure_code="INSUFFICIENT_FUNDS",

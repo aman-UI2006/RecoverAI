@@ -35,7 +35,7 @@ class GroqLLMService:
         base_url: Optional[str] = None,
         model: Optional[str] = None
     ):
-        self.api_key = api_key or settings.GROQ_API_KEY
+        self.api_key = api_key if api_key is not None else settings.GROQ_API_KEY
         self.base_url = base_url or settings.GROQ_BASE_URL
         self.model = model or settings.GROQ_MODEL
         self._client: Optional[groq.Groq] = None
@@ -46,10 +46,12 @@ class GroqLLMService:
         if self._client is None:
             if not self.api_key or self.api_key == "gsk_YourGroqApiKeyHere":
                 raise ValueError("GROQ_API_KEY is not configured or contains default placeholder.")
-            self._client = groq.Groq(
-                api_key=self.api_key,
-                base_url=self.base_url
-            )
+            
+            # If base_url is standard Groq OpenAI-compatibility endpoint or default, allow SDK default
+            if not self.base_url or "api.groq.com" in self.base_url:
+                self._client = groq.Groq(api_key=self.api_key)
+            else:
+                self._client = groq.Groq(api_key=self.api_key, base_url=self.base_url)
         return self._client
 
     def is_configured(self) -> bool:
