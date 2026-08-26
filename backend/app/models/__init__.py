@@ -1,1 +1,31 @@
-# RecoverAI SQLAlchemy Models Package
+from backend.app.models.domain import (
+    Merchant,
+    Customer,
+    Transaction,
+    Event,
+    DecisionContext,
+    RecoveryActionScore,
+    Diagnosis,
+    Policy,
+    RecoveryAttempt,
+    RecoveryAttribution,
+    AuditEvent,
+    EvaluationRun,
+    HumanReview,
+)
+
+__all__ = [
+    "Merchant",
+    "Customer",
+    "Transaction",
+    "Event",
+    "DecisionContext",
+    "RecoveryActionScore",
+    "Diagnosis",
+    "Policy",
+    "RecoveryAttempt",
+    "RecoveryAttribution",
+    "AuditEvent",
+    "EvaluationRun",
+    "HumanReview",
+]
