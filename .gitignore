@@ -1,5 +1,7 @@
 # Environment & Secrets
 .env
+.env.*
+!.env.example
 .env.local
 .env.*.local
 *.pem
@@ -36,6 +38,7 @@ frontend/node_modules/
 Thumbs.db
 
 # Data & Logs
+*.log
 data/*.parquet
 !data/.gitkeep
 logs/*.log
