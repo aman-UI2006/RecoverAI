@@ -1,22 +1,63 @@
 # Task Progress Checklist — RecoverAI Implementation
 
-- `[x]` **Step 1: Repository & Project Setup** — Core directories, backend setup (`config.py`, dependencies), frontend skeleton (`vite`, `package.json`).
-- `[x]` **Step 2: Database Architecture** — SQLAlchemy models for 13 tables, Alembic setup & initial migration.
-- `[ ]` **Step 3: Event Schema & Normalization** — Ingestion schemas & normalization pipeline.
-- `[ ]` **Step 4: State Machine Service** — Core transaction & recovery state transitions with row locking.
-- `[ ]` **Step 5: Audit Trail Service** — SHA-256 cryptographic hash chaining (`GENESIS_HASH`).
-- `[ ]` **Step 6: Revenue Risk Engine** — Business scenario evaluation & risk scoring.
-- `[ ]` **Step 7: Diagnosis Engine** — Precedence pipeline (Rules -> ML -> LLM -> Human).
-- `[ ]` **Step 8: Feature Extraction Pipeline** — Historical customer & transaction feature generator.
-- `[ ]` **Step 9: Action-Conditional ML Model** — XGBoost training & inference pipeline for $ENRV$.
-- `[ ]` **Step 10: Capability Resolver** — Operational capability verification & mode isolation.
-- `[ ]` **Step 11: Policy Engine** — Deterministic safety policy rules engine.
-- `[ ]` **Step 12: Action Executor Service** — Idempotent execution handler with logical keys.
-- `[ ]` **Step 13: Razorpay Integration Client** — `POST /v1/payment_links` adapter & signature verification.
-- `[ ]` **Step 14: Simulator Framework** — Synthetic 50,000+ transaction engine & response generator.
-- `[ ]` **Step 15: Reconciliation Worker** — Celery async handler for `UNKNOWN` execution states.
-- `[ ]` **Step 16: Attribution Engine** — Direct & window-based recovery outcome classifier.
-- `[ ]` **Step 17: Measurement Engine** — Incremental lift ($Treatment - Control$) & ROI metrics.
-- `[ ]` **Step 18: FastAPI Backend Routers** — REST endpoints for webhooks, transactions, analytics, & audit.
-- `[ ]` **Step 19: Frontend UI Components & Pages** — React 18 TypeScript Dashboard (9 pages).
-- `[ ]` **Step 20: E2E Verification & Evaluation Suite** — Validation scripts for Real Test Mode & 50k Synthetic Simulation.
+- `[x]` **Step 1: Repository & Project Setup**
+- `[x]` **Step 2: Database Architecture**
+- `[ ]` **Step 3: Synthetic Dataset Generation**
+- `[ ]` **Step 4: Ground Truth and Evaluation Split**
+- `[ ]` **Step 5: Event Schema and Ingestion**
+- `[ ]` **Step 6: Event Normalization and Deduplication**
+- `[ ]` **Step 7: Authoritative State Transition Service**
+- `[ ]` **Step 8: Revenue Risk Engine**
+- `[ ]` **Step 9: Feature Engineering**
+- `[ ]` **Step 10: Recovery Opportunity / ENRV Foundation**
+- `[ ]` **Step 11: Diagnosis Engine**
+- `[ ]` **Step 12: Action-Conditional ML**
+- `[ ]` **Step 13: Structured AI Recommender**
+- `[ ]` **Step 14: Capability Resolver**
+- `[ ]` **Step 15: Deterministic Policy Engine**
+- `[ ]` **Step 16: Human Review and Escalation**
+- `[ ]` **Step 17: Action Executor**
+- `[ ]` **Step 18: Razorpay Adapter and Resilience**
+- `[ ]` **Step 19: Result Processor**
+- `[ ]` **Step 20: Attribution Engine**
+- `[ ]` **Step 21: Control/Treatment Measurement**
+- `[ ]` **Step 22: Reconciliation Engine**
+- `[ ]` **Step 23: Continuous Audit Trail**
+- `[ ]` **Step 24: FastAPI Foundation**
+- `[ ]` **Step 25: REST APIs**
+- `[ ]` **Step 26: Authentication, Authorization and RBAC**
+- `[ ]` **Step 27: Frontend Foundation**
+- `[ ]` **Step 28: Command Center**
+- `[ ]` **Step 29: Revenue Risk**
+- `[ ]` **Step 30: Recovery Queue**
+- `[ ]` **Step 31: Transaction Detail**
+- `[ ]` **Step 32: AI Decision Center**
+- `[ ]` **Step 33: Recovery Analytics**
+- `[ ]` **Step 34: Audit Center**
+- `[ ]` **Step 35: Policy Manager**
+- `[ ]` **Step 36: Human Review**
+- `[ ]` **Step 37: Unit Testing**
+- `[ ]` **Step 38: Database/Integration Testing**
+- `[ ]` **Step 39: ML Evaluation Testing**
+- `[ ]` **Step 40: AI Structured-Output Testing**
+- `[ ]` **Step 41: End-to-End Testing**
+- `[ ]` **Step 42: Security/Failure/Concurrency Testing**
+- `[ ]` **Step 43: Action-Conditional Optimization**
+- `[ ]` **Step 44: Recovery Strategy Optimization**
+- `[ ]` **Step 45: Incremental/Counterfactual Analysis**
+- `[ ]` **Step 46: Merchant Intelligence**
+- `[ ]` **Step 47: Recovery Strategy Visualization**
+- `[ ]` **Step 48: Recovery Communication Intelligence**
+- `[ ]` **Step 49: Production Configuration**
+- `[ ]` **Step 50: Database Deployment**
+- `[ ]` **Step 51: Backend Deployment**
+- `[ ]` **Step 52: Frontend Deployment**
+- `[ ]` **Step 53: Razorpay Test Mode Verification**
+- `[ ]` **Step 54: Complete End-to-End System Verification**
+- `[ ]` **Step 55: Architecture Documentation**
+- `[ ]` **Step 56: Evaluation Report**
+- `[ ]` **Step 57: Failure Analysis**
+- `[ ]` **Step 58: Security and Safety Documentation**
+- `[ ]` **Step 59: Public GitHub Finalization**
+- `[ ]` **Step 60: 5-Minute Pitch/Demo**
+- `[ ]` **Step 61: Final Submission Review**
