@@ -1,9 +1,9 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 11 (Diagnosis Engine) — VERIFIED
-- **Last Verified Step:** Step 11 (Diagnosis Engine)
-- **Current Status:** VERIFIED / READY_FOR_STEP_12
-- **Last Known Good Commit:** Pending Step 11 commit (`step-11-verified: implement multi-tiered diagnosis engine and state transition`)
+- **Current Step:** Step 12 (Action-Conditional ML) — VERIFIED
+- **Last Verified Step:** Step 12 (Action-Conditional ML)
+- **Current Status:** VERIFIED / READY_FOR_STEP_13
+- **Last Known Good Commit:** Pending Step 12 commit (`step-12-verified: implement action-conditional ML model`)
 - **Blocking Issue:** None
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
 - **LLM Provider Status:** Groq API (`groq/compound-mini`) LIVE AUTHENTICATED & VERIFIED (Approved via DEC-006).
@@ -14,6 +14,7 @@
 - **Feature Engineering Status:** FeatureExtractor (`backend/app/ml/feature_extractor.py`) and Feature schemas (`backend/app/schemas/features.py`) implemented and verified. Transforms raw transaction context into validated, cold-start safe numerical feature vectors with zero target leakage and zero PII.
 - **ENRV Foundation Status:** ENRVCalculator (`backend/app/services/enrv_calculator.py`) and ENRV schemas (`backend/app/schemas/enrv.py`) implemented and verified. Evaluates and ranks candidate recovery actions by ENRV(a_i) = P(R | X, a_i) * AmountInPaise - InterventionCost - OperationalCost - RefundCost. Persists action scores to `decision_contexts` and `recovery_action_scores` with multi-tenant isolation.
 - **Diagnosis Engine Status:** DiagnosisEngine (`backend/app/services/diagnosis_engine.py`), MLDiagnosisClassifier (`backend/app/ml/diagnosis_classifier.py`), and Diagnosis schemas (`backend/app/schemas/diagnosis.py`) implemented and verified. Classifies root cause across 4 precedence levels (Rules -> ML Classifier -> Groq LLM Fallback -> Human Review Fallback), sanitizes PII, mutates transaction status to DIAGNOSED via StateTransitionService, and logs AuditEvent.
-- **Test Status:** 108/108 tests passing (`pytest backend/tests`).
+- **Action-Conditional ML Status:** ActionConditionalPredictor (`backend/app/ml/action_conditional_model.py`), training script (`scripts/train_action_conditional_model.py`), and model artifact (`backend/app/ml/models/action_conditional_xgb.joblib`) implemented and verified. Predicts calibrated P(recovery | X, a_i) across 6 candidate actions with zero target leakage, zero PII, and advisory-only execution.
+- **Test Status:** 118/118 tests passing (`pytest backend/tests`).
 - **Dependencies Status:** Full backend (`requirements.txt`) and frontend (`package.json`) dependencies installed and validated.
 - **Database Status:** VERIFIED against PostgreSQL 16 (`recoverai_db`). All 13 core tables verified.

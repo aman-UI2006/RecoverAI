@@ -11,7 +11,7 @@
 - `[x]` **Step 9: Feature Engineering**
 - `[x]` **Step 10: Recovery Opportunity / ENRV Foundation**
 - `[x]` **Step 11: Diagnosis Engine**
-- `[ ]` **Step 12: Action-Conditional ML**
+- `[x]` **Step 12: Action-Conditional ML**
 - `[ ]` **Step 13: Structured AI Recommender**
 - `[ ]` **Step 14: Capability Resolver**
 - `[ ]` **Step 15: Deterministic Policy Engine**
