@@ -4,6 +4,7 @@ from backend.app.services.llm_service import GroqLLMService, ActionRecommendatio
 from backend.app.services.event_ingestion import EventIngestionService, verify_razorpay_signature
 from backend.app.services.event_normalizer import EventNormalizerService
 from backend.app.services.state_transition_service import StateTransitionService
+from backend.app.services.revenue_risk_engine import RevenueRiskEngine
 
 __all__ = [
     "SyntheticDatasetGenerator",
@@ -14,4 +15,5 @@ __all__ = [
     "verify_razorpay_signature",
     "EventNormalizerService",
     "StateTransitionService",
+    "RevenueRiskEngine",
 ]
