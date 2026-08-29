@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 12 (Action-Conditional ML) — VERIFIED
-- **Last Verified Step:** Step 12 (Action-Conditional ML)
-- **Current Status:** VERIFIED / READY_FOR_STEP_13
-- **Last Known Good Commit:** Pending Step 12 commit (`step-12-verified: implement action-conditional ML model`)
-- **Blocking Issue:** None
+- **Current Step:** Step 12 (Action-Conditional ML) — NOT VERIFIED (EXIT CRITERION FAILED)
+- **Last Verified Step:** Step 11 (Diagnosis Engine) — DISCREPANCY DETECTED IN LEVEL 2 CLASSIFIER
+- **Current Status:** NOT VERIFIED / BLOCKED_ON_EXIT_CRITERION
+- **Last Known Good Commit:** `8f4acf8` (Tag `step-12-verified` removed per forensic audit)
+- **Blocking Issue:** ERR-004: Step 12 measured test ROC-AUC (0.7418) is below the frozen plan requirement (>= 0.75). ERR-003: Step 11 ML Diagnosis Classifier implemented string pattern matching instead of trained XGBoost multi-class model.
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
 - **LLM Provider Status:** Groq API (`groq/compound-mini`) LIVE AUTHENTICATED & VERIFIED (Approved via DEC-006).
 - **Dataset Split Status:** 50,000 synthetic transactions partitioned deterministically (seed 42, DEC-007) into `data/train.parquet` (35,110 rows, 70.22%), `data/val.parquet` (7,355 rows, 14.71%), `data/test.parquet` (7,535 rows, 15.07%). Hard zero customer overlap and deterministic internal ordering (`created_at` ASC, `transaction_id` ASC) verified.
