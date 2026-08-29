@@ -5,7 +5,7 @@
 - `[x]` **Step 3: Synthetic Dataset Generation**
 - `[x]` **Step 4: Ground Truth and Evaluation Split**
 - `[x]` **Step 5: Event Schema and Ingestion**
-- `[ ]` **Step 6: Event Normalization and Deduplication**
+- `[x]` **Step 6: Event Normalization and Deduplication**
 - `[ ]` **Step 7: Authoritative State Transition Service**
 - `[ ]` **Step 8: Revenue Risk Engine**
 - `[ ]` **Step 9: Feature Engineering**
