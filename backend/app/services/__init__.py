@@ -8,6 +8,7 @@ from backend.app.services.revenue_risk_engine import RevenueRiskEngine
 from backend.app.services.enrv_calculator import ENRVCalculator
 from backend.app.services.diagnosis_engine import DiagnosisEngine
 from backend.app.services.result_processor import ResultProcessor
+from backend.app.services.attribution_engine import AttributionEngine
 
 __all__ = [
     "SyntheticDatasetGenerator",
@@ -22,4 +23,6 @@ __all__ = [
     "ENRVCalculator",
     "DiagnosisEngine",
     "ResultProcessor",
+    "AttributionEngine",
 ]
+

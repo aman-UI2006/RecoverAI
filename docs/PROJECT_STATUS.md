@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 19 (Result Processor) — VERIFIED
-- **Last Verified Step:** Step 19 (Result Processor) — VERIFIED
-- **Current Status:** STEP 19 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** Pending Checkpoint (`step-19-verified`)
-- **Blocking Issue:** NONE (ResultProcessor implementation, StateTransitionService lifecycle mutations, payment verification gates, multi-tenant merchant isolation, unlinked event safety, idempotent duplicate handling, Step 20 AttributionEngine trigger hook boundary, and 216 passing backend regression tests).
+- **Current Step:** Step 20 (Attribution Engine) — VERIFIED
+- **Last Verified Step:** Step 20 (Attribution Engine) — VERIFIED
+- **Current Status:** STEP 20 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** `913c8ae` (`step-20-verified`)
+- **Blocking Issue:** NONE (AttributionEngine implementation, deterministic hierarchy classification [DIRECT_REFERENCE, WINDOW_MATCH, NATURAL_RECOVERY, UNATTRIBUTED], DB persistence with unique constraint [transaction_id, recovery_attempt_id], multi-tenant merchant isolation, unlinked attempt rejection, idempotent replay handling, REAL_TEST vs SIMULATION recovery source preservation, zero transaction state mutation, ResultProcessor integration hook, and 227 passing backend regression tests).
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
 - **LLM Provider Status:** Groq API (`groq/compound-mini`) LIVE AUTHENTICATED & VERIFIED (Approved via DEC-006).
 - **Dataset Split Status:** 50,000 synthetic transactions partitioned deterministically (seed 42, DEC-007) into `data/train.parquet` (35,110 rows, 70.22%), `data/val.parquet` (7,355 rows, 14.71%), `data/test.parquet` (7,535 rows, 15.07%). Hard zero customer overlap and deterministic internal ordering (`created_at` ASC, `transaction_id` ASC) verified. Option B signal parameter remediation applied (`historical_success_rate` 2.5->3.5, `prior_failed_attempts` -0.35->-0.50).
@@ -20,6 +20,8 @@
 - **Action Executor Status:** ActionExecutor (`backend/app/services/action_executor.py`) and Execution schemas (`backend/app/schemas/executor.py`) implemented and verified. Enforces `APPROVED` state gate, defensive capability re-check via `CapabilityResolver`, logical operation key construction (`merchant_id:transaction_id:recovery_cycle:action`), idempotency replay protection, DB UNIQUE index collision handling, execution mode dispatching (REAL_TEST / SIMULATION), adapter delegate exception mapping to `UNKNOWN` result, multi-tenant merchant isolation, and state mutation to `EXECUTING` with SHA-256 audit trail chaining.
 - **Razorpay Adapter Status:** RazorpayAdapter (`backend/app/integrations/razorpay_adapter.py`) and Razorpay DTO schemas (`backend/app/schemas/razorpay_dto.py`) implemented and verified. Integrates Razorpay REST API (`POST /v1/payment_links`), formats reference IDs (`RAI-{short_tx_id}-{cycle}`), handles paise conversion, implements exponential backoff retries for transient HTTP 5xx/429 errors, provides air-gapped SIMULATION mode execution, masks credentials in logs/repr, and provides HMAC SHA-256 webhook signature verification.
 - **Result Processor Status:** ResultProcessor (`backend/app/services/result_processor.py`) implemented and verified. Matches incoming event payment link IDs / reference IDs against RecoveryAttempt records, updates execution status to SUCCESS or FAILURE, mutates transaction status via StateTransitionService (`EXECUTING` -> `RECOVERED` for paid/captured, `EXECUTING` -> `FAILED` for cancelled/failed, `EXECUTING` -> `EXPIRED` for expired), enforces multi-tenant merchant isolation, provides unlinked event handling without exception, guarantees idempotent re-processing skip, and establishes Step 20 AttributionEngine trigger hook boundary.
-- **Test Status:** 216/216 tests passing (`pytest backend/tests`).
+- **Attribution Engine Status:** AttributionEngine (`backend/app/services/attribution_engine.py`) and Attribution schemas (`backend/app/schemas/attribution.py`) implemented and verified. Deterministically classifies recovery outcomes into DIRECT_REFERENCE, WINDOW_MATCH, NATURAL_RECOVERY, or UNATTRIBUTED, enforces DB UNIQUE constraint `(transaction_id, recovery_attempt_id)`, multi-tenant merchant isolation, idempotent replay re-check, REAL_TEST vs SIMULATION recovery source preservation, zero transaction state mutation, and registers callback hook with `ResultProcessor`.
+- **Test Status:** 227/227 tests passing (`pytest backend/tests`).
 - **Dependencies Status:** Full backend (`requirements.txt`) and frontend (`package.json`) dependencies installed and validated.
 - **Database Status:** VERIFIED against PostgreSQL 16 (`recoverai_db`). All 13 core tables verified.
+
