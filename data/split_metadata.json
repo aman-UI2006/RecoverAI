@@ -1,0 +1,40 @@
+{
+  "dataset_version": "v1.0",
+  "random_seed": 42,
+  "source_file": "D:\\Razorpay\\New folder\\data\\synthetic_50k.parquet",
+  "source_record_count": 50000,
+  "source_sha256": "576a4f121b3a6818a8cecc9b9b6d79cd7bda62cbdf9622c18467fc3b18de9f40",
+  "split_strategy": "DEC-007 Customer-Group Partitioning with Deterministic Internal Ordering",
+  "splits": {
+    "train": {
+      "record_count": 35110,
+      "customer_count": 3500,
+      "percentage": 70.22,
+      "recovered_rate_pct": 54.73,
+      "sha256": "b621baca7d8a27ac7ff26dac709763be7359b40425323a9383111670f1008e6e",
+      "file_path": "D:\\Razorpay\\New folder\\data\\train.parquet"
+    },
+    "val": {
+      "record_count": 7355,
+      "customer_count": 750,
+      "percentage": 14.71,
+      "recovered_rate_pct": 54.85,
+      "sha256": "2a96ef72a723ce66a7a0dd41b63e14ac44425aaf317794b49ad141e867646f36",
+      "file_path": "D:\\Razorpay\\New folder\\data\\val.parquet"
+    },
+    "test": {
+      "record_count": 7535,
+      "customer_count": 750,
+      "percentage": 15.07,
+      "recovered_rate_pct": 53.18,
+      "sha256": "647ecb8b2072fda20a68702737afefcb67d06ffcb1a9416360b5857209543103",
+      "file_path": "D:\\Razorpay\\New folder\\data\\test.parquet"
+    }
+  },
+  "validation_checks": {
+    "zero_customer_overlap": true,
+    "zero_transaction_overlap": true,
+    "total_row_conservation": true,
+    "money_datatype_int64": true
+  }
+}

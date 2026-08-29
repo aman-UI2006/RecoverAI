@@ -3,7 +3,7 @@
 - `[x]` **Step 1: Repository & Project Setup**
 - `[x]` **Step 2: Database Architecture**
 - `[x]` **Step 3: Synthetic Dataset Generation**
-- `[ ]` **Step 4: Ground Truth and Evaluation Split**
+- `[x]` **Step 4: Ground Truth and Evaluation Split**
 - `[ ]` **Step 5: Event Schema and Ingestion**
 - `[ ]` **Step 6: Event Normalization and Deduplication**
 - `[ ]` **Step 7: Authoritative State Transition Service**

@@ -61,6 +61,25 @@ class DatasetService:
             raise ValueError(f"Unsupported file format for {file_path}")
 
     @staticmethod
+    def load_split(split_name: str, data_dir: str = "data") -> pd.DataFrame:
+        """
+        Loads a specific dataset partition (train, val, test) from Parquet.
+
+        Args:
+            split_name: Name of partition ('train', 'val', 'test').
+            data_dir: Relative or absolute path to data directory.
+
+        Returns:
+            pd.DataFrame: Loaded partition DataFrame.
+        """
+        valid_splits = ["train", "val", "test"]
+        if split_name not in valid_splits:
+            raise ValueError(f"Invalid split name '{split_name}'. Must be one of {valid_splits}")
+
+        file_path = os.path.join(data_dir, f"{split_name}.parquet")
+        return DatasetService.load_dataset(file_path)
+
+    @staticmethod
     def get_decision_time_features(df: pd.DataFrame) -> pd.DataFrame:
         """
         Extracts ONLY decision-time features X from dataset, guaranteeing zero
