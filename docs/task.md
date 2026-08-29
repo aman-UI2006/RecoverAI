@@ -17,7 +17,7 @@
 - `[x]` **Step 13C: State Machine Transition & Context Persistence**
 - `[x]` **Step 14: Capability Resolver**
 - `[x]` **Step 15: Deterministic Policy Engine**
-- `[ ]` **Step 16: Human Review and Escalation**
+- `[x]` **Step 16: Human Review and Escalation**
 - `[ ]` **Step 17: Action Executor**
 - `[ ]` **Step 18: Razorpay Adapter and Resilience**
 - `[ ]` **Step 19: Result Processor**

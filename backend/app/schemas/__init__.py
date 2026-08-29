@@ -13,6 +13,15 @@ from backend.app.schemas.diagnosis import (
     FailureCategory,
 )
 
+from backend.app.schemas.human_review import (
+    HumanReviewDecision,
+    HumanReviewStatus,
+    ReviewItemCreate,
+    ReviewDecisionSubmit,
+    HumanReviewResponse,
+    HumanReviewQueueResponse,
+)
+
 __all__ = [
     "RazorpayPaymentEntity",
     "RazorpayPaymentLinkEntity",
@@ -24,4 +33,10 @@ __all__ = [
     "DiagnosisResult",
     "DiagnosisSource",
     "FailureCategory",
+    "HumanReviewDecision",
+    "HumanReviewStatus",
+    "ReviewItemCreate",
+    "ReviewDecisionSubmit",
+    "HumanReviewResponse",
+    "HumanReviewQueueResponse",
 ]
