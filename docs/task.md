@@ -14,7 +14,7 @@
 - `[x]` **Step 12: Action-Conditional ML**
 - `[x]` **Step 13A: AI Recommendation Schema**
 - `[x]` **Step 13B: Core Structured AI Recommender**
-- `[ ]` **Step 13C: State Machine Transition & Context Persistence**
+- `[x]` **Step 13C: State Machine Transition & Context Persistence**
 - `[ ]` **Step 14: Capability Resolver**
 - `[ ]` **Step 15: Deterministic Policy Engine**
 - `[ ]` **Step 16: Human Review and Escalation**

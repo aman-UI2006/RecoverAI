@@ -1,18 +1,25 @@
 """
-RecoverAI - Unit Tests for Step 13A & Step 13B AI Recommendation Schema and Core Recommender
+RecoverAI - Unit Tests for Step 13A, Step 13B & Step 13C AI Recommendation Service
 
 Validates AIRecommendationResponse schema constraints, StructuredAIRecommender LLM integration via GroqLLMService high-level API,
-candidate action enforcement, PII protection, deterministic fallback, and air-gap safety isolation.
+candidate action enforcement, PII protection, deterministic fallback, air-gap safety isolation, decision context persistence,
+and authoritative state transition to INTERVENTION_SELECTED.
 """
 
 import json
 from unittest.mock import MagicMock, patch
 import pytest
+import pytest_asyncio
 from pydantic import ValidationError
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
+from backend.app.core.database import Base
+from backend.app.models.domain import Merchant, Customer, Transaction, DecisionContext, RecoveryActionScore, AuditEvent
 from backend.app.schemas.ai_recommendation import AIRecommendationResponse
 from backend.app.schemas.diagnosis import DiagnosisResult, DiagnosisSource, FailureCategory
 from backend.app.schemas.enrv import ENRVActionResult, ENRVCalculationResponse
+from backend.app.schemas.state_machine import InvalidStateTransitionException
 from backend.app.services.llm_service import GroqLLMService
 from backend.app.ai.recommender import StructuredAIRecommender
 
@@ -128,7 +135,7 @@ def test_ai_recommendation_wrong_confidence_type():
 
 
 # ==========================================
-# FIXTURES FOR STEP 13B CORE RECOMMENDER
+# FIXTURES FOR STEP 13B & 13C RECOMMENDER
 # ==========================================
 
 @pytest.fixture
@@ -181,6 +188,50 @@ def mock_enrv_response():
         max_enrv_rupees=371.50,
         action_results=[action1, action2]
     )
+
+
+@pytest_asyncio.fixture
+async def in_memory_db():
+    """Provides an isolated in-memory SQLite database session for async tests."""
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    session_factory = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+    async with session_factory() as session:
+        yield session
+
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def diagnosed_transaction(in_memory_db: AsyncSession):
+    """Creates sample Merchant, Customer, and Transaction in DIAGNOSED status."""
+    merchant = Merchant(
+        id="mch_rec_100",
+        name="Rec Merchant",
+        email="rec@example.com",
+        industry="SaaS",
+    )
+    customer = Customer(
+        id="cust_rec_200",
+        merchant_id="mch_rec_100",
+        email="cust_rec@example.com",
+    )
+    tx = Transaction(
+        id="tx_rec_300",
+        merchant_id="mch_rec_100",
+        customer_id="cust_rec_200",
+        amount=5000.00,
+        currency="INR",
+        status="DIAGNOSED",
+        scenario_type="PAYMENT_FAILURE_RECOVERY",
+    )
+    in_memory_db.add(merchant)
+    in_memory_db.add(customer)
+    in_memory_db.add(tx)
+    await in_memory_db.commit()
+    return tx
 
 
 # ==========================================
@@ -401,7 +452,7 @@ def test_step13b_8_top_enrv_fallback_exact_match(mock_diagnosis):
 
 
 def test_step13b_9_no_state_mutation(mock_diagnosis, mock_enrv_response):
-    """Test 16 (Step 13B-9): Verify recommender invocation performs ZERO state transition or DB mutation."""
+    """Test 16 (Step 13B-9): Verify recommender generate_recommendation invocation performs ZERO state transition."""
     unconfigured_llm = GroqLLMService(api_key="")
     recommender = StructuredAIRecommender(llm_service=unconfigured_llm)
 
@@ -455,3 +506,120 @@ def test_recommender_uses_llm_service_abstraction(mock_diagnosis, mock_enrv_resp
         mock_service_method.assert_called_once()
         assert res.recommended_action == "PAYMENT_LINK"
         assert res.confidence_score == 0.88
+
+
+# ==========================================
+# STEP 13C TESTS: STATE TRANSITION & PERSISTENCE (19-22)
+# ==========================================
+
+@pytest.mark.asyncio
+async def test_step13c_1_recommend_and_transition_success(
+    in_memory_db: AsyncSession,
+    diagnosed_transaction: Transaction,
+    mock_diagnosis: DiagnosisResult,
+    mock_enrv_response: ENRVCalculationResponse,
+):
+    """Test 19 (Step 13C-1): Verify successful recommend_and_transition execution."""
+    recommender = StructuredAIRecommender(llm_service=GroqLLMService(api_key=""))
+    mock_diagnosis.transaction_id = diagnosed_transaction.id
+    mock_enrv_response.transaction_id = diagnosed_transaction.id
+    mock_enrv_response.merchant_id = diagnosed_transaction.merchant_id
+
+    rec, audit_event = await recommender.recommend_and_transition(
+        session=in_memory_db,
+        transaction_id=diagnosed_transaction.id,
+        diagnosis=mock_diagnosis,
+        enrv_response=mock_enrv_response,
+        merchant_id=diagnosed_transaction.merchant_id,
+    )
+
+    # 1. Assert recommendation response returned
+    assert isinstance(rec, AIRecommendationResponse)
+    assert rec.recommended_action == "PAYMENT_LINK"
+
+    # 2. Assert transaction state mutated to INTERVENTION_SELECTED
+    stmt_tx = select(Transaction).where(Transaction.id == diagnosed_transaction.id)
+    updated_tx = (await in_memory_db.execute(stmt_tx)).scalar_one()
+    assert updated_tx.status == "INTERVENTION_SELECTED"
+
+    # 3. Assert AuditEvent created
+    assert audit_event is not None
+    assert audit_event.transaction_id == diagnosed_transaction.id
+    assert audit_event.event_type == "STATE_TRANSITION"
+
+    # 4. Assert DecisionContext & RecoveryActionScore records persisted
+    stmt_ctx = select(DecisionContext).where(DecisionContext.transaction_id == diagnosed_transaction.id)
+    ctx = (await in_memory_db.execute(stmt_ctx)).scalar_one_or_none()
+    assert ctx is not None
+    assert ctx.model_version == "v1.0"
+
+    stmt_scores = select(RecoveryActionScore).where(RecoveryActionScore.decision_context_id == ctx.id)
+    scores = (await in_memory_db.execute(stmt_scores)).scalars().all()
+    assert len(scores) == 2
+
+
+@pytest.mark.asyncio
+async def test_step13c_2_transaction_not_found(
+    in_memory_db: AsyncSession,
+    mock_diagnosis: DiagnosisResult,
+    mock_enrv_response: ENRVCalculationResponse,
+):
+    """Test 20 (Step 13C-2): Verify passing non-existent transaction ID raises ValueError."""
+    recommender = StructuredAIRecommender(llm_service=GroqLLMService(api_key=""))
+
+    with pytest.raises(ValueError) as exc_info:
+        await recommender.recommend_and_transition(
+            session=in_memory_db,
+            transaction_id="tx_nonexistent_999",
+            diagnosis=mock_diagnosis,
+            enrv_response=mock_enrv_response,
+        )
+
+    assert "Transaction with ID 'tx_nonexistent_999' not found" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_step13c_3_merchant_mismatch_error(
+    in_memory_db: AsyncSession,
+    diagnosed_transaction: Transaction,
+    mock_diagnosis: DiagnosisResult,
+    mock_enrv_response: ENRVCalculationResponse,
+):
+    """Test 21 (Step 13C-3): Verify passing mismatched merchant_id raises ValueError."""
+    recommender = StructuredAIRecommender(llm_service=GroqLLMService(api_key=""))
+
+    with pytest.raises(ValueError) as exc_info:
+        await recommender.recommend_and_transition(
+            session=in_memory_db,
+            transaction_id=diagnosed_transaction.id,
+            diagnosis=mock_diagnosis,
+            enrv_response=mock_enrv_response,
+            merchant_id="mch_wrong_merchant_888",
+        )
+
+    assert "Merchant ID mismatch" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_step13c_4_invalid_state_transition_fails(
+    in_memory_db: AsyncSession,
+    diagnosed_transaction: Transaction,
+    mock_diagnosis: DiagnosisResult,
+    mock_enrv_response: ENRVCalculationResponse,
+):
+    """Test 22 (Step 13C-4): Verify attempting transition from invalid status raises InvalidStateTransitionException."""
+    recommender = StructuredAIRecommender(llm_service=GroqLLMService(api_key=""))
+    # Manually set status to EXECUTING (invalid source state for INTERVENTION_SELECTED)
+    diagnosed_transaction.status = "EXECUTING"
+    await in_memory_db.commit()
+
+    with pytest.raises(InvalidStateTransitionException) as exc_info:
+        await recommender.recommend_and_transition(
+            session=in_memory_db,
+            transaction_id=diagnosed_transaction.id,
+            diagnosis=mock_diagnosis,
+            enrv_response=mock_enrv_response,
+        )
+
+    assert exc_info.value.state_from == "EXECUTING"
+    assert exc_info.value.state_to == "INTERVENTION_SELECTED"
