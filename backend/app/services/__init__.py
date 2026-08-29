@@ -5,6 +5,7 @@ from backend.app.services.event_ingestion import EventIngestionService, verify_r
 from backend.app.services.event_normalizer import EventNormalizerService
 from backend.app.services.state_transition_service import StateTransitionService
 from backend.app.services.revenue_risk_engine import RevenueRiskEngine
+from backend.app.services.enrv_calculator import ENRVCalculator
 
 __all__ = [
     "SyntheticDatasetGenerator",
@@ -16,4 +17,5 @@ __all__ = [
     "EventNormalizerService",
     "StateTransitionService",
     "RevenueRiskEngine",
+    "ENRVCalculator",
 ]

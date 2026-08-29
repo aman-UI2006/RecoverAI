@@ -9,7 +9,7 @@
 - `[x]` **Step 7: Authoritative State Transition Service**
 - `[x]` **Step 8: Revenue Risk Engine**
 - `[x]` **Step 9: Feature Engineering**
-- `[ ]` **Step 10: Recovery Opportunity / ENRV Foundation**
+- `[x]` **Step 10: Recovery Opportunity / ENRV Foundation**
 - `[ ]` **Step 11: Diagnosis Engine**
 - `[ ]` **Step 12: Action-Conditional ML**
 - `[ ]` **Step 13: Structured AI Recommender**
