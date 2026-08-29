@@ -244,6 +244,109 @@ class RazorpayAdapter:
             "raw_response": pl_response.model_dump(),
         }
 
+    async def fetch_payment_link(
+        self,
+        payment_link_id: str,
+        mode: str = "REAL_TEST",
+    ) -> Dict[str, Any]:
+        """Fetch status and details of a Payment Link via Razorpay REST API (GET /v1/payment_links/{id}) or SIMULATION.
+
+        Args:
+            payment_link_id: Razorpay Payment Link ID (e.g. "plink_123456").
+            mode: Operational mode ("REAL_TEST" vs "SIMULATION").
+
+        Returns:
+            Dictionary containing payment link entity attributes including 'status'.
+
+        Raises:
+            ValueError: On HTTP 400/404 Bad Request or invalid link ID.
+            httpx.HTTPStatusError: On non-retryable HTTP errors.
+            TimeoutError / httpx.RequestError: On network timeouts or connection failures.
+        """
+        # 1. SIMULATION Mode: Deterministic synthetic payment link lookup
+        if mode == "SIMULATION":
+            logger.info(f"SIMULATION mode: Fetching synthetic payment link '{payment_link_id}'")
+            if "paid" in payment_link_id.lower() or "success" in payment_link_id.lower():
+                status = "paid"
+                amount_paid = 100000
+            elif "expired" in payment_link_id.lower():
+                status = "expired"
+                amount_paid = 0
+            elif "cancelled" in payment_link_id.lower() or "failed" in payment_link_id.lower():
+                status = "cancelled"
+                amount_paid = 0
+            else:
+                status = "created"
+                amount_paid = 0
+
+            return {
+                "id": payment_link_id,
+                "entity": "payment_link",
+                "status": status,
+                "amount": 100000,
+                "amount_paid": amount_paid,
+                "currency": "INR",
+                "reference_id": f"RAI-ref-{payment_link_id[:8]}",
+            }
+
+        # 2. REAL_TEST Mode: Execute authenticated HTTPS API request against Razorpay Test Mode
+        url = f"{self.base_url}/v1/payment_links/{payment_link_id}"
+        auth = (self._key_id, self._key_secret)
+
+        attempt = 0
+        while attempt <= self.max_retries:
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.get(
+                        url,
+                        auth=auth,
+                        headers={"Content-Type": "application/json"},
+                    )
+
+                if response.status_code == 200:
+                    return response.json()
+
+                if response.status_code in (400, 404):
+                    err_json = response.json() if response.content else {}
+                    err_detail = err_json.get("error", {}).get("description", f"Status {response.status_code}")
+                    logger.error(f"Razorpay HTTP {response.status_code}: {err_detail}")
+                    raise ValueError(f"Razorpay Payment Link not found: {err_detail}")
+
+                if response.status_code == 401:
+                    logger.error("Razorpay HTTP 401 Unauthorized: Invalid API Key or Secret")
+                    raise ValueError("Razorpay API Unauthorized: Invalid API credentials")
+
+                if response.status_code == 429 or response.status_code >= 500:
+                    attempt += 1
+                    if attempt > self.max_retries:
+                        logger.error(f"Razorpay GET payment link failed after {self.max_retries} retries with status {response.status_code}")
+                        response.raise_for_status()
+
+                    backoff_delay = self.retry_backoff_factor * (2 ** (attempt - 1))
+                    logger.warning(
+                        f"Razorpay API GET returned status {response.status_code} for payment link '{payment_link_id}'. "
+                        f"Retrying attempt {attempt}/{self.max_retries} in {backoff_delay:.2f}s..."
+                    )
+                    await asyncio.sleep(backoff_delay)
+                    continue
+
+                response.raise_for_status()
+
+            except (httpx.TimeoutException, httpx.ConnectError) as exc:
+                attempt += 1
+                if attempt > self.max_retries:
+                    logger.error(f"Razorpay API network timeout during GET payment link after {self.max_retries} retries: {exc}")
+                    raise TimeoutError(f"Razorpay API network timeout: {exc}") from exc
+
+                backoff_delay = self.retry_backoff_factor * (2 ** (attempt - 1))
+                logger.warning(
+                    f"Razorpay GET network exception for link '{payment_link_id}': {exc}. "
+                    f"Retrying attempt {attempt}/{self.max_retries} in {backoff_delay:.2f}s..."
+                )
+                await asyncio.sleep(backoff_delay)
+
+        raise TimeoutError("Razorpay API GET request failed: Exceeded maximum retries")
+
     @staticmethod
     def verify_webhook_signature(
         raw_body: bytes,
