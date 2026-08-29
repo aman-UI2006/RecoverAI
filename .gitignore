@@ -40,6 +40,7 @@ Thumbs.db
 # Data & Logs
 *.log
 data/*.parquet
+data/*.csv
 !data/.gitkeep
 logs/*.log
 !logs/.gitkeep
