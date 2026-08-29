@@ -23,7 +23,7 @@
 - `[x]` **Step 19: Result Processor**
 - `[x]` **Step 20: Attribution Engine**
 
-- `[ ]` **Step 21: Control/Treatment Measurement**
+- `[x]` **Step 21: Control/Treatment Measurement**
 - `[ ]` **Step 22: Reconciliation Engine**
 - `[ ]` **Step 23: Continuous Audit Trail**
 - `[ ]` **Step 24: FastAPI Foundation**

@@ -9,6 +9,7 @@ from backend.app.services.enrv_calculator import ENRVCalculator
 from backend.app.services.diagnosis_engine import DiagnosisEngine
 from backend.app.services.result_processor import ResultProcessor
 from backend.app.services.attribution_engine import AttributionEngine
+from backend.app.services.measurement_engine import MeasurementEngine
 
 __all__ = [
     "SyntheticDatasetGenerator",
@@ -24,5 +25,7 @@ __all__ = [
     "DiagnosisEngine",
     "ResultProcessor",
     "AttributionEngine",
+    "MeasurementEngine",
 ]
+
 

@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 20 (Attribution Engine) — VERIFIED
-- **Last Verified Step:** Step 20 (Attribution Engine) — VERIFIED
-- **Current Status:** STEP 20 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** `913c8ae` (`step-20-verified`)
-- **Blocking Issue:** NONE (AttributionEngine implementation, deterministic hierarchy classification [DIRECT_REFERENCE, WINDOW_MATCH, NATURAL_RECOVERY, UNATTRIBUTED], DB persistence with unique constraint [transaction_id, recovery_attempt_id], multi-tenant merchant isolation, unlinked attempt rejection, idempotent replay handling, REAL_TEST vs SIMULATION recovery source preservation, zero transaction state mutation, ResultProcessor integration hook, and 227 passing backend regression tests).
+- **Current Step:** Step 21 (Control/Treatment Measurement Engine) — VERIFIED
+- **Last Verified Step:** Step 21 (Control/Treatment Measurement Engine) — VERIFIED
+- **Current Status:** STEP 21 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** `512300a` (`step-20-verified`)
+- **Blocking Issue:** NONE (MeasurementEngine implementation in `backend/app/services/measurement_engine.py`, analytics schemas in `backend/app/schemas/analytics.py`, Treatment vs Baseline Control cohort lift calculations, Treatment Recovery Rate [Subtask 7.1], Control Recovery Rate [Subtask 7.2], Incremental Recovery Rate [Subtask 7.3], Net Incremental Revenue [Subtask 7.4], DB persistence to `evaluation_runs` table [Subtask 7.5], zero-division safety handling, Decimal financial precision, multi-tenant merchant isolation, REAL_TEST vs SIMULATION mode separation, zero transaction status mutation, and 234 passing backend regression tests).
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
 - **LLM Provider Status:** Groq API (`groq/compound-mini`) LIVE AUTHENTICATED & VERIFIED (Approved via DEC-006).
 - **Dataset Split Status:** 50,000 synthetic transactions partitioned deterministically (seed 42, DEC-007) into `data/train.parquet` (35,110 rows, 70.22%), `data/val.parquet` (7,355 rows, 14.71%), `data/test.parquet` (7,535 rows, 15.07%). Hard zero customer overlap and deterministic internal ordering (`created_at` ASC, `transaction_id` ASC) verified. Option B signal parameter remediation applied (`historical_success_rate` 2.5->3.5, `prior_failed_attempts` -0.35->-0.50).
@@ -21,7 +21,7 @@
 - **Razorpay Adapter Status:** RazorpayAdapter (`backend/app/integrations/razorpay_adapter.py`) and Razorpay DTO schemas (`backend/app/schemas/razorpay_dto.py`) implemented and verified. Integrates Razorpay REST API (`POST /v1/payment_links`), formats reference IDs (`RAI-{short_tx_id}-{cycle}`), handles paise conversion, implements exponential backoff retries for transient HTTP 5xx/429 errors, provides air-gapped SIMULATION mode execution, masks credentials in logs/repr, and provides HMAC SHA-256 webhook signature verification.
 - **Result Processor Status:** ResultProcessor (`backend/app/services/result_processor.py`) implemented and verified. Matches incoming event payment link IDs / reference IDs against RecoveryAttempt records, updates execution status to SUCCESS or FAILURE, mutates transaction status via StateTransitionService (`EXECUTING` -> `RECOVERED` for paid/captured, `EXECUTING` -> `FAILED` for cancelled/failed, `EXECUTING` -> `EXPIRED` for expired), enforces multi-tenant merchant isolation, provides unlinked event handling without exception, guarantees idempotent re-processing skip, and establishes Step 20 AttributionEngine trigger hook boundary.
 - **Attribution Engine Status:** AttributionEngine (`backend/app/services/attribution_engine.py`) and Attribution schemas (`backend/app/schemas/attribution.py`) implemented and verified. Deterministically classifies recovery outcomes into DIRECT_REFERENCE, WINDOW_MATCH, NATURAL_RECOVERY, or UNATTRIBUTED, enforces DB UNIQUE constraint `(transaction_id, recovery_attempt_id)`, multi-tenant merchant isolation, idempotent replay re-check, REAL_TEST vs SIMULATION recovery source preservation, zero transaction state mutation, and registers callback hook with `ResultProcessor`.
-- **Test Status:** 227/227 tests passing (`pytest backend/tests`).
+- **Measurement Engine Status:** MeasurementEngine (`backend/app/services/measurement_engine.py`) and Analytics schemas (`backend/app/schemas/analytics.py`) implemented and verified. Computes Treatment Recovery Rate, Control Recovery Rate, Incremental Recovery Rate, and Net Incremental Revenue using Decimal precision math. Persists evaluation runs to `evaluation_runs` table with summary metrics, enforces zero division safety, multi-tenant isolation, mode separation (REAL_TEST vs SIMULATION), zero transaction state mutation, and 7 dedicated unit/integration tests.
+- **Test Status:** 234/234 tests passing (`pytest backend/tests`).
 - **Dependencies Status:** Full backend (`requirements.txt`) and frontend (`package.json`) dependencies installed and validated.
 - **Database Status:** VERIFIED against PostgreSQL 16 (`recoverai_db`). All 13 core tables verified.
-
