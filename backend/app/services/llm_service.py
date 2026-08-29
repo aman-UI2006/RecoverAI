@@ -25,9 +25,9 @@ class GroqLLMService:
     Groq LLM Service Abstraction for RecoverAI.
     
     SAFETY BOUNDARY GUARANTEES:
-    - Pure advisory layer: Generates ActionRecommendation instances ONLY.
+    - Pure advisory layer: Generates structured recommendation outputs ONLY.
     - Zero capability to invoke Razorpay APIs, mutate transaction state, or bypass policy engines.
-    - Mandatory structured output validation via Pydantic.
+    - Encapsulates low-level Groq SDK client interaction and JSON response parsing.
     """
     def __init__(
         self,
@@ -57,6 +57,38 @@ class GroqLLMService:
     def is_configured(self) -> bool:
         """Check if Groq API key is configured."""
         return bool(self.api_key and self.api_key != "gsk_YourGroqApiKeyHere")
+
+    def generate_structured_recommendation(
+        self,
+        prompt_messages: List[Dict[str, str]],
+        temperature: float = 0.2,
+        timeout: float = 10.0,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Generic high-level API call method returning raw parsed JSON object dictionary.
+        Encapsulates Groq client creation, chat completion call, and JSON parsing.
+
+        Returns:
+            Dict[str, Any]: Parsed JSON dictionary if successful.
+            None: If unconfigured or on any API/parsing exception.
+        """
+        if not self.is_configured():
+            logger.warning("Groq API key not configured. Cannot generate structured recommendation.")
+            return None
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=prompt_messages,
+                response_format={"type": "json_object"},
+                temperature=temperature,
+                timeout=timeout,
+            )
+            raw_content = response.choices[0].message.content.strip()
+            return json.loads(raw_content)
+        except Exception as err:
+            logger.warning(f"Groq API chat completion failed: {type(err).__name__} - {err}")
+            return None
 
     def generate_recovery_recommendation(
         self,
@@ -109,18 +141,22 @@ class GroqLLMService:
             }
         ]
 
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=prompt_messages,
-                response_format={"type": "json_object"},
-                temperature=0.2,
-                timeout=10.0
+        parsed_json = self.generate_structured_recommendation(
+            prompt_messages=prompt_messages,
+            temperature=0.2,
+            timeout=10.0
+        )
+
+        if not parsed_json:
+            logger.error("Groq API call failed or returned empty JSON. Using fallback.")
+            return ActionRecommendation(
+                recommended_action=fallback_action,
+                confidence_score=0.50,
+                reasoning="Groq API error or unconfigured state; fallback recommendation issued.",
+                risk_assessment="LOW - Fallback advisory default"
             )
 
-            raw_content = response.choices[0].message.content
-            parsed_json = json.loads(raw_content)
-
+        try:
             # Validate against Pydantic model
             recommendation = ActionRecommendation(**parsed_json)
 
@@ -134,11 +170,11 @@ class GroqLLMService:
 
             return recommendation
 
-        except (groq.GroqError, json.JSONDecodeError, ValueError, Exception) as err:
-            logger.error(f"Groq API call failed: {type(err).__name__} - {err}. Using fallback.")
+        except (ValueError, Exception) as err:
+            logger.error(f"Pydantic validation failed for Groq response: {type(err).__name__} - {err}. Using fallback.")
             return ActionRecommendation(
                 recommended_action=fallback_action,
                 confidence_score=0.50,
-                reasoning=f"Groq API error ({type(err).__name__}); fallback recommendation issued.",
+                reasoning=f"Groq API validation error ({type(err).__name__}); fallback recommendation issued.",
                 risk_assessment="LOW - Fallback advisory default"
             )

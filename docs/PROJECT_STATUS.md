@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 12 (Action-Conditional ML) — VERIFIED
-- **Last Verified Step:** Step 12 (Action-Conditional ML) — VERIFIED
-- **Current Status:** STEP 12 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** Step 12 Verification Commit
-- **Blocking Issue:** NONE (Step 12 exit criteria passed: ROC-AUC 0.7934 >= 0.7500, Log-Loss 0.5037 < 0.6500, Brier 0.1595 < 0.2200, Latency 1.866ms < 20ms).
+- **Current Step:** Step 13C (State Transition & Persistence Integration) — PENDING
+- **Last Verified Step:** Step 13B (Core Structured AI Recommender) — VERIFIED
+- **Current Status:** STEP 13B VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** `59f1eb3` (`feat(step-13b): verify core structured ai recommender`)
+- **Blocking Issue:** NONE (Step 13B core recommender verified with high-level service abstraction, PII protection, candidate action enforcement, deterministic fallback, and zero state/financial execution).
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
 - **LLM Provider Status:** Groq API (`groq/compound-mini`) LIVE AUTHENTICATED & VERIFIED (Approved via DEC-006).
 - **Dataset Split Status:** 50,000 synthetic transactions partitioned deterministically (seed 42, DEC-007) into `data/train.parquet` (35,110 rows, 70.22%), `data/val.parquet` (7,355 rows, 14.71%), `data/test.parquet` (7,535 rows, 15.07%). Hard zero customer overlap and deterministic internal ordering (`created_at` ASC, `transaction_id` ASC) verified. Option B signal parameter remediation applied (`historical_success_rate` 2.5->3.5, `prior_failed_attempts` -0.35->-0.50).
@@ -15,6 +15,7 @@
 - **ENRV Foundation Status:** ENRVCalculator (`backend/app/services/enrv_calculator.py`) and ENRV schemas (`backend/app/schemas/enrv.py`) implemented and verified. Evaluates and ranks candidate recovery actions by ENRV(a_i) = P(R | X, a_i) * AmountInPaise - InterventionCost - OperationalCost - RefundCost. Persists action scores to `decision_contexts` and `recovery_action_scores` with multi-tenant isolation.
 - **Diagnosis Engine Status:** DiagnosisEngine (`backend/app/services/diagnosis_engine.py`), MLDiagnosisClassifier (`backend/app/ml/diagnosis_classifier.py`), and Diagnosis schemas (`backend/app/schemas/diagnosis.py`) implemented and verified. Classifies root cause across 4 precedence levels (Rules -> ML Classifier -> Groq LLM Fallback -> Human Review Fallback), sanitizes PII, mutates transaction status to DIAGNOSED via StateTransitionService, and logs AuditEvent.
 - **Action-Conditional ML Status:** ActionConditionalPredictor (`backend/app/ml/action_conditional_model.py`), training script (`scripts/train_action_conditional_model.py`), and calibrated model artifact (`backend/app/ml/models/action_conditional_xgb.joblib`) implemented and verified. Predicts calibrated P(recovery | X, a_i) across 6 candidate actions with zero target leakage, zero PII, and advisory-only execution. Test ROC-AUC: 0.7934 (>=0.7500), Log-Loss: 0.5037 (<0.6500), Brier: 0.1595 (<0.2200), Latency: 1.866 ms (<20ms).
-- **Test Status:** 119/119 tests passing (`pytest backend/tests`).
+- **Structured AI Recommender Status:** StructuredAIRecommender (`backend/app/ai/recommender.py`) and AIRecommendationResponse (`backend/app/schemas/ai_recommendation.py`) implemented and verified. Synthesizes DiagnosisResult, ENRVCalculationResponse, and decision-time context into advisory recommendations. Enforces candidate action validation against ENRV candidates, redacts PII from prompt payloads, encapsulates Groq SDK interactions via GroqLLMService high-level API, and falls back deterministically to top ENRV-ranked action.
+- **Test Status:** 137/137 tests passing (`pytest backend/tests`).
 - **Dependencies Status:** Full backend (`requirements.txt`) and frontend (`package.json`) dependencies installed and validated.
 - **Database Status:** VERIFIED against PostgreSQL 16 (`recoverai_db`). All 13 core tables verified.

@@ -12,7 +12,9 @@
 - `[x]` **Step 10: Recovery Opportunity / ENRV Foundation**
 - `[x]` **Step 11: Diagnosis Engine**
 - `[x]` **Step 12: Action-Conditional ML**
-- `[ ]` **Step 13: Structured AI Recommender**
+- `[x]` **Step 13A: AI Recommendation Schema**
+- `[x]` **Step 13B: Core Structured AI Recommender**
+- `[ ]` **Step 13C: State Machine Transition & Context Persistence**
 - `[ ]` **Step 14: Capability Resolver**
 - `[ ]` **Step 15: Deterministic Policy Engine**
 - `[ ]` **Step 16: Human Review and Escalation**
@@ -48,16 +50,16 @@
 - `[ ]` **Step 46: Merchant Intelligence**
 - `[ ]` **Step 47: Recovery Strategy Visualization**
 - `[ ]` **Step 48: Recovery Communication Intelligence**
-- `[ ]` **Step 49: Production Configuration**
-- `[ ]` **Step 50: Database Deployment**
-- `[ ]` **Step 51: Backend Deployment**
-- `[ ]` **Step 52: Frontend Deployment**
-- `[ ]` **Step 53: Razorpay Test Mode Verification**
-- `[ ]` **Step 54: Complete End-to-End System Verification**
-- `[ ]` **Step 55: Architecture Documentation**
-- `[ ]` **Step 56: Evaluation Report**
-- `[ ]` **Step 57: Failure Analysis**
-- `[ ]` **Step 58: Security and Safety Documentation**
-- `[ ]` **Step 59: Public GitHub Finalization**
-- `[ ]` **Step 60: 5-Minute Pitch/Demo**
-- `[ ]` **Step 61: Final Submission Review**
+- `[ ]` **Step 49: Integration Testing**
+- `[ ]` **Step 50: Security & Compliance**
+- `[ ]` **Step 51: Deployment Readiness**
+- `[ ]` **Step 52: Performance Tuning**
+- `[ ]` **Step 53: Production Validation**
+- `[ ]` **Step 54: Real Test Trigger**
+- `[ ]` **Step 55: Payment Link Webhook**
+- `[ ]` **Step 56: Outcome Ingestion**
+- `[ ]` **Step 57: Final State Machine**
+- `[ ]` **Step 58: Attribution Verification**
+- `[ ]` **Step 59: Reconciliation**
+- `[ ]` **Step 60: Audit Trail Verification**
+- `[ ]` **Step 61: Buildathon Submission**
