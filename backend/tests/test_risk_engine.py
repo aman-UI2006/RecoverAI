@@ -237,3 +237,27 @@ async def test_8_non_positive_amount_raises_value_error(in_memory_db: AsyncSessi
             scenario_type="PAYMENT_FAILURE",
             amount_in_paise=0,
         )
+
+
+@pytest.mark.asyncio
+async def test_9_merchant_mismatch_raises_error(in_memory_db: AsyncSession, sample_transaction: Transaction):
+    """Verifies DET-001 fix: merchant ID mismatch raises ValueError before state transition and creates no audit events."""
+    with pytest.raises(ValueError, match="Merchant ID mismatch for transaction"):
+        await RevenueRiskEngine.assess_and_transition(
+            session=in_memory_db,
+            transaction_id=sample_transaction.id,
+            scenario_type="PAYMENT_FAILURE",
+            amount_in_paise=500000,
+            merchant_id="mch_UNAUTHORIZED_999",
+        )
+
+    # Verify transaction status remains unchanged (CREATED)
+    await in_memory_db.refresh(sample_transaction)
+    assert sample_transaction.status == "CREATED"
+
+    # Verify zero audit events were created
+    audit_records = (await in_memory_db.execute(
+        AuditEvent.__table__.select().where(AuditEvent.transaction_id == sample_transaction.id)
+    )).all()
+    assert len(audit_records) == 0
+

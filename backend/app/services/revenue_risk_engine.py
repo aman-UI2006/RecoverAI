@@ -9,6 +9,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.domain import Transaction, current_utc_time
@@ -80,14 +81,27 @@ class RevenueRiskEngine:
         if amount_in_paise <= 0:
             raise ValueError(f"Amount in paise must be a positive integer, got: {amount_in_paise}")
 
-        # 1. Calculate risk score
+        # 1. Validate merchant scoping if provided BEFORE state transition
+        if merchant_id:
+            stmt = select(Transaction).where(Transaction.id == transaction_id)
+            result = await session.execute(stmt)
+            existing_tx = result.scalar_one_or_none()
+            if not existing_tx:
+                raise ValueError(f"Transaction with ID '{transaction_id}' not found.")
+            if existing_tx.merchant_id != merchant_id:
+                raise ValueError(
+                    f"Merchant ID mismatch for transaction '{transaction_id}': "
+                    f"expected '{merchant_id}', got '{existing_tx.merchant_id}'"
+                )
+
+        # 2. Calculate risk score
         try:
             risk_score = cls.calculate_risk_score(scenario_type)
         except ValueError as e:
             logger.error(f"Risk calculation failed for tx '{transaction_id}': {str(e)}")
             raise e
 
-        # 2. Compute eligible revenue at risk
+        # 3. Compute eligible revenue at risk
         eligible_paise = int(round(amount_in_paise * risk_score))
         eligible_rupees = round(eligible_paise / 100.0, 2)
 
@@ -108,7 +122,7 @@ class RevenueRiskEngine:
         if metadata:
             assessment_details["custom_metadata"] = metadata
 
-        # 3. Transition state atomically via StateTransitionService
+        # 4. Transition state atomically via StateTransitionService
         tx, audit_event = await StateTransitionService.transition(
             session=session,
             transaction_id=transaction_id,
@@ -117,13 +131,6 @@ class RevenueRiskEngine:
             reason=f"Revenue at risk detected for scenario {scenario_type}",
             details=assessment_details,
         )
-
-        # Validate merchant scoping if provided
-        if merchant_id and tx.merchant_id != merchant_id:
-            logger.warning(
-                f"Merchant ID mismatch for transaction {transaction_id}: "
-                f"expected {merchant_id}, got {tx.merchant_id}"
-            )
 
         return RiskAssessmentResponse(
             transaction_id=tx.id,
