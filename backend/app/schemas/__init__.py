@@ -22,6 +22,11 @@ from backend.app.schemas.human_review import (
     HumanReviewQueueResponse,
 )
 
+from backend.app.schemas.executor import (
+    ActionExecutionRequest,
+    ActionExecutionResponse,
+)
+
 __all__ = [
     "RazorpayPaymentEntity",
     "RazorpayPaymentLinkEntity",
@@ -39,4 +44,7 @@ __all__ = [
     "ReviewDecisionSubmit",
     "HumanReviewResponse",
     "HumanReviewQueueResponse",
+    "ActionExecutionRequest",
+    "ActionExecutionResponse",
 ]
+

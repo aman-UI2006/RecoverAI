@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 16 (Human Review and Escalation) — VERIFIED
-- **Last Verified Step:** Step 16 (Human Review and Escalation) — VERIFIED
-- **Current Status:** STEP 16 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** `1f8ac1f` (`step-16-verified`)
-- **Blocking Issue:** NONE (HumanReviewService, Human Review REST endpoints, escalation queue routing, reviewer decision processing for APPROVE_OVERRIDE and REJECT_PERMANENT, RBAC permission checks, multi-tenant merchant isolation, 48h auto-expiration, and 177 passing backend regression tests).
+- **Current Step:** Step 17 (Action Executor) — VERIFIED
+- **Last Verified Step:** Step 17 (Action Executor) — VERIFIED
+- **Current Status:** STEP 17 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** Pending Checkpoint (`step-17-verified`)
+- **Blocking Issue:** NONE (ActionExecutor service, execution schemas, defensive capability check integration, logical operation key idempotency, mode-based REAL_TEST/SIMULATION dispatching, UNKNOWN result handling, multi-tenant merchant isolation, and 187 passing backend regression tests).
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
 - **LLM Provider Status:** Groq API (`groq/compound-mini`) LIVE AUTHENTICATED & VERIFIED (Approved via DEC-006).
 - **Dataset Split Status:** 50,000 synthetic transactions partitioned deterministically (seed 42, DEC-007) into `data/train.parquet` (35,110 rows, 70.22%), `data/val.parquet` (7,355 rows, 14.71%), `data/test.parquet` (7,535 rows, 15.07%). Hard zero customer overlap and deterministic internal ordering (`created_at` ASC, `transaction_id` ASC) verified. Option B signal parameter remediation applied (`historical_success_rate` 2.5->3.5, `prior_failed_attempts` -0.35->-0.50).
@@ -17,6 +17,7 @@
 - **Action-Conditional ML Status:** ActionConditionalPredictor (`backend/app/ml/action_conditional_model.py`), training script (`scripts/train_action_conditional_model.py`), and calibrated model artifact (`backend/app/ml/models/action_conditional_xgb.joblib`) implemented and verified. Predicts calibrated P(recovery | X, a_i) across 6 candidate actions with zero target leakage, zero PII, and advisory-only execution. Test ROC-AUC: 0.7934 (>=0.7500), Log-Loss: 0.5037 (<0.6500), Brier: 0.1595 (<0.2200), Latency: 1.866 ms (<20ms).
 - **Structured AI Recommender Status:** StructuredAIRecommender (`backend/app/ai/recommender.py`) and AIRecommendationResponse (`backend/app/schemas/ai_recommendation.py`) implemented and verified. Synthesizes DiagnosisResult, ENRVCalculationResponse, and decision-time context into advisory recommendations. Enforces candidate action validation against ENRV candidates, redacts PII from prompt payloads, encapsulates Groq SDK interactions via GroqLLMService high-level API, and falls back deterministically to top ENRV-ranked action. `recommend_and_transition` method orchestrates DB decision context persistence and state mutation to `INTERVENTION_SELECTED` via `StateTransitionService` with SHA-256 audit trail chaining.
 - **Human Review & Escalation Status:** HumanReviewService (`backend/app/services/human_review_service.py`), HumanReview endpoints (`backend/app/api/v1/endpoints/human_review.py`), and HumanReview schemas (`backend/app/schemas/human_review.py`) implemented and verified. Manages escalation queues for policy-rejected, low-confidence, or high-value transactions, processes `APPROVE_OVERRIDE` (state -> `APPROVED`) and `REJECT_PERMANENT` (state -> `STOPPED`) decisions, enforces `ROLE_HUMAN_REVIEWER` RBAC authorization, multi-tenant isolation, 48h auto-expiration, and continuous SHA-256 audit trail hash chaining via `StateTransitionService`.
-- **Test Status:** 177/177 tests passing (`pytest backend/tests`).
+- **Action Executor Status:** ActionExecutor (`backend/app/services/action_executor.py`) and Execution schemas (`backend/app/schemas/executor.py`) implemented and verified. Enforces `APPROVED` state gate, defensive capability re-check via `CapabilityResolver`, logical operation key construction (`merchant_id:transaction_id:recovery_cycle:action`), idempotency replay protection, DB UNIQUE index collision handling, execution mode dispatching (REAL_TEST / SIMULATION), adapter delegate exception mapping to `UNKNOWN` result, multi-tenant merchant isolation, and state mutation to `EXECUTING` with SHA-256 audit trail chaining.
+- **Test Status:** 187/187 tests passing (`pytest backend/tests`).
 - **Dependencies Status:** Full backend (`requirements.txt`) and frontend (`package.json`) dependencies installed and validated.
 - **Database Status:** VERIFIED against PostgreSQL 16 (`recoverai_db`). All 13 core tables verified.
