@@ -30,6 +30,7 @@ router = APIRouter(prefix="/webhooks", tags=["Webhooks"])
 async def razorpay_webhook_endpoint(
     request: Request,
     x_razorpay_signature: Optional[str] = Header(None, alias="X-Razorpay-Signature"),
+    x_razorpay_event_id: Optional[str] = Header(None, alias="X-Razorpay-Event-Id"),
     db: AsyncSession = Depends(get_db),
 ) -> IngestionResponse:
     """FastAPI endpoint processing Razorpay HTTP POST webhooks."""
@@ -39,6 +40,7 @@ async def razorpay_webhook_endpoint(
         session=db,
         raw_body=raw_body,
         signature_header=x_razorpay_signature,
+        razorpay_event_id=x_razorpay_event_id,
     )
 
     status_str = "DUPLICATE_SKIPPED" if is_duplicate else "SUCCESS"

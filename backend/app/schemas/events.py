@@ -63,7 +63,6 @@ class RazorpayWebhookPayload(BaseModel):
     entity: str = Field("event", description="Outer entity descriptor")
     account_id: Optional[str] = Field(None, description="Razorpay merchant account ID")
     event: str = Field(..., description="Razorpay event type (e.g. payment.failed, payment_link.paid)")
-    event_id: Optional[str] = Field(None, description="Unique Razorpay webhook event ID")
     contains: Optional[List[str]] = Field(default_factory=list, description="Entity list contained in payload")
     payload: Dict[str, Any] = Field(..., description="Nested payload object containing payment/link entity")
     created_at: Optional[int] = Field(None, description="Unix timestamp of event generation")

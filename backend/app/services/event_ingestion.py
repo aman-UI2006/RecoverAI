@@ -65,6 +65,7 @@ class EventIngestionService:
         session: AsyncSession,
         raw_body: bytes,
         signature_header: Optional[str],
+        razorpay_event_id: Optional[str] = None,
         webhook_secret: Optional[str] = None,
     ) -> Tuple[Event, bool]:
         """
@@ -74,6 +75,7 @@ class EventIngestionService:
             session: Async DB session.
             raw_body: Raw request body bytes.
             signature_header: 'X-Razorpay-Signature' header.
+            razorpay_event_id: Unique event ID from 'X-Razorpay-Event-Id' header.
             webhook_secret: Optional override secret.
 
         Returns:
@@ -108,14 +110,10 @@ class EventIngestionService:
                 detail=f"Schema validation error for Razorpay webhook: {str(e)}",
             )
 
-        # Extract event identifiers
+        # Extract event descriptors
         event_type = webhook_payload.event
-        razorpay_event_id = webhook_payload.event_id
 
-        if not razorpay_event_id and "event" in webhook_payload.payload:
-            # Fallback for nested event ID if present
-            razorpay_event_id = webhook_payload.payload.get("event", {}).get("id")
-
+        # Authoritative Razorpay event ID comes exclusively from X-Razorpay-Event-Id header
         if razorpay_event_id:
             idempotency_key = f"razorpay:{razorpay_event_id}"
         else:

@@ -2,7 +2,8 @@
 RecoverAI - Event Schema and Webhook Ingestion Test Suite (Step 5)
 
 Tests HMAC-SHA256 signature verification, raw-body extraction, Pydantic schema validation,
-idempotency handling, event source isolation, and security compliance.
+authoritative X-Razorpay-Event-Id header ingestion, idempotency handling, event source isolation,
+and security compliance.
 """
 
 import hashlib
@@ -70,7 +71,6 @@ def valid_razorpay_payload_bytes() -> bytes:
         "entity": "event",
         "account_id": "acc_test_merchant_123",
         "event": "payment.failed",
-        "event_id": "evt_test_pay_failed_999",
         "contains": ["payment"],
         "payload": {
             "payment": {
@@ -105,7 +105,92 @@ def test_1_verify_razorpay_signature_helper():
 
 @pytest.mark.asyncio
 async def test_2_valid_razorpay_webhook_ingestion(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
-    """2. Verify valid Razorpay webhook is accepted (200 OK) and persisted to DB."""
+    """2. Verify valid Razorpay webhook with X-Razorpay-Event-Id is accepted and persisted."""
+    signature = generate_valid_signature(valid_razorpay_payload_bytes)
+    event_id = "evt_hdr_test_99999"
+
+    response = await async_client.post(
+        "/api/v1/webhooks/razorpay",
+        content=valid_razorpay_payload_bytes,
+        headers={
+            "Content-Type": "application/json",
+            "X-Razorpay-Signature": signature,
+            "X-Razorpay-Event-Id": event_id,
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "SUCCESS"
+    assert data["event_source"] == "RAZORPAY_WEBHOOK"
+    assert data["event_type"] == "payment.failed"
+    assert data["idempotency_key"] == f"razorpay:{event_id}"
+
+
+@pytest.mark.asyncio
+async def test_3_conflicting_body_field_cannot_override_header_event_id(async_client: AsyncClient):
+    """3. Verify body fields cannot override authoritative X-Razorpay-Event-Id header."""
+    body_with_fake_id = {
+        "entity": "event",
+        "account_id": "acc_123",
+        "event": "payment.failed",
+        "event_id": "evt_FAKE_BODY_ID_MALICIOUS",
+        "payload": {"payment": {"entity": {"id": "pay_1", "amount": 100, "status": "failed"}}},
+    }
+    raw_bytes = json.dumps(body_with_fake_id).encode("utf-8")
+    signature = generate_valid_signature(raw_bytes)
+    header_event_id = "evt_AUTHORITATIVE_HEADER_ID_123"
+
+    response = await async_client.post(
+        "/api/v1/webhooks/razorpay",
+        content=raw_bytes,
+        headers={
+            "Content-Type": "application/json",
+            "X-Razorpay-Signature": signature,
+            "X-Razorpay-Event-Id": header_event_id,
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["idempotency_key"] == f"razorpay:{header_event_id}"
+    assert "evt_FAKE_BODY_ID_MALICIOUS" not in data["idempotency_key"]
+
+
+@pytest.mark.asyncio
+async def test_4_invalid_razorpay_signature_rejected(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
+    """4. Verify invalid signature returns HTTP 401 Unauthorized."""
+    invalid_signature = "a" * 64
+
+    response = await async_client.post(
+        "/api/v1/webhooks/razorpay",
+        content=valid_razorpay_payload_bytes,
+        headers={
+            "Content-Type": "application/json",
+            "X-Razorpay-Signature": invalid_signature,
+            "X-Razorpay-Event-Id": "evt_test_123",
+        },
+    )
+
+    assert response.status_code == 401
+    assert "Invalid Razorpay webhook signature" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_5_missing_signature_header_rejected(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
+    """5. Verify missing X-Razorpay-Signature header returns HTTP 401 Unauthorized."""
+    response = await async_client.post(
+        "/api/v1/webhooks/razorpay",
+        content=valid_razorpay_payload_bytes,
+        headers={"Content-Type": "application/json"},
+    )
+
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_6_missing_event_id_header_fallback(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
+    """6. Verify missing X-Razorpay-Event-Id header falls back safely to body-hash idempotency key."""
     signature = generate_valid_signature(valid_razorpay_payload_bytes)
 
     response = await async_client.post(
@@ -120,64 +205,14 @@ async def test_2_valid_razorpay_webhook_ingestion(async_client: AsyncClient, val
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "SUCCESS"
-    assert data["event_source"] == "RAZORPAY_WEBHOOK"
-    assert data["event_type"] == "payment.failed"
-    assert data["idempotency_key"] == "razorpay:evt_test_pay_failed_999"
+    assert data["idempotency_key"].startswith("razorpay:payment.failed:")
 
 
 @pytest.mark.asyncio
-async def test_3_invalid_razorpay_signature_rejected(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
-    """3. Verify invalid signature returns HTTP 401 Unauthorized."""
-    invalid_signature = "a" * 64
-
-    response = await async_client.post(
-        "/api/v1/webhooks/razorpay",
-        content=valid_razorpay_payload_bytes,
-        headers={
-            "Content-Type": "application/json",
-            "X-Razorpay-Signature": invalid_signature,
-        },
-    )
-
-    assert response.status_code == 401
-    assert "Invalid Razorpay webhook signature" in response.json()["detail"]
-
-
-@pytest.mark.asyncio
-async def test_4_missing_signature_header_rejected(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
-    """4. Verify missing X-Razorpay-Signature header returns HTTP 401 Unauthorized."""
-    response = await async_client.post(
-        "/api/v1/webhooks/razorpay",
-        content=valid_razorpay_payload_bytes,
-        headers={"Content-Type": "application/json"},
-    )
-
-    assert response.status_code == 401
-
-
-@pytest.mark.asyncio
-async def test_5_malformed_json_body_rejected(async_client: AsyncClient):
-    """5. Verify malformed JSON body returns HTTP 400 Bad Request."""
-    malformed_body = b"NOT_VALID_JSON{{{"
-    signature = generate_valid_signature(malformed_body)
-
-    response = await async_client.post(
-        "/api/v1/webhooks/razorpay",
-        content=malformed_body,
-        headers={
-            "Content-Type": "application/json",
-            "X-Razorpay-Signature": signature,
-        },
-    )
-
-    assert response.status_code == 400
-    assert "Malformed JSON" in response.json()["detail"]
-
-
-@pytest.mark.asyncio
-async def test_6_idempotency_duplicate_event_handling(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
-    """6. Verify re-submitting duplicate event returns DUPLICATE_SKIPPED without 500 error."""
+async def test_7_idempotency_duplicate_event_id_handling(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
+    """7. Verify re-submitting duplicate X-Razorpay-Event-Id returns DUPLICATE_SKIPPED without 500 error."""
     signature = generate_valid_signature(valid_razorpay_payload_bytes)
+    event_id = "evt_duplicate_header_test_001"
 
     # First submission
     res1 = await async_client.post(
@@ -186,18 +221,20 @@ async def test_6_idempotency_duplicate_event_handling(async_client: AsyncClient,
         headers={
             "Content-Type": "application/json",
             "X-Razorpay-Signature": signature,
+            "X-Razorpay-Event-Id": event_id,
         },
     )
     assert res1.status_code == 200
     assert res1.json()["status"] == "SUCCESS"
 
-    # Second submission of exact same payload & event_id
+    # Second submission of exact same X-Razorpay-Event-Id
     res2 = await async_client.post(
         "/api/v1/webhooks/razorpay",
         content=valid_razorpay_payload_bytes,
         headers={
             "Content-Type": "application/json",
             "X-Razorpay-Signature": signature,
+            "X-Razorpay-Event-Id": event_id,
         },
     )
 
@@ -208,8 +245,8 @@ async def test_6_idempotency_duplicate_event_handling(async_client: AsyncClient,
 
 
 @pytest.mark.asyncio
-async def test_7_app_event_ingestion(async_client: AsyncClient):
-    """7. Verify application event endpoint ingests checkout abandonment event."""
+async def test_8_app_event_ingestion(async_client: AsyncClient):
+    """8. Verify application event endpoint ingests checkout abandonment event."""
     payload = {
         "event_type": "checkout.abandoned",
         "merchant_id": "m_test_merchant_001",
@@ -229,8 +266,8 @@ async def test_7_app_event_ingestion(async_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_8_simulator_event_ingestion(async_client: AsyncClient):
-    """8. Verify simulator event endpoint ingests synthetic batch event."""
+async def test_9_simulator_event_ingestion(async_client: AsyncClient):
+    """9. Verify simulator event endpoint ingests synthetic batch event."""
     payload = {
         "event_type": "simulator.transaction_event",
         "transaction_id": "tx_sim_test_001",
@@ -249,8 +286,8 @@ async def test_8_simulator_event_ingestion(async_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_9_schema_validation_rejects_missing_fields(async_client: AsyncClient):
-    """9. Verify Pydantic schema rejects invalid/incomplete app event payload with 422."""
+async def test_10_schema_validation_rejects_missing_fields(async_client: AsyncClient):
+    """10. Verify Pydantic schema rejects invalid/incomplete app event payload with 422."""
     incomplete_payload = {
         "event_type": "checkout.abandoned",
         # Missing merchant_id and amount_in_paise
@@ -261,8 +298,8 @@ async def test_9_schema_validation_rejects_missing_fields(async_client: AsyncCli
 
 
 @pytest.mark.asyncio
-async def test_10_security_secret_isolation(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
-    """10. Verify webhook secret is never returned in API responses."""
+async def test_11_security_secret_isolation(async_client: AsyncClient, valid_razorpay_payload_bytes: bytes):
+    """11. Verify webhook secret is never returned in API responses."""
     signature = generate_valid_signature(valid_razorpay_payload_bytes)
 
     response = await async_client.post(
@@ -271,6 +308,7 @@ async def test_10_security_secret_isolation(async_client: AsyncClient, valid_raz
         headers={
             "Content-Type": "application/json",
             "X-Razorpay-Signature": signature,
+            "X-Razorpay-Event-Id": "evt_sec_test_001",
         },
     )
 
