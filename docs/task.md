@@ -15,7 +15,7 @@
 - `[x]` **Step 13A: AI Recommendation Schema**
 - `[x]` **Step 13B: Core Structured AI Recommender**
 - `[x]` **Step 13C: State Machine Transition & Context Persistence**
-- `[ ]` **Step 14: Capability Resolver**
+- `[x]` **Step 14: Capability Resolver**
 - `[ ]` **Step 15: Deterministic Policy Engine**
 - `[ ]` **Step 16: Human Review and Escalation**
 - `[ ]` **Step 17: Action Executor**
