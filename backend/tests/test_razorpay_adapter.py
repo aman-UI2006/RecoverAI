@@ -330,3 +330,147 @@ async def test_10_air_gap_simulation_isolation():
 
     assert res.id.startswith("plink_sim_")
     assert res.amount == 5000
+
+
+def test_11_monetary_conversion_safety():
+    """Verify Decimal monetary conversion safety rules."""
+    from decimal import Decimal
+    from backend.app.integrations.razorpay_adapter import convert_to_minor_units
+
+    # 1. Standard ₹100.00 -> 10000 paise
+    assert convert_to_minor_units(Decimal("100.00")) == 10000
+    assert convert_to_minor_units(100.00) == 10000
+
+    # 2. Fractional rupee ₹100.50 -> 10050 paise
+    assert convert_to_minor_units(Decimal("100.50")) == 10050
+    assert convert_to_minor_units(100.50) == 10050
+
+    # 3. Smallest valid unit ₹0.01 -> 1 paise
+    assert convert_to_minor_units(Decimal("0.01")) == 1
+
+    # 4. Large amount ₹50000.00 -> 5000000 paise
+    assert convert_to_minor_units(Decimal("50000.00")) == 5000000
+
+    # 5. Invalid fractional paise/cents (e.g. 100.505) must be rejected
+    with pytest.raises(ValueError, match="invalid fractional paise"):
+        convert_to_minor_units(Decimal("100.505"))
+
+    with pytest.raises(ValueError, match="invalid fractional paise"):
+        convert_to_minor_units(100.505)
+
+    # 6. Non-positive amount must be rejected
+    with pytest.raises(ValueError, match="strictly positive"):
+        convert_to_minor_units(0)
+
+    with pytest.raises(ValueError, match="strictly positive"):
+        convert_to_minor_units(-50)
+
+    # 7. NaN / Infinity rejected
+    with pytest.raises(ValueError, match="NaN or Infinity"):
+        convert_to_minor_units(float("nan"))
+
+
+@pytest.mark.asyncio
+async def test_12_recovery_attempt_payment_link_traceability(async_test_session: AsyncSession):
+    """Verify ActionExecutor persists payment_link_id and external_resource_id into RecoveryAttempt."""
+    from backend.app.services.action_executor import ActionExecutor
+    from backend.app.schemas.executor import ActionExecutionRequest
+    from backend.app.schemas.state_machine import ExecutionStatus
+    from backend.app.models.domain import RecoveryAttempt
+    from sqlalchemy import select
+
+    mer_id = f"mer_tr_{uuid4().hex[:8]}"
+    cust_id = f"cust_tr_{uuid4().hex[:8]}"
+    tx_id = f"tx_tr_{uuid4().hex[:8]}"
+
+    merchant = Merchant(id=mer_id, name="Traceability Merchant", email="tr@example.com", industry="ECOMMERCE")
+    customer = Customer(id=cust_id, merchant_id=mer_id, name="Traceability Customer", email="tr_cust@example.com")
+    tx = Transaction(
+        id=tx_id,
+        merchant_id=mer_id,
+        customer_id=cust_id,
+        amount=150.00,
+        currency="INR",
+        status="APPROVED",
+        scenario_type="CARD_DECLINE",
+        recovery_cycle=1,
+    )
+    async_test_session.add_all([merchant, customer, tx])
+    await async_test_session.commit()
+
+    adapter = RazorpayAdapter(key_id="rzp_test_key", key_secret="secret")
+    req = ActionExecutionRequest(
+        merchant_id=mer_id,
+        transaction_id=tx_id,
+        action_type="PAYMENT_LINK",
+        mode_override="SIMULATION",
+    )
+
+    res = await ActionExecutor.execute(async_test_session, req, adapter_delegate=adapter)
+
+    assert res.execution_status == ExecutionStatus.SUCCESS.value
+    assert res.external_resource_id is not None
+    assert res.razorpay_payment_link_id is not None
+    assert res.razorpay_payment_link_id == res.external_resource_id
+
+    # Verify RecoveryAttempt DB record persistence
+    stmt = select(RecoveryAttempt).where(RecoveryAttempt.id == res.execution_id)
+    attempt = (await async_test_session.execute(stmt)).scalar_one()
+
+    assert attempt.logical_operation_key == f"{mer_id}:{tx_id}:1:PAYMENT_LINK"
+    assert attempt.external_resource_id == res.external_resource_id
+    assert attempt.razorpay_payment_link_id == res.razorpay_payment_link_id
+    assert attempt.razorpay_reference_id == f"RAI-{tx_id[:12]}-1"
+    assert attempt.execution_status == "SUCCESS"
+
+
+@pytest.mark.asyncio
+async def test_13_traceability_duplicate_execution_reuse(async_test_session: AsyncSession):
+    """Verify duplicate execution reuses existing RecoveryAttempt payment_link_id."""
+    from backend.app.services.action_executor import ActionExecutor
+    from backend.app.schemas.executor import ActionExecutionRequest
+    from backend.app.models.domain import RecoveryAttempt
+    from sqlalchemy import select
+
+    mer_id = f"mer_dup_{uuid4().hex[:8]}"
+    cust_id = f"cust_dup_{uuid4().hex[:8]}"
+    tx_id = f"tx_dup_{uuid4().hex[:8]}"
+
+    merchant = Merchant(id=mer_id, name="Dup Merchant", email="dup@example.com", industry="ECOMMERCE")
+    customer = Customer(id=cust_id, merchant_id=mer_id, name="Dup Customer", email="dup_cust@example.com")
+    tx = Transaction(
+        id=tx_id,
+        merchant_id=mer_id,
+        customer_id=cust_id,
+        amount=250.00,
+        currency="INR",
+        status="APPROVED",
+        scenario_type="CARD_DECLINE",
+        recovery_cycle=1,
+    )
+    async_test_session.add_all([merchant, customer, tx])
+    await async_test_session.commit()
+
+    adapter = RazorpayAdapter(key_id="rzp_test_key", key_secret="secret")
+    req = ActionExecutionRequest(
+        merchant_id=mer_id,
+        transaction_id=tx_id,
+        action_type="PAYMENT_LINK",
+        mode_override="SIMULATION",
+    )
+
+    # First execution
+    res1 = await ActionExecutor.execute(async_test_session, req, adapter_delegate=adapter)
+    assert res1.is_duplicate is False
+
+    # Second execution (Duplicate)
+    res2 = await ActionExecutor.execute(async_test_session, req, adapter_delegate=adapter)
+    assert res2.is_duplicate is True
+    assert res2.execution_id == res1.execution_id
+    assert res2.external_resource_id == res1.external_resource_id
+    assert res2.razorpay_payment_link_id == res1.razorpay_payment_link_id
+
+    # Verify DB only contains 1 RecoveryAttempt row
+    stmt = select(RecoveryAttempt).where(RecoveryAttempt.transaction_id == tx_id)
+    attempts = (await async_test_session.execute(stmt)).scalars().all()
+    assert len(attempts) == 1

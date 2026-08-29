@@ -11,6 +11,7 @@ import logging
 from typing import Any, Dict, Optional
 import httpx
 
+from decimal import Decimal, InvalidOperation
 from backend.app.core.config import settings
 from backend.app.schemas.razorpay_dto import (
     PaymentLinkCreateRequest,
@@ -19,6 +20,45 @@ from backend.app.schemas.razorpay_dto import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def convert_to_minor_units(amount: Any, currency: str = "INR") -> int:
+    """Convert monetary amount to integer minor units (paise for INR) safely using Decimal.
+
+    Args:
+        amount: Raw amount (Decimal, float, str, or int).
+        currency: ISO currency code (defaults to "INR").
+
+    Returns:
+        Exact integer amount in minor units (paise).
+
+    Raises:
+        ValueError: On non-positive amount, NaN/Infinity, or invalid fractional sub-paise/cents.
+    """
+    if amount is None:
+        raise ValueError("Monetary amount cannot be None")
+
+    try:
+        if isinstance(amount, float):
+            if amount != amount or amount == float("inf") or amount == float("-inf"):
+                raise ValueError("Monetary amount cannot be NaN or Infinity")
+            str_val = f"{amount:.10f}".rstrip("0").rstrip(".")
+            d = Decimal(str_val)
+        else:
+            d = Decimal(str(amount))
+    except (InvalidOperation, TypeError) as exc:
+        raise ValueError(f"Invalid monetary amount '{amount}': {exc}") from exc
+
+    if d <= 0:
+        raise ValueError(f"Monetary amount must be strictly positive, got {d}")
+
+    paise_decimal = d * Decimal("100")
+    if paise_decimal != paise_decimal.to_integral_value():
+        raise ValueError(
+            f"Monetary amount '{amount}' contains invalid fractional paise/sub-minor units."
+        )
+
+    return int(paise_decimal)
 
 
 class RazorpayAdapter:
@@ -169,8 +209,11 @@ class RazorpayAdapter:
         cycle = getattr(transaction, "recovery_cycle", 1)
         reference_id = f"RAI-{short_tx_id}-{cycle}"
 
-        # Convert monetary amount to integer paise
-        amount_in_paise = int(round(float(transaction.amount) * 100))
+        # Authoritative Decimal monetary conversion to integer minor units (paise)
+        amount_in_paise = convert_to_minor_units(
+            amount=transaction.amount,
+            currency=getattr(transaction, "currency", "INR") or "INR",
+        )
 
         # Build Payment Link request payload
         notes_dict = {

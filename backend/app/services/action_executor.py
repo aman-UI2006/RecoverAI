@@ -225,9 +225,13 @@ class ActionExecutor:
                 )
                 execution_status = delegate_res.get("execution_status", ExecutionStatus.SUCCESS.value)
                 external_resource_id = delegate_res.get("external_resource_id")
+                rzp_payment_link_id = delegate_res.get("razorpay_payment_link_id")
+                rzp_reference_id = delegate_res.get("razorpay_reference_id")
             else:
                 execution_status = ExecutionStatus.SUCCESS.value
                 external_resource_id = f"sim_res_{generate_uuid()[:12]}"
+                rzp_payment_link_id = external_resource_id
+                rzp_reference_id = f"ref_{generate_uuid()[:8]}"
 
         # 10. Update RecoveryAttempt execution status & details
         attempt.execution_status = execution_status
