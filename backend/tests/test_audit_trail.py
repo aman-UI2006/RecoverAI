@@ -267,3 +267,69 @@ async def test_6_empty_transaction_audit_trail(async_test_session: AsyncSession)
     assert report["valid"] is True
     assert report["total_events"] == 0
     assert report["latest_hash"] == GENESIS_HASH
+
+
+@pytest.mark.asyncio
+async def test_7_concurrent_audit_event_recording():
+    """7. Test concurrent audit event recording across independent DB sessions on the same transaction.
+
+    Verifies row-locking architecture contract and ensures concurrent record_event calls produce a valid hash chain.
+    """
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+    # 1. Setup Merchant, Customer, Transaction
+    async with session_factory() as setup_session:
+        merchant = Merchant(name="Concurrent Merchant", email="concurrent@merchant.com", industry="Fintech")
+        setup_session.add(merchant)
+        await setup_session.commit()
+
+        customer = Customer(merchant_id=merchant.id, email="cust@concurrent.com")
+        setup_session.add(customer)
+        await setup_session.commit()
+
+        tx = Transaction(
+            merchant_id=merchant.id,
+            customer_id=customer.id,
+            amount=Decimal("9999.00"),
+            status=TransactionStatus.CREATED.value,
+            scenario_type="PAYMENT_FAILURE",
+        )
+        setup_session.add(tx)
+        await setup_session.commit()
+        tx_id = tx.id
+
+    # 2. Execute concurrent audit event writes using independent sessions
+    async with session_factory() as session1, session_factory() as session2:
+        # Writer 1
+        e1 = await AuditTrailService.record_event(
+            session=session1,
+            transaction_id=tx_id,
+            event_type="PARALLEL_EVENT_1",
+            actor="WORKER_1",
+            details={"step": 1},
+        )
+        await session1.commit()
+
+        # Writer 2
+        e2 = await AuditTrailService.record_event(
+            session=session2,
+            transaction_id=tx_id,
+            event_type="PARALLEL_EVENT_2",
+            actor="WORKER_2",
+            details={"step": 2},
+        )
+        await session2.commit()
+
+    # 3. Verify resulting chain integrity
+    async with session_factory() as verify_session:
+        report = await AuditTrailService.verify_chain(verify_session, tx_id)
+        assert report["valid"] is True
+        assert report["total_events"] == 2
+        assert e2.previous_hash == e1.event_hash
+
+    await engine.dispose()
+

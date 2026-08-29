@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from backend.app.core.canonical_json import serialize_canonical_json
-from backend.app.models.domain import AuditEvent, generate_uuid, current_utc_time
+from backend.app.models.domain import AuditEvent, Transaction, generate_uuid, current_utc_time
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +82,12 @@ class AuditTrailService:
         Returns:
             Persisted AuditEvent instance.
         """
+        # Acquire row-level FOR UPDATE lock on authoritative Transaction row to serialize audit writes per transaction
+        lock_stmt = select(Transaction.id).where(Transaction.id == transaction_id).with_for_update()
+        lock_res = await session.execute(lock_stmt)
+        if lock_res.scalar_one_or_none() is None:
+            raise ValueError(f"Transaction '{transaction_id}' not found for audit recording.")
+
         previous_hash = previous_hash_override or await cls.get_latest_event_hash(session, transaction_id)
         audit_details = details or {}
 
