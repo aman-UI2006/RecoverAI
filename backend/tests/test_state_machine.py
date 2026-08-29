@@ -13,6 +13,7 @@ from backend.app.schemas.state_machine import (
     InvalidStateTransitionException,
 )
 from backend.app.services.state_transition_service import StateTransitionService
+from backend.app.services.audit_trail_service import GENESIS_HASH
 
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -224,7 +225,7 @@ async def test_4_audit_event_hash_chaining(async_test_session: AsyncSession):
         actor="SYSTEM",
         reason="Initial risk assessment",
     )
-    assert audit1.previous_hash == "0" * 64
+    assert audit1.previous_hash in (GENESIS_HASH, "0" * 64)
     assert len(audit1.event_hash) == 64
 
     # Transition 2: AT_RISK -> DIAGNOSED

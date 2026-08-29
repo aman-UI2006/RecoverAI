@@ -12,6 +12,7 @@ from backend.app.schemas.state_machine import (
     InvalidStateTransitionException,
     StateTransitionResponse,
 )
+from backend.app.services.audit_trail_service import AuditTrailService
 
 
 class StateTransitionService:
@@ -71,42 +72,18 @@ class StateTransitionService:
         tx.status = target_state
         tx.updated_at = now
 
-        # 4. SHA-256 Audit Trail Chaining
-        stmt_last_audit = (
-            select(AuditEvent)
-            .where(AuditEvent.transaction_id == transaction_id)
-            .order_by(AuditEvent.created_at.desc(), AuditEvent.id.desc())
-            .limit(1)
-        )
-        last_audit = (await session.execute(stmt_last_audit)).scalar_one_or_none()
-        previous_hash = last_audit.event_hash if last_audit else "0" * 64
-
-        audit_details = details or ({ "reason": reason } if reason else {})
-
-        payload_dict = {
-            "transaction_id": transaction_id,
-            "state_from": current_state,
-            "state_to": target_state,
-            "actor": actor,
-            "details": audit_details,
-            "previous_hash": previous_hash,
-        }
-        payload_json = json.dumps(payload_dict, sort_keys=True, default=str)
-        event_hash = hashlib.sha256(payload_json.encode("utf-8")).hexdigest()
-
-        audit_record = AuditEvent(
-            id=generate_uuid(),
+        # 4. SHA-256 Audit Trail Chaining via AuditTrailService
+        audit_details = details or ({"reason": reason} if reason else {})
+        audit_record = await AuditTrailService.record_event(
+            session=session,
             transaction_id=transaction_id,
             event_type="STATE_TRANSITION",
             actor=actor,
             state_from=current_state,
             state_to=target_state,
             details=audit_details,
-            previous_hash=previous_hash,
-            event_hash=event_hash,
             created_at=now,
         )
-        session.add(audit_record)
 
         # 5. Commit transaction atomically
         await session.commit()

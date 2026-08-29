@@ -11,6 +11,7 @@ from backend.app.services.result_processor import ResultProcessor
 from backend.app.services.attribution_engine import AttributionEngine
 from backend.app.services.measurement_engine import MeasurementEngine
 from backend.app.services.reconciliation_engine import ReconciliationEngine
+from backend.app.services.audit_trail_service import AuditTrailService, GENESIS_HASH
 
 __all__ = [
     "SyntheticDatasetGenerator",
@@ -28,6 +29,9 @@ __all__ = [
     "AttributionEngine",
     "MeasurementEngine",
     "ReconciliationEngine",
+    "AuditTrailService",
+    "GENESIS_HASH",
 ]
+
 
 
