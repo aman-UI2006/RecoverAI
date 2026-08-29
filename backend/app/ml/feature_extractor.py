@@ -107,7 +107,7 @@ class FeatureExtractor:
             tx_count = DEFAULT_HISTORICAL_TX_COUNT
 
         hist_rate = context.customer_historical_success_rate
-        if hist_rate is None or tx_count == 0:
+        if hist_rate is None:
             hist_rate = DEFAULT_HISTORICAL_SUCCESS_RATE
         else:
             hist_rate = max(0.0, min(1.0, float(hist_rate)))
