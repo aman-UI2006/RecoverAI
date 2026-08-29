@@ -7,6 +7,7 @@ from backend.app.services.state_transition_service import StateTransitionService
 from backend.app.services.revenue_risk_engine import RevenueRiskEngine
 from backend.app.services.enrv_calculator import ENRVCalculator
 from backend.app.services.diagnosis_engine import DiagnosisEngine
+from backend.app.services.result_processor import ResultProcessor
 
 __all__ = [
     "SyntheticDatasetGenerator",
@@ -20,4 +21,5 @@ __all__ = [
     "RevenueRiskEngine",
     "ENRVCalculator",
     "DiagnosisEngine",
+    "ResultProcessor",
 ]
