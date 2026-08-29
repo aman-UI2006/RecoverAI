@@ -27,6 +27,14 @@ from backend.app.schemas.executor import (
     ActionExecutionResponse,
 )
 
+from backend.app.schemas.razorpay_dto import (
+    PaymentLinkCustomer,
+    PaymentLinkNotify,
+    PaymentLinkCreateRequest,
+    PaymentLinkCreateResponse,
+    RazorpayErrorResponse,
+)
+
 __all__ = [
     "RazorpayPaymentEntity",
     "RazorpayPaymentLinkEntity",
@@ -46,5 +54,10 @@ __all__ = [
     "HumanReviewQueueResponse",
     "ActionExecutionRequest",
     "ActionExecutionResponse",
+    "PaymentLinkCustomer",
+    "PaymentLinkNotify",
+    "PaymentLinkCreateRequest",
+    "PaymentLinkCreateResponse",
+    "RazorpayErrorResponse",
 ]
 
