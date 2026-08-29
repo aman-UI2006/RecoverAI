@@ -6,6 +6,12 @@ from backend.app.schemas.events import (
     SimulatorEventPayload,
     IngestionResponse,
 )
+from backend.app.schemas.diagnosis import (
+    DiagnosisRequest,
+    DiagnosisResult,
+    DiagnosisSource,
+    FailureCategory,
+)
 
 __all__ = [
     "RazorpayPaymentEntity",
@@ -14,4 +20,8 @@ __all__ = [
     "AppEventPayload",
     "SimulatorEventPayload",
     "IngestionResponse",
+    "DiagnosisRequest",
+    "DiagnosisResult",
+    "DiagnosisSource",
+    "FailureCategory",
 ]
