@@ -3,31 +3,31 @@
   "random_seed": 42,
   "source_file": "D:\\Razorpay\\New folder\\data\\synthetic_50k.parquet",
   "source_record_count": 50000,
-  "source_sha256": "576a4f121b3a6818a8cecc9b9b6d79cd7bda62cbdf9622c18467fc3b18de9f40",
+  "source_sha256": "017fe69688e194f2985d3709b2f57825828dad1a06ad41c973e360109dfd65b8",
   "split_strategy": "DEC-007 Customer-Group Partitioning with Deterministic Internal Ordering",
   "splits": {
     "train": {
       "record_count": 35110,
       "customer_count": 3500,
       "percentage": 70.22,
-      "recovered_rate_pct": 54.73,
-      "sha256": "b621baca7d8a27ac7ff26dac709763be7359b40425323a9383111670f1008e6e",
+      "recovered_rate_pct": 65.28,
+      "sha256": "d9f1133771cd5eb28114c6325a78834f53930fee794d3c206cb753a9c7c810c0",
       "file_path": "D:\\Razorpay\\New folder\\data\\train.parquet"
     },
     "val": {
       "record_count": 7355,
       "customer_count": 750,
       "percentage": 14.71,
-      "recovered_rate_pct": 54.85,
-      "sha256": "2a96ef72a723ce66a7a0dd41b63e14ac44425aaf317794b49ad141e867646f36",
+      "recovered_rate_pct": 64.55,
+      "sha256": "6c25d7b946c5ced84e0b549f6c6e74579d22d4d69b17816932c7b3d9fe5e4117",
       "file_path": "D:\\Razorpay\\New folder\\data\\val.parquet"
     },
     "test": {
       "record_count": 7535,
       "customer_count": 750,
       "percentage": 15.07,
-      "recovered_rate_pct": 53.18,
-      "sha256": "647ecb8b2072fda20a68702737afefcb67d06ffcb1a9416360b5857209543103",
+      "recovered_rate_pct": 64.38,
+      "sha256": "e28fde04f2d881302ed318f9e3838f430061df19b2f4a5f73de5c7dc94bd3913",
       "file_path": "D:\\Razorpay\\New folder\\data\\test.parquet"
     }
   },

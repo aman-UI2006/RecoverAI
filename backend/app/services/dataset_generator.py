@@ -190,8 +190,8 @@ class SyntheticDatasetGenerator:
             # Calculate latent baseline recoverability P*(R | X, BASE)
             logit_base = (
                 -1.0
-                + (historical_success_rate * 2.5)
-                - (prior_failed_attempts * 0.35)
+                + (historical_success_rate * 3.5)
+                - (prior_failed_attempts * 0.50)
                 + (min(customer_tenure_days, 1000) / 2000.0)
                 - (math.log(max(amount_rupees, 100.0)) * 0.15)
             )
