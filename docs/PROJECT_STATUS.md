@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 15 (Deterministic Policy Engine) — PENDING
-- **Last Verified Step:** Step 14 (Capability Resolver) — VERIFIED
-- **Current Status:** STEP 14 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** `285e8f1` (`feat(step-14): verify capability resolver`)
-- **Blocking Issue:** NONE (Capability Resolver gate verified with mode filtering, ENRV fallback, and 151 passing regression tests).
+- **Current Step:** Step 16 (Human Review and Escalation) — PENDING
+- **Last Verified Step:** Step 15 (Deterministic Policy Engine) — VERIFIED
+- **Current Status:** STEP 15 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** `f04267a` (`feat(step-15): verify deterministic policy engine`)
+- **Blocking Issue:** NONE (Deterministic Policy Engine verified with rule hierarchy, amount cap <=₹50k, max attempts <=3, min probability >=0.15, cooldown >=24h, state transitions, tenant isolation, and 162 passing regression tests).
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
 - **LLM Provider Status:** Groq API (`groq/compound-mini`) LIVE AUTHENTICATED & VERIFIED (Approved via DEC-006).
 - **Dataset Split Status:** 50,000 synthetic transactions partitioned deterministically (seed 42, DEC-007) into `data/train.parquet` (35,110 rows, 70.22%), `data/val.parquet` (7,355 rows, 14.71%), `data/test.parquet` (7,535 rows, 15.07%). Hard zero customer overlap and deterministic internal ordering (`created_at` ASC, `transaction_id` ASC) verified. Option B signal parameter remediation applied (`historical_success_rate` 2.5->3.5, `prior_failed_attempts` -0.35->-0.50).

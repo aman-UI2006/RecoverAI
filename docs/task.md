@@ -16,7 +16,7 @@
 - `[x]` **Step 13B: Core Structured AI Recommender**
 - `[x]` **Step 13C: State Machine Transition & Context Persistence**
 - `[x]` **Step 14: Capability Resolver**
-- `[ ]` **Step 15: Deterministic Policy Engine**
+- `[x]` **Step 15: Deterministic Policy Engine**
 - `[ ]` **Step 16: Human Review and Escalation**
 - `[ ]` **Step 17: Action Executor**
 - `[ ]` **Step 18: Razorpay Adapter and Resilience**
