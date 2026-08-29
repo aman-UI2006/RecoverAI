@@ -116,7 +116,7 @@ class DiagnosisEngine:
         )
         if ml_res is not None:
             cat, explanation, conf = ml_res
-            if conf >= 0.60:
+            if conf >= 0.20:
                 logger.info(f"Level 2 ML Classifier match for '{failure_code}': {cat} (conf={conf})")
                 return DiagnosisResult(
                     transaction_id=request.transaction_id,

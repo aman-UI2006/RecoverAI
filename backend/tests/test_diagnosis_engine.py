@@ -101,6 +101,25 @@ async def test_2_level_2_ml_classifier_diagnosis():
 
 
 @pytest.mark.asyncio
+async def test_9_level_2_xgboost_model_artifact_invocation():
+    """Verifies Level 2 genuinely loads and executes trained XGBoost multi-class joblib artifact."""
+    from backend.app.ml.diagnosis_classifier import MLDiagnosisClassifier
+    assert MLDiagnosisClassifier.load_model() is True
+    assert MLDiagnosisClassifier._is_loaded is True
+    assert MLDiagnosisClassifier._model is not None
+
+    req = DiagnosisRequest(
+        transaction_id="tx_xgb_diag_109",
+        failure_code="AMBIGUOUS_DECLINE_CODE_X",
+        feature_vector=[0.5, 2.0, 3.4, 50000.0, 10.8, 14.0, 2.0, 1.0, 0.0],
+    )
+    res = await DiagnosisEngine.diagnose_root_cause(req)
+    assert res.diagnosis_source == DiagnosisSource.ML_CLASSIFIER
+    assert "XGBoost Multi-Class Classifier" in res.root_cause_explanation
+    assert res.confidence_score >= 0.0
+
+
+@pytest.mark.asyncio
 async def test_3_level_3_llm_fallback_diagnosis():
     """Verifies Level 3 structured LLM fallback diagnosis when rule and ML yield no match."""
     mock_llm = AsyncMock(spec=GroqLLMService)
