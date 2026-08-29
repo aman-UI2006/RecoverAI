@@ -8,7 +8,7 @@
 - `[x]` **Step 6: Event Normalization and Deduplication**
 - `[x]` **Step 7: Authoritative State Transition Service**
 - `[x]` **Step 8: Revenue Risk Engine**
-- `[ ]` **Step 9: Feature Engineering**
+- `[x]` **Step 9: Feature Engineering**
 - `[ ]` **Step 10: Recovery Opportunity / ENRV Foundation**
 - `[ ]` **Step 11: Diagnosis Engine**
 - `[ ]` **Step 12: Action-Conditional ML**
