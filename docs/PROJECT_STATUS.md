@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 30 (Recovery Queue) — VERIFIED
-- **Last Verified Step:** Step 30 (Recovery Queue) — VERIFIED
-- **Current Status:** STEP 30 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** `1baa239` (`step-29-verified`)
-- **Blocking Issue:** NONE (RecoveryQueue page in `frontend/src/pages/RecoveryQueue.tsx`, active interventions data table, color-coded execution status badges, manual queue refresh button, attempt retry count & cycle displays, pagination controls, empty state banner, Vitest test suite passing 18/18 tests, zero TypeScript build errors, and 310 passing backend regression tests).
+- **Current Step:** Step 31 (Transaction Detail) — VERIFIED
+- **Last Verified Step:** Step 31 (Transaction Detail) — VERIFIED
+- **Current Status:** STEP 31 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** `f01b984` (`step-30-verified`)
+- **Blocking Issue:** NONE (TransactionDetail page in `frontend/src/pages/TransactionDetail.tsx`, LifecycleStepper component in `frontend/src/components/LifecycleStepper.tsx`, overview header banner, root cause diagnosis panel, AI decision & policy breakdown panel, inline cryptographic audit timeline with SHA-256 copy action, 404 transaction not found handler view, Vitest test suite passing 24/24 tests, zero TypeScript build errors, and 310 passing backend regression tests).
 
 
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.

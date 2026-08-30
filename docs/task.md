@@ -34,7 +34,7 @@
 
 - `[x]` **Step 29: Revenue Risk**
 - `[x]` **Step 30: Recovery Queue**
-- `[ ]` **Step 31: Transaction Detail**
+- `[x]` **Step 31: Transaction Detail**
 - `[ ]` **Step 32: AI Decision Center**
 - `[ ]` **Step 33: Recovery Analytics**
 - `[ ]` **Step 34: Audit Center**
