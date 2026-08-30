@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 31 (Transaction Detail) — VERIFIED
-- **Last Verified Step:** Step 31 (Transaction Detail) — VERIFIED
-- **Current Status:** STEP 31 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** `f01b984` (`step-30-verified`)
-- **Blocking Issue:** NONE (TransactionDetail page in `frontend/src/pages/TransactionDetail.tsx`, LifecycleStepper component in `frontend/src/components/LifecycleStepper.tsx`, overview header banner, root cause diagnosis panel, AI decision & policy breakdown panel, inline cryptographic audit timeline with SHA-256 copy action, 404 transaction not found handler view, Vitest test suite passing 24/24 tests, zero TypeScript build errors, and 310 passing backend regression tests).
+- **Current Step:** Step 32 (AI Decision Center) — VERIFIED
+- **Last Verified Step:** Step 32 (AI Decision Center) — VERIFIED
+- **Current Status:** STEP 32 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** `cbf8adf` (`step-31-ai-decision-api-correction-verified`)
+- **Blocking Issue:** NONE (`AIDecisionCenterPage` in `frontend/src/pages/AIDecisionCenter.tsx`, `ENRVTable` in `frontend/src/components/ENRVTable.tsx`, decision context metadata, root cause diagnosis panel, ENRV candidate ranking table, AI recommendation rationale, nudge message template, Capability Resolver & Policy Engine guardrails, transaction ID search bar, loading skeleton loader, HTTP 404 handler, Vitest test suite passing 32/32 tests, zero TypeScript build errors, and 317 passing backend regression tests).
 
 
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.

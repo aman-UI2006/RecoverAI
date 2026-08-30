@@ -24,6 +24,7 @@ export const App: React.FC = () => {
             <Route path="/recovery-queue" element={<RecoveryQueuePage />} />
             <Route path="/transactions/:id" element={<TransactionDetailPage />} />
             <Route path="/ai-decision" element={<AIDecisionCenterPage />} />
+            <Route path="/ai-decision/:id" element={<AIDecisionCenterPage />} />
             <Route path="/analytics" element={<RecoveryAnalyticsPage />} />
             <Route path="/audit" element={<AuditCenterPage />} />
             <Route path="/policies" element={<PolicyManagerPage />} />
