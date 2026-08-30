@@ -1,8 +1,8 @@
 """
-RecoverAI - Audit REST API Endpoint Controller (Step 25)
+RecoverAI - Audit REST API Endpoint Controller (Step 25 & Step 26)
 
 Provides GET /api/v1/audit and GET /api/v1/audit/verify for viewing audit log records
-and cryptographically validating transaction hash chain integrity via AuditTrailService.
+and cryptographically validating transaction hash chain integrity via AuditTrailService with RBAC.
 """
 
 from typing import Optional
@@ -11,6 +11,8 @@ from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.database import get_db
+from backend.app.core.security import get_current_identity
+from backend.app.schemas.auth import AuthenticatedIdentity
 from backend.app.models.domain import AuditEvent, Transaction
 from backend.app.services.audit_trail_service import AuditTrailService, GENESIS_HASH
 from backend.app.schemas.audit import (
@@ -29,12 +31,16 @@ async def list_audit_events(
     transaction_id: Optional[str] = Query(None, description="Transaction UUID filter."),
     merchant_id: Optional[str] = Query(None, description="Merchant UUID filter for tenant isolation."),
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID", description="Tenant isolation header."),
+    identity: AuthenticatedIdentity = Depends(get_current_identity),
     session: AsyncSession = Depends(get_db),
 ):
     """
-    Retrieve read-only audit log records with pagination and multi-tenant isolation filters.
+    Retrieve read-only audit log records with pagination and RBAC multi-tenant isolation filters.
     """
-    effective_merchant_id = merchant_id or x_merchant_id
+    if identity.merchant_id:
+        effective_merchant_id = identity.merchant_id
+    else:
+        effective_merchant_id = merchant_id or x_merchant_id
 
     filters = []
     if transaction_id:
@@ -79,13 +85,17 @@ async def verify_audit_chain(
     transaction_id: str = Query(..., description="Transaction UUID to verify."),
     merchant_id: Optional[str] = Query(None, description="Merchant UUID filter for tenant isolation."),
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID", description="Tenant isolation header."),
+    identity: AuthenticatedIdentity = Depends(get_current_identity),
     session: AsyncSession = Depends(get_db),
 ):
     """
     Cryptographically verify SHA-256 hash chain integrity for a transaction via AuditTrailService.
     Read-only operation.
     """
-    effective_merchant_id = merchant_id or x_merchant_id
+    if identity.merchant_id:
+        effective_merchant_id = identity.merchant_id
+    else:
+        effective_merchant_id = merchant_id or x_merchant_id
 
     # Verify transaction existence & tenant isolation
     stmt_tx = select(Transaction).where(Transaction.id == transaction_id)

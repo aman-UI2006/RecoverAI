@@ -1,8 +1,8 @@
 """
-RecoverAI - Policies REST API Endpoint Controller (Step 25)
+RecoverAI - Policies REST API Endpoint Controller (Step 25 & Step 26)
 
 Provides GET /api/v1/policies, GET /api/v1/policies/{policy_id}, and PATCH /api/v1/policies/{policy_id}
-for inspecting and updating merchant policy rules with strict partial update semantics and tenant isolation.
+for inspecting and updating merchant policy rules with strict partial update semantics, RBAC, and tenant isolation.
 """
 
 from typing import Optional, List
@@ -11,6 +11,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.database import get_db
+from backend.app.core.security import get_current_identity, require_role
+from backend.app.schemas.auth import AuthenticatedIdentity, RoleEnum
 from backend.app.models.domain import Policy
 from backend.app.schemas.policy import PolicyResponse, PolicyUpdatePayload
 
@@ -21,12 +23,16 @@ router = APIRouter(prefix="/policies", tags=["policies"])
 async def list_policies(
     merchant_id: Optional[str] = Query(None, description="Merchant UUID filter for tenant isolation."),
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID", description="Tenant isolation header."),
+    identity: AuthenticatedIdentity = Depends(get_current_identity),
     session: AsyncSession = Depends(get_db),
 ):
     """
-    List merchant policies with optional merchant_id filter.
+    List merchant policies with authenticated merchant_id filter.
     """
-    effective_merchant_id = merchant_id or x_merchant_id
+    if identity.merchant_id:
+        effective_merchant_id = identity.merchant_id
+    else:
+        effective_merchant_id = merchant_id or x_merchant_id
 
     stmt = select(Policy).order_by(Policy.created_at.desc())
     if effective_merchant_id:
@@ -41,12 +47,16 @@ async def get_policy(
     policy_id: str,
     merchant_id: Optional[str] = Query(None, description="Merchant UUID filter for tenant isolation."),
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID", description="Tenant isolation header."),
+    identity: AuthenticatedIdentity = Depends(get_current_identity),
     session: AsyncSession = Depends(get_db),
 ):
     """
-    Retrieve specific merchant policy by ID.
+    Retrieve specific merchant policy by ID. Enforces cross-tenant 404 behavior.
     """
-    effective_merchant_id = merchant_id or x_merchant_id
+    if identity.merchant_id:
+        effective_merchant_id = identity.merchant_id
+    else:
+        effective_merchant_id = merchant_id or x_merchant_id
 
     stmt = select(Policy).where(Policy.id == policy_id)
     policy = (await session.execute(stmt)).scalar_one_or_none()
@@ -72,12 +82,17 @@ async def update_policy(
     payload: PolicyUpdatePayload,
     merchant_id: Optional[str] = Query(None, description="Merchant UUID filter for tenant isolation."),
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID", description="Tenant isolation header."),
+    identity: AuthenticatedIdentity = Depends(require_role([RoleEnum.ROLE_ADMIN, RoleEnum.ROLE_MERCHANT])),
     session: AsyncSession = Depends(get_db),
 ):
     """
     Partially update policy guardrail settings while preserving unspecified fields and policy versioning.
+    Enforces cross-tenant 404 behavior.
     """
-    effective_merchant_id = merchant_id or x_merchant_id
+    if identity.merchant_id:
+        effective_merchant_id = identity.merchant_id
+    else:
+        effective_merchant_id = merchant_id or x_merchant_id
 
     stmt = select(Policy).where(Policy.id == policy_id)
     policy = (await session.execute(stmt)).scalar_one_or_none()

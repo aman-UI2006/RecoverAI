@@ -1,5 +1,5 @@
 """
-RecoverAI - Step 16: Human Review REST API Endpoints
+RecoverAI - Step 16 & Step 26: Human Review REST API Endpoints
 
 Provides REST endpoints for fetching review items and recording reviewer decisions
 (APPROVE_OVERRIDE, REJECT_PERMANENT) with RBAC role authorization and multi-tenant isolation.
@@ -10,6 +10,8 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.database import get_db
+from backend.app.core.security import get_current_identity, require_role
+from backend.app.schemas.auth import AuthenticatedIdentity, RoleEnum
 from backend.app.schemas.human_review import (
     ReviewItemCreate,
     ReviewDecisionSubmit,
@@ -50,18 +52,20 @@ def helper_build_review_response(review, tx) -> HumanReviewResponse:
 async def escalate_transaction_endpoint(
     payload: ReviewItemCreate,
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID"),
+    identity: AuthenticatedIdentity = Depends(get_current_identity),
     db: AsyncSession = Depends(get_db),
 ) -> HumanReviewResponse:
     """Escalates a transaction to the human review queue and updates state to ESCALATED."""
+    effective_merchant_id = identity.merchant_id or x_merchant_id
     try:
         review_record = await HumanReviewService.escalate_transaction(
             session=db,
             transaction_id=payload.transaction_id,
             reason=payload.reason,
-            merchant_id=x_merchant_id,
+            merchant_id=effective_merchant_id,
             reviewer_notes=payload.reviewer_notes,
         )
-        review, tx = await HumanReviewService.get_review_item(db, review_record.id, x_merchant_id)
+        review, tx = await HumanReviewService.get_review_item(db, review_record.id, effective_merchant_id)
         return helper_build_review_response(review, tx)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -75,10 +79,12 @@ async def escalate_transaction_endpoint(
 )
 async def get_human_review_queue_endpoint(
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID"),
+    identity: AuthenticatedIdentity = Depends(require_role([RoleEnum.ROLE_ADMIN, RoleEnum.ROLE_HUMAN_REVIEWER])),
     db: AsyncSession = Depends(get_db),
 ) -> HumanReviewQueueResponse:
     """Returns all pending review items, isolated by merchant_id if header is provided."""
-    pairs = await HumanReviewService.get_pending_reviews(session=db, merchant_id=x_merchant_id)
+    effective_merchant_id = identity.merchant_id or x_merchant_id
+    pairs = await HumanReviewService.get_pending_reviews(session=db, merchant_id=effective_merchant_id)
     items = [helper_build_review_response(review, tx) for review, tx in pairs]
     return HumanReviewQueueResponse(items=items, count=len(items))
 
@@ -92,12 +98,14 @@ async def get_human_review_queue_endpoint(
 async def get_human_review_item_endpoint(
     review_id: str,
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID"),
+    identity: AuthenticatedIdentity = Depends(require_role([RoleEnum.ROLE_ADMIN, RoleEnum.ROLE_HUMAN_REVIEWER])),
     db: AsyncSession = Depends(get_db),
 ) -> HumanReviewResponse:
     """Fetches details of a specific human review item."""
+    effective_merchant_id = identity.merchant_id or x_merchant_id
     try:
         review, tx = await HumanReviewService.get_review_item(
-            session=db, review_id=review_id, merchant_id=x_merchant_id
+            session=db, review_id=review_id, merchant_id=effective_merchant_id
         )
         return helper_build_review_response(review, tx)
     except ValueError as e:
@@ -115,9 +123,12 @@ async def process_reviewer_decision_endpoint(
     payload: ReviewDecisionSubmit,
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID"),
     x_user_role: str = Header("ROLE_HUMAN_REVIEWER", alias="X-User-Role"),
+    identity: AuthenticatedIdentity = Depends(require_role([RoleEnum.ROLE_ADMIN, RoleEnum.ROLE_HUMAN_REVIEWER])),
     db: AsyncSession = Depends(get_db),
 ) -> HumanReviewResponse:
     """Records reviewer decision, mutates state via StateTransitionService, and requires ROLE_HUMAN_REVIEWER role."""
+    effective_merchant_id = identity.merchant_id or x_merchant_id
+    effective_role = identity.role or x_user_role
     try:
         review, tx = await HumanReviewService.process_reviewer_decision(
             session=db,
@@ -125,8 +136,8 @@ async def process_reviewer_decision_endpoint(
             decision=payload.decision,
             reviewer_id=payload.reviewer_id,
             notes=payload.notes,
-            merchant_id=x_merchant_id,
-            user_role=x_user_role,
+            merchant_id=effective_merchant_id,
+            user_role=effective_role,
         )
         return helper_build_review_response(review, tx)
     except PermissionError as e:
@@ -142,6 +153,7 @@ async def process_reviewer_decision_endpoint(
 )
 async def auto_expire_stale_reviews_endpoint(
     expiration_hours: int = Query(48, ge=1, le=720),
+    identity: AuthenticatedIdentity = Depends(require_role([RoleEnum.ROLE_ADMIN])),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """Auto-expires pending review queue items older than expiration_hours and sets transaction state to STOPPED."""

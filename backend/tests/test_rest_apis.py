@@ -59,9 +59,11 @@ async def async_client(db_session: AsyncSession):
 
     app.dependency_overrides[get_db] = _override_get_db
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
+    headers = {"X-API-Key": "key_admin_secret_999"}
+    async with AsyncClient(transport=transport, base_url="http://test", headers=headers) as client:
         yield client
     app.dependency_overrides.clear()
+
 
 
 @pytest_asyncio.fixture

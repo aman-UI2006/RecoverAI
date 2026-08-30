@@ -46,6 +46,16 @@ class Settings(BaseSettings):
     DEFAULT_ATTRIBUTION_WINDOW_HOURS: int = 72
     DEFAULT_COOLDOWN_HOURS: int = 24
 
+    # Security, JWT & Auth Configuration
+    JWT_SECRET: str = Field(
+        default="recoverai_development_jwt_secret_key_change_in_production_32bytes",
+        description="JWT Secret for token signing"
+    )
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    API_KEY_HEADER_NAME: str = "X-API-Key"
+
 
 # Singleton settings instance
 settings = Settings()
+

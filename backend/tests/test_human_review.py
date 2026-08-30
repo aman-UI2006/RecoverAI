@@ -57,9 +57,11 @@ async def async_client(async_test_session: AsyncSession):
 
     app.dependency_overrides[get_db] = _override_get_db
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+    headers = {"X-API-Key": "key_admin_secret_999"}
+    async with AsyncClient(transport=transport, base_url="http://testserver", headers=headers) as client:
         yield client
     app.dependency_overrides.clear()
+
 
 
 async def seed_test_merchant_and_transaction(
@@ -354,7 +356,7 @@ async def test_9_human_review_api_endpoints(async_client: AsyncClient, async_tes
     bad_role_res = await async_client.post(
         f"/api/v1/human-review/items/{review_id}/decision",
         json={"decision": "APPROVE_OVERRIDE", "reviewer_id": "rev_001", "notes": "Approved"},
-        headers={"X-Merchant-ID": merchant.id, "X-User-Role": "ROLE_ANONYMOUS"},
+        headers={"X-Merchant-ID": merchant.id, "X-User-Role": "ROLE_ANONYMOUS", "X-API-Key": "key_merchant_alpha_123"},
     )
     assert bad_role_res.status_code == 403
 
@@ -362,11 +364,12 @@ async def test_9_human_review_api_endpoints(async_client: AsyncClient, async_tes
     good_res = await async_client.post(
         f"/api/v1/human-review/items/{review_id}/decision",
         json={"decision": "APPROVE_OVERRIDE", "reviewer_id": "rev_001", "notes": "Approved via API"},
-        headers={"X-Merchant-ID": merchant.id, "X-User-Role": "ROLE_HUMAN_REVIEWER"},
+        headers={"X-Merchant-ID": merchant.id, "X-User-Role": "ROLE_HUMAN_REVIEWER", "X-API-Key": "key_reviewer_789"},
     )
     assert good_res.status_code == 200
     assert good_res.json()["status"] == "APPROVED"
     assert good_res.json()["decision"] == "APPROVE_OVERRIDE"
+
 
 
 @pytest.mark.asyncio

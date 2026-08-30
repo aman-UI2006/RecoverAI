@@ -28,8 +28,9 @@
 - `[x]` **Step 23: Continuous Audit Trail**
 - `[x]` **Step 24: FastAPI Foundation**
 - `[x]` **Step 25: REST APIs**
-- `[ ]` **Step 26: Authentication, Authorization and RBAC**
+- `[x]` **Step 26: Authentication, Authorization and RBAC**
 - `[ ]` **Step 27: Frontend Foundation**
+
 - `[ ]` **Step 28: Command Center**
 - `[ ]` **Step 29: Revenue Risk**
 - `[ ]` **Step 30: Recovery Queue**

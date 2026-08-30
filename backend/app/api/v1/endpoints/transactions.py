@@ -1,8 +1,8 @@
 """
-RecoverAI - Transactions REST API Endpoint Controller (Step 25)
+RecoverAI - Transactions REST API Endpoint Controller (Step 25 & Step 26)
 
 Provides GET /api/v1/transactions and GET /api/v1/transactions/{transaction_id}
-enforcing pagination, scenario and status filters, multi-tenant merchant isolation,
+enforcing RBAC, authenticated tenant isolation, pagination, scenario and status filters,
 and full lifecycle state views without state mutation.
 """
 
@@ -13,6 +13,8 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.database import get_db
+from backend.app.core.security import get_current_identity
+from backend.app.schemas.auth import AuthenticatedIdentity
 from backend.app.models.domain import (
     Transaction,
     Customer,
@@ -43,12 +45,17 @@ async def list_transactions(
     merchant_id: Optional[str] = Query(None, description="Merchant UUID filter for tenant isolation."),
     mode: Optional[str] = Query(None, description="Execution mode filter (REAL_TEST or SIMULATION)."),
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID", description="Tenant isolation header."),
+    identity: AuthenticatedIdentity = Depends(get_current_identity),
     session: AsyncSession = Depends(get_db),
 ):
     """
-    List transactions with pagination, failure scenario, status filters, and tenant isolation.
+    List transactions with pagination, failure scenario, status filters, and RBAC tenant isolation.
     """
-    effective_merchant_id = merchant_id or x_merchant_id
+    # Authoritative tenant isolation: Identity merchant_id takes precedence
+    if identity.merchant_id:
+        effective_merchant_id = identity.merchant_id
+    else:
+        effective_merchant_id = merchant_id or x_merchant_id
 
     filters = []
     if effective_merchant_id:
@@ -94,13 +101,18 @@ async def get_transaction_detail(
     transaction_id: str,
     merchant_id: Optional[str] = Query(None, description="Merchant UUID filter for tenant isolation."),
     x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID", description="Tenant isolation header."),
+    identity: AuthenticatedIdentity = Depends(get_current_identity),
     session: AsyncSession = Depends(get_db),
 ):
     """
     Retrieve complete detail for a transaction including customer email, root cause diagnosis,
     recovery attempts, attributions, and audit timeline.
+    Enforces cross-tenant HTTP 404 behavior.
     """
-    effective_merchant_id = merchant_id or x_merchant_id
+    if identity.merchant_id:
+        effective_merchant_id = identity.merchant_id
+    else:
+        effective_merchant_id = merchant_id or x_merchant_id
 
     stmt = (
         select(Transaction)
@@ -123,7 +135,7 @@ async def get_transaction_detail(
             detail=f"Transaction with ID '{transaction_id}' was not found.",
         )
 
-    # Enforce strict multi-tenant merchant isolation
+    # Enforce strict multi-tenant merchant isolation with 404 response
     if effective_merchant_id and tx.merchant_id != effective_merchant_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
