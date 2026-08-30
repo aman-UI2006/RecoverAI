@@ -32,7 +32,7 @@
 - `[x]` **Step 27: Frontend Foundation**
 - `[x]` **Step 28: Command Center**
 
-- `[ ]` **Step 29: Revenue Risk**
+- `[x]` **Step 29: Revenue Risk**
 - `[ ]` **Step 30: Recovery Queue**
 - `[ ]` **Step 31: Transaction Detail**
 - `[ ]` **Step 32: AI Decision Center**

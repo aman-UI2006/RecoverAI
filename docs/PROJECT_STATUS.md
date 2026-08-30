@@ -1,10 +1,11 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 28 (Command Center) — VERIFIED
-- **Last Verified Step:** Step 28 (Command Center) — VERIFIED
-- **Current Status:** STEP 28 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** `b026ffd` (`step-27-verified`)
-- **Blocking Issue:** NONE (Command Center dashboard page in `frontend/src/pages/CommandCenter.tsx`, reusable MetricCard stat cards in `frontend/src/components/MetricCard.tsx`, Recharts Treatment vs Control recovery comparison chart, mode toggle badge, recent active recovery queue summary table, fallback error telemetry handling, Vitest component test suite passing 8/8 tests, and 310 passing backend regression tests).
+- **Current Step:** Step 29 (Revenue Risk) — VERIFIED
+- **Last Verified Step:** Step 29 (Revenue Risk) — VERIFIED
+- **Current Status:** STEP 29 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** `38d1601` (`step-28-verified`)
+- **Blocking Issue:** NONE (Revenue Risk page in `frontend/src/pages/RevenueRisk.tsx`, filterable scenario class tabs, real-time search query filtering, risk exposure summary cards, direct inspection links to Transaction Detail, empty state banner handling, Vitest test suite passing 12/12 tests, and 310 passing backend regression tests).
+
 
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
 - **LLM Provider Status:** Groq API (`groq/compound-mini`) LIVE AUTHENTICATED & VERIFIED (Approved via DEC-006).
