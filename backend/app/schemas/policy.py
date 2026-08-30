@@ -64,3 +64,34 @@ class PolicyEvaluationResult(BaseModel):
         default=1,
         description="Recovery attempt sequence number."
     )
+
+
+from datetime import datetime
+from pydantic import ConfigDict
+
+
+class PolicyResponse(BaseModel):
+    """REST API response for merchant policy details."""
+    id: str = Field(..., description="Policy UUID.")
+    merchant_id: Optional[str] = Field(None, description="Merchant UUID filter.")
+    policy_version: str = Field(..., description="Policy version string.")
+    max_recovery_attempts: int = Field(..., description="Maximum allowed recovery attempts per transaction.")
+    max_auto_action_amount: float = Field(..., description="Maximum transaction amount cap for auto execution.")
+    min_recovery_probability: float = Field(..., description="Minimum ML recovery probability threshold.")
+    cooldown_hours: int = Field(..., description="Cooldown window in hours.")
+    is_active: bool = Field(..., description="Whether policy is active.")
+    created_at: datetime = Field(..., description="Creation timestamp.")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PolicyUpdatePayload(BaseModel):
+    """Payload for PATCH updating merchant policy rules."""
+    max_recovery_attempts: Optional[int] = Field(None, ge=1, description="Maximum recovery attempts (>=1).")
+    max_auto_action_amount: Optional[float] = Field(None, ge=0.0, description="Maximum auto action amount cap (>=0.0).")
+    min_recovery_probability: Optional[float] = Field(None, ge=0.0, le=1.0, description="Min probability threshold (0.0 - 1.0).")
+    cooldown_hours: Optional[int] = Field(None, ge=0, description="Cooldown window in hours (>=0).")
+    is_active: Optional[bool] = Field(None, description="Whether policy is active.")
+
+    model_config = ConfigDict(from_attributes=True)
+

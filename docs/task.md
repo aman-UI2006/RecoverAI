@@ -27,7 +27,7 @@
 - `[x]` **Step 22: Reconciliation Engine**
 - `[x]` **Step 23: Continuous Audit Trail**
 - `[x]` **Step 24: FastAPI Foundation**
-- `[ ]` **Step 25: REST APIs**
+- `[x]` **Step 25: REST APIs**
 - `[ ]` **Step 26: Authentication, Authorization and RBAC**
 - `[ ]` **Step 27: Frontend Foundation**
 - `[ ]` **Step 28: Command Center**
