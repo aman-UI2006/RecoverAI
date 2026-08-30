@@ -30,9 +30,8 @@
 - `[x]` **Step 25: REST APIs**
 - `[x]` **Step 26: Authentication, Authorization and RBAC**
 - `[x]` **Step 27: Frontend Foundation**
+- `[x]` **Step 28: Command Center**
 
-
-- `[ ]` **Step 28: Command Center**
 - `[ ]` **Step 29: Revenue Risk**
 - `[ ]` **Step 30: Recovery Queue**
 - `[ ]` **Step 31: Transaction Detail**
