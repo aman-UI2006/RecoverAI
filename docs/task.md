@@ -33,7 +33,7 @@
 - `[x]` **Step 28: Command Center**
 
 - `[x]` **Step 29: Revenue Risk**
-- `[ ]` **Step 30: Recovery Queue**
+- `[x]` **Step 30: Recovery Queue**
 - `[ ]` **Step 31: Transaction Detail**
 - `[ ]` **Step 32: AI Decision Center**
 - `[ ]` **Step 33: Recovery Analytics**

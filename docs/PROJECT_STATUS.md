@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 29 (Revenue Risk) — VERIFIED
-- **Last Verified Step:** Step 29 (Revenue Risk) — VERIFIED
-- **Current Status:** STEP 29 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** `38d1601` (`step-28-verified`)
-- **Blocking Issue:** NONE (Revenue Risk page in `frontend/src/pages/RevenueRisk.tsx`, filterable scenario class tabs, real-time search query filtering, risk exposure summary cards, direct inspection links to Transaction Detail, empty state banner handling, Vitest test suite passing 12/12 tests, and 310 passing backend regression tests).
+- **Current Step:** Step 30 (Recovery Queue) — VERIFIED
+- **Last Verified Step:** Step 30 (Recovery Queue) — VERIFIED
+- **Current Status:** STEP 30 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** `1baa239` (`step-29-verified`)
+- **Blocking Issue:** NONE (RecoveryQueue page in `frontend/src/pages/RecoveryQueue.tsx`, active interventions data table, color-coded execution status badges, manual queue refresh button, attempt retry count & cycle displays, pagination controls, empty state banner, Vitest test suite passing 18/18 tests, zero TypeScript build errors, and 310 passing backend regression tests).
 
 
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
