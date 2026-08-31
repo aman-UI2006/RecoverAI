@@ -39,7 +39,7 @@
 - `[x]` **Step 33: Recovery Analytics**
 - `[x]` **Step 34: Audit Center**
 - `[x]` **Step 35: Policy Manager**
-- `[ ]` **Step 36: Human Review**
+- `[x]` **Step 36: Human Review**
 - `[ ]` **Step 37: Unit Testing**
 - `[ ]` **Step 38: Database/Integration Testing**
 - `[ ]` **Step 39: ML Evaluation Testing**

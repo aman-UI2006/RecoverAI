@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 35 (Policy Manager) — VERIFIED
-- **Last Verified Step:** Step 35 (Policy Manager) — VERIFIED
-- **Current Status:** STEP 35 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** Pending commit (`step-35-verified`)
-- **Blocking Issue:** NONE (`PolicyManagerPage` in `frontend/src/pages/PolicyManager.tsx`, policy form with numerical bounds validation, PATCH `/api/v1/policies/{id}` integration, policy version indicator increment `v1.0` -> `v1.1`, global safety defaults reference panel, success toast notifications, Vitest test suite passing 48/48 frontend tests, zero TypeScript build errors, and 317 passing backend regression tests).
+- **Current Step:** Step 36 (Human Review) — VERIFIED
+- **Last Verified Step:** Step 36 (Human Review) — VERIFIED
+- **Current Status:** STEP 36 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** Pending commit (`step-36-verified`)
+- **Blocking Issue:** NONE (`HumanReviewPage` in `frontend/src/pages/HumanReviewPage.tsx`, `ReviewModal` in `frontend/src/components/ReviewModal.tsx`, escalated review items queue cards with escalation reason codes, INSPECT & ACTION decision modal, APPROVE_OVERRIDE (force execution) & REJECT_PERMANENT (terminate) actions submitted to `POST /api/v1/human-review/items/{review_id}/decision`, dynamic queue card status update, error alert banner in modal on API failure, Vitest test suite passing 56/56 frontend tests across 10 test files, zero TypeScript build errors, and 317 passing backend regression tests).
 
 
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
