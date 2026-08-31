@@ -30,6 +30,7 @@ export const App: React.FC = () => {
             <Route path="/audit" element={<AuditCenterPage />} />
             <Route path="/audit-center" element={<AuditCenterPage />} />
             <Route path="/policies" element={<PolicyManagerPage />} />
+            <Route path="/policy-manager" element={<PolicyManagerPage />} />
             <Route path="/human-review" element={<HumanReviewPage />} />
             {/* Fallback route */}
             <Route path="*" element={<CommandCenterPage />} />
