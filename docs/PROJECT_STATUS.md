@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 38 (Database/Integration Testing) — VERIFIED
-- **Last Verified Step:** Step 38 (Database/Integration Testing) — VERIFIED
-- **Current Status:** STEP 38 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** Pending commit (`step-38-verified`)
-- **Blocking Issue:** NONE (Exhaustive database & integration test suite implemented under `backend/tests/integration/` covering UNIQUE(logical_operation_key) rejection, UNIQUE(razorpay_event_id) deduplication, SELECT ... FOR UPDATE multi-session concurrency locking, and Redis fast-path & fallback behavior; 7/7 integration tests passing; 360 total passing backend tests [353 baseline + 7 integration tests]; 56/56 Vitest frontend tests passing; zero TypeScript build errors).
+- **Current Step:** Step 39 (ML Evaluation Testing) — VERIFIED
+- **Last Verified Step:** Step 39 (ML Evaluation Testing) — VERIFIED
+- **Current Status:** STEP 39 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** Pending commit (`step-39-verified`)
+- **Blocking Issue:** NONE (Exhaustive ML evaluation test suite implemented under `backend/tests/ml/test_ml_evaluation.py` and documented in `docs/ML_EVALUATION_REPORT.md` evaluating Action-Conditional Recovery Model [ROC-AUC=0.7934 >= 0.75, PR-AUC=0.8351, Brier=0.1595 <= 0.20, Log-Loss=0.5037] and Multi-Class Diagnosis Classifier on held-out `data/test.parquet`; 5/5 ML tests passing; 365 total passing backend tests [360 baseline + 5 ML tests]; 56/56 Vitest frontend tests passing; zero TypeScript build errors).
 
 
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
@@ -27,6 +27,6 @@
 - **Reconciliation Engine Status:** ReconciliationEngine (`backend/app/services/reconciliation_engine.py`) and Reconciliation Worker (`backend/app/workers/reconciliation_worker.py`) implemented and verified. Polls external status for transactions stuck in UNKNOWN execution state, updates attempt status, mutates transaction status via StateTransitionService (`EXECUTING` -> `RECOVERED` / `EXPIRED` / `FAILED`), triggers Step 20 AttributionEngine hook on success, guarantees zero duplicate attempt creations, zero recovery cycle increments, logical operation key preservation, multi-tenant isolation, mode separation, and 8 dedicated unit/integration tests.
 - **Continuous Audit Trail Status:** AuditTrailService (`backend/app/services/audit_trail_service.py`), Canonical JSON serializer (`backend/app/core/canonical_json.py`), and `GENESIS_HASH` fallback implemented and verified. Enforces transaction-level row locking (`select(Transaction.id).where(Transaction.id == transaction_id).with_for_update()`) to prevent concurrent audit chain forks, provides continuous SHA-256 cryptographic hash chaining across all system lifecycle events, `verify_chain(transaction_id)` tamper detection, seamless `StateTransitionService` integration, and 7 dedicated unit/integration tests (including concurrent multi-session DB session verification).
 - **FastAPI Foundation Status:** FastAPI Application (`backend/app/main.py`), CORS middleware, RequestIDMiddleware (`backend/app/core/middleware.py`) with `X-Trace-ID` tracing, standardized global exception handlers for `HTTPException`, `RequestValidationError`, and generic `Exception`, API v1 router aggregator (`backend/app/api/v1/router.py`), `/health` endpoint returning HTTP 200 with status `"ok"`, and 7 dedicated unit/integration tests (`backend/tests/test_main.py`).
-- **Test Status:** 360/360 backend tests passing (`pytest backend/tests`), 56/56 frontend tests passing (`npx vitest run`). Zero regressions.
+- **Test Status:** 365/365 backend tests passing (`pytest backend/tests`), 56/56 frontend tests passing (`npx vitest run`). Zero regressions.
 - **Dependencies Status:** Full backend (`requirements.txt`) and frontend (`package.json`) dependencies installed and validated. Controlled Step 25 API dependency correction (`GET /api/v1/ai-decisions/{id}`) implemented and verified.
 - **Database Status:** VERIFIED against PostgreSQL 16 (`recoverai_db`). All 13 core tables verified.
