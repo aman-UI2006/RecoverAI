@@ -45,6 +45,7 @@ class Customer(Base):
     name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     historical_success_rate: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     historical_transaction_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    ltv_score: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=current_utc_time, nullable=False)
 
     merchant: Mapped["Merchant"] = relationship("Merchant", back_populates="customers")
