@@ -10,6 +10,7 @@ import math
 import random
 import uuid
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -165,7 +166,7 @@ class SyntheticDatasetGenerator:
             # Bound between ₹100.00 (10,000 paise) and ₹500,000.00 (50,000,000 paise)
             raw_amount = float(np.random.lognormal(mean=7.8, sigma=1.0))
             amount_rupees = round(max(100.0, min(500000.0, raw_amount)), 2)
-            amount_in_paise = int(round(amount_rupees * 100))
+            amount_in_paise = int((Decimal(str(amount_rupees)) * Decimal("100")).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
             # Payment method & checkout device
             payment_method = random.choice(PAYMENT_METHODS)

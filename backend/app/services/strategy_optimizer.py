@@ -11,6 +11,7 @@ Refines Expected Net Recovery Value (ENRV) calculations using multi-objective op
 """
 
 import logging
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
@@ -112,10 +113,13 @@ class StrategyOptimizerService:
 
         # Clamp churn risk to [0.0, 1.0]
         churn = min(1.0, churn)
+        # Authoritative Decimal calculation for minor units (paise)
         aggressiveness = cls.get_aggressiveness_weight(action_type)
-        ltv_paise = ltv * 100.0
-
-        penalty_paise = int(round(churn * ltv_paise * aggressiveness))
+        churn_dec = Decimal(str(churn))
+        aggr_dec = Decimal(str(aggressiveness))
+        ltv_paise_dec = Decimal(str(ltv)) * Decimal("100")
+        penalty_dec = churn_dec * ltv_paise_dec * aggr_dec
+        penalty_paise = int(penalty_dec.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
         return max(0, penalty_paise)
 
     @classmethod
@@ -150,10 +154,10 @@ class StrategyOptimizerService:
         for base_item in base_response.action_results:
             action_type = base_item.action_type
             churn_penalty_paise = cls.calculate_churn_penalty(action_type, ltv, churn)
-            churn_penalty_rupees = round(churn_penalty_paise / 100.0, 2)
+            churn_penalty_rupees = float(Decimal(churn_penalty_paise) / Decimal("100"))
 
             optimized_enrv_paise = base_item.expected_net_recovery_value_in_paise - churn_penalty_paise
-            optimized_enrv_rupees = round(optimized_enrv_paise / 100.0, 2)
+            optimized_enrv_rupees = float(Decimal(optimized_enrv_paise) / Decimal("100"))
 
             unranked_optimized.append(
                 OptimizedActionResult(

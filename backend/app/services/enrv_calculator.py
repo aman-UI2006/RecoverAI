@@ -8,6 +8,7 @@ Ranks candidate actions by ENRV to shift decision-making from pure probability t
 """
 
 import logging
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Dict, List, Optional, Tuple
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -141,12 +142,14 @@ class ENRVCalculator:
 
         total_cost = intervention_cost + operational_cost + expected_refund_cost
 
-        # Expected Gross Recovery in paise
-        expected_gross = int(round(clamped_prob * amount_in_paise))
+        # Expected Gross Recovery in paise (Authoritative Decimal minor unit calculation)
+        amount_dec = Decimal(amount_in_paise)
+        prob_dec = Decimal(str(clamped_prob))
+        expected_gross = int((prob_dec * amount_dec).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
         # Expected Net Recovery Value in paise
         enrv_paise = expected_gross - total_cost
-        enrv_rupees = round(enrv_paise / 100.0, 2)
+        enrv_rupees = float(Decimal(enrv_paise) / Decimal("100"))
 
         return ENRVActionResult(
             action_type=candidate_input.action_type.upper().strip(),

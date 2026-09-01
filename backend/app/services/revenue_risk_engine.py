@@ -7,6 +7,7 @@ and transitions transactions from CREATED to AT_RISK using the authoritative Sta
 
 import logging
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Optional, Dict, Any
 
 from sqlalchemy import select
@@ -101,9 +102,11 @@ class RevenueRiskEngine:
             logger.error(f"Risk calculation failed for tx '{transaction_id}': {str(e)}")
             raise e
 
-        # 3. Compute eligible revenue at risk
-        eligible_paise = int(round(amount_in_paise * risk_score))
-        eligible_rupees = round(eligible_paise / 100.0, 2)
+        # 3. Compute eligible revenue at risk (Authoritative Decimal minor unit calculation)
+        amount_dec = Decimal(amount_in_paise)
+        risk_dec = Decimal(str(risk_score))
+        eligible_paise = int((amount_dec * risk_dec).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+        eligible_rupees = float(Decimal(eligible_paise) / Decimal("100"))
 
         now = current_utc_time()
         expires_at = now + timedelta(hours=eligibility_window_hours)

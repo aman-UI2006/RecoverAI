@@ -240,3 +240,57 @@ async def test_4_all_13_relational_tables_metadata_verification(db_session):
     }
     defined_tables = set(Base.metadata.tables.keys())
     assert expected_tables.issubset(defined_tables)
+
+
+@pytest.mark.asyncio
+async def test_5_ltv_score_and_generated_message_text_schema_verification(db_session_factory):
+    """
+    5. Database Schema & Field Persistence Verification:
+       - Verifies ltv_score column on Customer model and generated_message_text column on RecoveryAttempt model.
+    """
+    async with db_session_factory() as s1:
+        m = Merchant(id=f"m_{uuid4().hex[:8]}", name="Schema Merchant", email="s@test.com", industry="Fintech")
+        c = Customer(id=f"c_{uuid4().hex[:8]}", merchant_id=m.id, email="sc@test.com", ltv_score=850.50)
+        s1.add_all([m, c])
+        await s1.commit()
+
+        tx = Transaction(
+            id=f"tx_{uuid4().hex[:8]}",
+            merchant_id=m.id,
+            customer_id=c.id,
+            amount=7500,
+            currency="INR",
+            status=TransactionStatus.APPROVED.value,
+            scenario_type="SUBSCRIPTION_FAILURE",
+        )
+        s1.add(tx)
+        await s1.commit()
+
+        op_key = f"{m.id}:{tx.id}:1:RECOVERY_MESSAGE"
+        attempt = RecoveryAttempt(
+            id=f"att_{uuid4().hex[:8]}",
+            transaction_id=tx.id,
+            logical_operation_key=op_key,
+            recommended_action="RECOVERY_MESSAGE",
+            action_payload={},
+            policy_status="APPROVED",
+            policy_version="1.0",
+            execution_status="SUCCESS",
+            external_resource_type="REAL_TEST",
+            generated_message_text="We noticed your recent payment of ₹75.00 didn't go through. PII: j***e@example.com",
+        )
+        s1.add(attempt)
+        await s1.commit()
+        tx_id = tx.id
+        cust_id = c.id
+        att_id = attempt.id
+
+    async with db_session_factory() as s2:
+        res_c = await s2.execute(select(Customer).where(Customer.id == cust_id))
+        fetched_c = res_c.scalar_one()
+        assert fetched_c.ltv_score == 850.50
+
+        res_att = await s2.execute(select(RecoveryAttempt).where(RecoveryAttempt.id == att_id))
+        fetched_att = res_att.scalar_one()
+        assert "PII: j***e@example.com" in fetched_att.generated_message_text
+
