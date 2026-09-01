@@ -15,6 +15,7 @@ from typing import Tuple, Optional, Any, Dict
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from backend.app.core.config import settings
 from backend.app.models.domain import Event
@@ -142,8 +143,19 @@ class EventIngestionService:
         )
 
         session.add(new_event)
-        await session.commit()
-        await session.refresh(new_event)
+        try:
+            await session.commit()
+            try:
+                await session.refresh(new_event)
+            except Exception:
+                pass
+        except IntegrityError:
+            await session.rollback()
+            result = await session.execute(stmt)
+            existing_event = result.scalars().first()
+            if existing_event:
+                return (existing_event, True)
+            raise
 
         return (new_event, False)
 
