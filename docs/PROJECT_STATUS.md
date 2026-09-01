@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 36 (Human Review) — VERIFIED
-- **Last Verified Step:** Step 36 (Human Review) — VERIFIED
-- **Current Status:** STEP 36 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** Pending commit (`step-36-verified`)
-- **Blocking Issue:** NONE (`HumanReviewPage` in `frontend/src/pages/HumanReviewPage.tsx`, `ReviewModal` in `frontend/src/components/ReviewModal.tsx`, escalated review items queue cards with escalation reason codes, INSPECT & ACTION decision modal, APPROVE_OVERRIDE (force execution) & REJECT_PERMANENT (terminate) actions submitted to `POST /api/v1/human-review/items/{review_id}/decision`, dynamic queue card status update, error alert banner in modal on API failure, Vitest test suite passing 56/56 frontend tests across 10 test files, zero TypeScript build errors, and 317 passing backend regression tests).
+- **Current Step:** Step 37 (Unit Testing) — VERIFIED
+- **Last Verified Step:** Step 37 (Unit Testing) — VERIFIED
+- **Current Status:** STEP 37 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** Pending commit (`step-37-verified`)
+- **Blocking Issue:** NONE (Exhaustive Pytest unit testing suite implemented under `backend/tests/unit/` covering ENRV calculator formulas, policy engine rule boundaries, state machine matrix edge cases, and SHA-256 canonical audit hash chaining; 36/36 unit tests passing; 353 total passing backend tests [317 baseline + 36 unit tests]; 56/56 Vitest frontend tests passing; zero TypeScript build errors).
 
 
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
@@ -27,6 +27,6 @@
 - **Reconciliation Engine Status:** ReconciliationEngine (`backend/app/services/reconciliation_engine.py`) and Reconciliation Worker (`backend/app/workers/reconciliation_worker.py`) implemented and verified. Polls external status for transactions stuck in UNKNOWN execution state, updates attempt status, mutates transaction status via StateTransitionService (`EXECUTING` -> `RECOVERED` / `EXPIRED` / `FAILED`), triggers Step 20 AttributionEngine hook on success, guarantees zero duplicate attempt creations, zero recovery cycle increments, logical operation key preservation, multi-tenant isolation, mode separation, and 8 dedicated unit/integration tests.
 - **Continuous Audit Trail Status:** AuditTrailService (`backend/app/services/audit_trail_service.py`), Canonical JSON serializer (`backend/app/core/canonical_json.py`), and `GENESIS_HASH` fallback implemented and verified. Enforces transaction-level row locking (`select(Transaction.id).where(Transaction.id == transaction_id).with_for_update()`) to prevent concurrent audit chain forks, provides continuous SHA-256 cryptographic hash chaining across all system lifecycle events, `verify_chain(transaction_id)` tamper detection, seamless `StateTransitionService` integration, and 7 dedicated unit/integration tests (including concurrent multi-session DB session verification).
 - **FastAPI Foundation Status:** FastAPI Application (`backend/app/main.py`), CORS middleware, RequestIDMiddleware (`backend/app/core/middleware.py`) with `X-Trace-ID` tracing, standardized global exception handlers for `HTTPException`, `RequestValidationError`, and generic `Exception`, API v1 router aggregator (`backend/app/api/v1/router.py`), `/health` endpoint returning HTTP 200 with status `"ok"`, and 7 dedicated unit/integration tests (`backend/tests/test_main.py`).
-- **Test Status:** 317/317 backend tests passing (`pytest backend/tests`), 24/24 frontend tests passing (`npm test`).
+- **Test Status:** 353/353 backend tests passing (`pytest backend/tests`), 56/56 frontend tests passing (`npx vitest run`). Zero regressions.
 - **Dependencies Status:** Full backend (`requirements.txt`) and frontend (`package.json`) dependencies installed and validated. Controlled Step 25 API dependency correction (`GET /api/v1/ai-decisions/{id}`) implemented and verified.
 - **Database Status:** VERIFIED against PostgreSQL 16 (`recoverai_db`). All 13 core tables verified.
