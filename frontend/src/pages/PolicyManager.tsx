@@ -287,6 +287,34 @@ export const PolicyManagerPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Step 44: Dynamic Threshold Adjustment Indicator */}
+      <div className="bg-blue-950/30 border border-blue-800/40 p-4 rounded-2xl backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400">
+            <TrendingUp className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-semibold text-slate-200">Adaptive Policy Feedback Loop</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                ACTIVE TUNING
+              </span>
+            </div>
+            <p className="text-xs text-slate-400">
+              Threshold dynamically adjusts based on batch Net ROI. Enforces hard safety bounds: <code className="text-blue-300 font-mono">5.0% ≤ P ≤ 50.0%</code> (Rate clamp: ≤ 5%/cycle).
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4 text-xs font-mono">
+          <div className="bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300">
+            Floor: <span className="text-emerald-400 font-bold">{(minProb * 100).toFixed(1)}%</span>
+          </div>
+          <div className="bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300">
+            Rule Version: <span className="text-blue-400 font-bold">{policy.policy_version}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content Grid: Form + Read-Only Defaults */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Policy Configuration Form (2 Cols) */}

@@ -66,7 +66,7 @@ class PolicyRuleEvaluator:
         max_amount = min(raw_max_amount, GLOBAL_DEFAULT_POLICY["max_auto_action_amount"])
 
         raw_min_prob = policy.min_recovery_probability if (policy and policy.min_recovery_probability is not None) else GLOBAL_DEFAULT_POLICY["min_recovery_probability"]
-        min_prob = max(raw_min_prob, GLOBAL_DEFAULT_POLICY["min_recovery_probability"])
+        min_prob = max(0.05, min(0.50, raw_min_prob))
 
         raw_cooldown_h = policy.cooldown_hours if (policy and policy.cooldown_hours is not None) else GLOBAL_DEFAULT_POLICY["cooldown_hours"]
         cooldown_h = max(raw_cooldown_h, GLOBAL_DEFAULT_POLICY["cooldown_hours"])
