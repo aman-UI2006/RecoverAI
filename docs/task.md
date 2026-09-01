@@ -49,7 +49,7 @@
 - `[x]` **Step 43: Action-Conditional Optimization**
 - `[x]` **Step 44: Recovery Strategy Optimization**
 - `[x]` **Step 45: Incremental/Counterfactual Analysis**
-- `[ ]` **Step 46: Merchant Intelligence**
+- `[x]` **Step 46: Merchant Intelligence**
 - `[ ]` **Step 47: Recovery Strategy Visualization**
 - `[ ]` **Step 48: Recovery Communication Intelligence**
 - `[ ]` **Step 49: Integration Testing**

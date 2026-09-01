@@ -5,7 +5,7 @@ Defines Pydantic data transfer objects for cohort measurement, incremental lift 
 and evaluation metrics reporting.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -69,3 +69,30 @@ class MeasurementResponse(BaseModel):
     created_at: datetime = Field(..., description="Timestamp when measurement was evaluated.")
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class IndustryBenchmark(BaseModel):
+    """Industry cohort aggregate benchmark."""
+
+    industry: str = Field(..., description="Industry category (e.g. SaaS, E-commerce, EdTech).")
+    decline_categories: Dict[str, float] = Field(default_factory=dict, description="Decline breakdown percentage mapping.")
+    avg_turnaround_minutes: float = Field(default=0.0, description="Average recovery turnaround time in minutes.")
+    top_performing_channels: List[Dict[str, Any]] = Field(default_factory=list, description="Ranked recovery action channel performance.")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MerchantIntelligenceResponse(BaseModel):
+    """Response payload for GET /api/v1/analytics/merchant delivering merchant cohort intelligence."""
+
+    merchant_id: Optional[str] = Field(None, description="Merchant UUID filter.")
+    industry: str = Field(default="SaaS", description="Merchant industry cohort classification.")
+    total_transactions_analyzed: int = Field(default=0, description="Total transactions in cohort.")
+    merchant_decline_categories: Dict[str, float] = Field(default_factory=dict, description="Merchant decline code percentage distribution.")
+    avg_turnaround_minutes: float = Field(default=0.0, description="Average turnaround time in minutes.")
+    top_channel: str = Field(default="PAYMENT_LINK", description="Top performing recovery action channel.")
+    channel_performance: Dict[str, float] = Field(default_factory=dict, description="Channel recovery rate percentage mapping.")
+    industry_benchmarks: List[IndustryBenchmark] = Field(default_factory=list, description="Comparative benchmark metrics across industry cohorts.")
+
+    model_config = ConfigDict(from_attributes=True)
+

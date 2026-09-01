@@ -170,7 +170,7 @@ describe('Step 33: Recovery Analytics Page', () => {
     expect(screen.getByText('SUBSCRIPTION_LAPSE')).toBeDefined();
 
     // Check Action Table Entries
-    expect(screen.getByText('PAYMENT_LINK')).toBeDefined();
+    expect(screen.getAllByText('PAYMENT_LINK').length).toBeGreaterThan(0);
     expect(screen.getByText('RECOVERY_MESSAGE')).toBeDefined();
     expect(screen.getByText('CUSTOMER_NUDGE')).toBeDefined();
   });

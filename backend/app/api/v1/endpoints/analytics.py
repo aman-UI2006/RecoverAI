@@ -13,7 +13,8 @@ from backend.app.core.database import get_db
 from backend.app.core.security import get_current_identity
 from backend.app.schemas.auth import AuthenticatedIdentity
 from backend.app.services.measurement_engine import MeasurementEngine
-from backend.app.schemas.analytics import MeasurementRequest, MeasurementResponse
+from backend.app.services.merchant_intelligence_service import MerchantIntelligenceService
+from backend.app.schemas.analytics import MeasurementRequest, MeasurementResponse, MerchantIntelligenceResponse
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
@@ -43,3 +44,27 @@ async def get_analytics_summary(
 
     response = await MeasurementEngine.evaluate_measurement(session=session, request=req)
     return response
+
+
+@router.get("/merchant", response_model=MerchantIntelligenceResponse)
+async def get_merchant_analytics(
+    merchant_id: Optional[str] = Query(None, description="Merchant UUID filter for tenant isolation."),
+    mode: str = Query("SIMULATION", description="Execution mode (REAL_TEST or SIMULATION)."),
+    x_merchant_id: Optional[str] = Header(None, alias="X-Merchant-ID", description="Tenant isolation header."),
+    identity: AuthenticatedIdentity = Depends(get_current_identity),
+    session: AsyncSession = Depends(get_db),
+):
+    """
+    Retrieve merchant cohort intelligence, turnaround metrics, channel rankings, and industry benchmarks.
+    """
+    if identity.merchant_id:
+        effective_merchant_id = identity.merchant_id
+    else:
+        effective_merchant_id = merchant_id or x_merchant_id
+
+    return await MerchantIntelligenceService.get_merchant_intelligence(
+        session=session,
+        merchant_id=effective_merchant_id,
+        mode=mode,
+    )
+

@@ -84,25 +84,48 @@ export interface ActionBreakdownItem {
   successRate: number;
 }
 
+export interface IndustryBenchmark {
+  industry: string;
+  decline_categories: Record<string, number>;
+  avg_turnaround_minutes: number;
+  top_performing_channels: Array<{ channel: string; recovery_rate: number }>;
+}
+
+export interface MerchantIntelligenceData {
+  merchant_id?: string;
+  industry: string;
+  total_transactions_analyzed: number;
+  merchant_decline_categories: Record<string, number>;
+  avg_turnaround_minutes: number;
+  top_channel: string;
+  channel_performance: Record<string, number>;
+  industry_benchmarks: IndustryBenchmark[];
+}
+
 const COLOR_PALETTE = ['#0EA5E9', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#64748B'];
+
 
 export const RecoveryAnalyticsPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<AnalyticsResponse | null>(null);
+  const [merchantIntel, setMerchantIntel] = useState<MerchantIntelligenceData | null>(null);
   const [mode, setMode] = useState<'SIMULATION' | 'REAL_TEST'>(currentApiState.mode);
 
   const fetchAnalyticsData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get<AnalyticsResponse>('/api/v1/analytics/summary', {
-        params: {
-          mode,
-          merchant_id: currentApiState.merchantId,
-        },
-      });
-      setData(response.data);
+      const [resSummary, resIntel] = await Promise.all([
+        api.get<AnalyticsResponse>('/api/v1/analytics/summary', {
+          params: { mode, merchant_id: currentApiState.merchantId },
+        }),
+        api.get<MerchantIntelligenceData>('/api/v1/analytics/merchant', {
+          params: { mode, merchant_id: currentApiState.merchantId },
+        }),
+      ]);
+      setData(resSummary.data);
+      setMerchantIntel(resIntel.data);
     } catch (err: any) {
       console.warn('[RecoveryAnalytics API Fallback]:', err?.message);
       // Resilient fallback dataset for offline/empty DB simulation testing
@@ -137,10 +160,69 @@ export const RecoveryAnalyticsPage: React.FC = () => {
         net_incremental_revenue: 426200.0,
         created_at: new Date().toISOString(),
       });
+
+      setMerchantIntel({
+        merchant_id: currentApiState.merchantId,
+        industry: 'SaaS',
+        total_transactions_analyzed: 1250,
+        merchant_decline_categories: {
+          EXPIRED_CARD: 42.5,
+          INSUFFICIENT_FUNDS: 31.0,
+          AUTHENTICATION_FAILED: 18.5,
+          GATEWAY_ERROR: 8.0,
+        },
+        avg_turnaround_minutes: 24.5,
+        top_channel: 'WHATSAPP_REMINDER',
+        channel_performance: {
+          WHATSAPP_REMINDER: 78.5,
+          PAYMENT_LINK: 74.2,
+          RECOVERY_MESSAGE: 68.0,
+          RETRY: 62.0,
+        },
+        industry_benchmarks: [
+          {
+            industry: 'SaaS',
+            decline_categories: { EXPIRED_CARD: 42.5, INSUFFICIENT_FUNDS: 31.0, AUTHENTICATION_FAILED: 18.5 },
+            avg_turnaround_minutes: 24.5,
+            top_performing_channels: [
+              { channel: 'WHATSAPP_REMINDER', recovery_rate: 78.5 },
+              { channel: 'PAYMENT_LINK', recovery_rate: 74.2 },
+            ],
+          },
+          {
+            industry: 'E-commerce',
+            decline_categories: { INSUFFICIENT_FUNDS: 48.0, BAD_REQUEST: 22.0, NETWORK_TIMEOUT: 16.5 },
+            avg_turnaround_minutes: 14.2,
+            top_performing_channels: [
+              { channel: 'PAYMENT_LINK', recovery_rate: 81.0 },
+              { channel: 'RECOVERY_MESSAGE', recovery_rate: 72.4 },
+            ],
+          },
+          {
+            industry: 'EdTech',
+            decline_categories: { AUTHENTICATION_FAILED: 36.0, INSUFFICIENT_FUNDS: 34.0 },
+            avg_turnaround_minutes: 38.0,
+            top_performing_channels: [
+              { channel: 'WHATSAPP_REMINDER', recovery_rate: 76.0 },
+              { channel: 'MANUAL_OUTREACH', recovery_rate: 70.5 },
+            ],
+          },
+          {
+            industry: 'FinTech',
+            decline_categories: { AUTHENTICATION_FAILED: 45.0, GATEWAY_ERROR: 25.0 },
+            avg_turnaround_minutes: 18.0,
+            top_performing_channels: [
+              { channel: 'RETRY', recovery_rate: 84.0 },
+              { channel: 'PAYMENT_LINK', recovery_rate: 79.5 },
+            ],
+          },
+        ],
+      });
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchAnalyticsData();
@@ -705,8 +787,78 @@ export const RecoveryAnalyticsPage: React.FC = () => {
               </ResponsiveContainer>
             </div>
           </div>
+
+          {/* Industry Cohort Benchmark Component (Step 46) */}
+          {merchantIntel && Array.isArray(merchantIntel.industry_benchmarks) && (
+            <div
+              data-testid="merchant-industry-benchmarks"
+              className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h3 className="text-base font-bold text-slate-100">Merchant Industry Cohort Intelligence</h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                      Cohort: {merchantIntel.industry}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Multi-tenant industry decline trends, turnaround benchmarks, and top recovery channel performance
+                  </p>
+                </div>
+                <div className="flex items-center space-x-4 text-xs font-mono text-slate-300">
+                  <div className="bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800">
+                    Avg Turnaround: <span className="text-cyan-300 font-bold">{merchantIntel.avg_turnaround_minutes}m</span>
+                  </div>
+                  <div className="bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800">
+                    Top Channel: <span className="text-emerald-400 font-bold">{merchantIntel.top_channel}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Industry Benchmark Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                {merchantIntel.industry_benchmarks.map((bm, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-4 rounded-xl border transition-all ${
+                      bm.industry === merchantIntel.industry
+                        ? 'bg-purple-950/20 border-purple-500/40 shadow-lg'
+                        : 'bg-slate-950/40 border-slate-800/80'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-slate-200">{bm.industry}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{bm.avg_turnaround_minutes}m turnaround</span>
+                    </div>
+
+                    <div className="space-y-2 mt-3">
+                      <div className="text-[11px] font-semibold text-slate-400">Top Decline Drivers:</div>
+                      {Object.entries(bm.decline_categories).slice(0, 3).map(([cat, pct], cIdx) => (
+                        <div key={cIdx} className="flex items-center justify-between text-[10px] font-mono">
+                          <span className="text-slate-300 truncate max-w-[120px]">{cat}</span>
+                          <span className="text-amber-400 font-semibold">{pct}%</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-slate-800/60">
+                      <div className="text-[11px] font-semibold text-slate-400 mb-1">Top Channel:</div>
+                      {bm.top_performing_channels.length > 0 && (
+                        <div className="flex items-center justify-between text-[11px] font-mono text-emerald-400 font-bold">
+                          <span>{bm.top_performing_channels[0].channel}</span>
+                          <span>{bm.top_performing_channels[0].recovery_rate}%</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : null}
     </div>
   );
 };
+
