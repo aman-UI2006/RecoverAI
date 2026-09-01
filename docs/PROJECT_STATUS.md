@@ -1,10 +1,10 @@
 # RecoverAI — Project Status
 
-- **Current Step:** Step 44 (Adaptive Policy Service) — VERIFIED
-- **Last Verified Step:** Step 44 (Adaptive Policy Service) — VERIFIED
-- **Current Status:** STEP 44 VERIFIED SUCCESSFULLY
-- **Last Known Good Commit:** Pending commit (`step-44-verified`)
-- **Blocking Issue:** NONE (Reinforcement-style adaptive policy threshold tuning service `AdaptivePolicyService` implemented under `backend/app/services/adaptive_policy_service.py` dynamically tuning `min_recovery_probability` based on recent batch Net ROI; enforces rate-of-change clamping <= 0.05/cycle, hard safety bounds 0.05 <= P <= 0.50, PostgreSQL DB policy persistence, and audit logging; PolicyRuleEvaluator min_prob bound updated in `backend/app/policies/rules.py`; PolicyManager frontend page updated with dynamic reinforcement indicator badge; 5/5 adaptive policy unit tests passing; 391/391 total backend pytest tests passing; 56/56 Vitest frontend tests passing; zero TypeScript build errors).
+- **Current Step:** Step 45 (Incremental/Counterfactual Analysis) — VERIFIED
+- **Last Verified Step:** Step 45 (Incremental/Counterfactual Analysis) — VERIFIED
+- **Current Status:** STEP 45 VERIFIED SUCCESSFULLY
+- **Last Known Good Commit:** Pending commit (`step-45-verified`)
+- **Blocking Issue:** NONE (Doubly Robust counterfactual estimator module `CounterfactualEvaluator` implemented under `backend/app/ml/counterfactual_evaluator.py` evaluating offline treatment effects and strategy optimality across candidate recovery actions on `data/test.parquet`; enforces propensity score clipping within [0.05, 0.95] to prevent inverse-probability weight variance explosion; written comprehensive report `docs/COUNTERFACTUAL_ANALYSIS.md` showing 83.73% current strategy optimality and estimated +19.43% (+12.51 pp) causal lift under optimal policy; 3/3 counterfactual unit tests passing in 2.04s; 394/394 total backend pytest tests passing; 56/56 Vitest frontend tests passing; zero TypeScript build errors).
 
 
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
