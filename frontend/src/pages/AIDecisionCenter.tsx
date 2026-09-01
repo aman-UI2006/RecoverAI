@@ -33,6 +33,7 @@ import {
 
 import { api, currentApiState } from '../services/api';
 import { ENRVTable } from '../components/ENRVTable';
+import { StrategyMatrix } from '../components/StrategyMatrix';
 
 // TypeScript Interfaces matching backend Pydantic schemas
 export interface ActionScoreItem {
@@ -437,6 +438,12 @@ export const AIDecisionCenterPage: React.FC = () => {
               recommendedAction={decisionData.recommendation?.recommended_action}
             />
           </div>
+
+          {/* RECOVERY STRATEGY VISUALIZATION MATRIX (Step 47) */}
+          <StrategyMatrix
+            activeDiagnosis={decisionData.diagnosis?.failure_code}
+            activeAction={decisionData.recommendation?.recommended_action || decisionData.top_action || undefined}
+          />
 
           {/* GUARDRAIL EVALUATION PANELS: CAPABILITY & POLICY */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
