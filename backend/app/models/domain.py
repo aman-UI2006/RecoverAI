@@ -189,6 +189,7 @@ class RecoveryAttempt(Base):
     external_resource_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     razorpay_payment_link_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     razorpay_reference_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    generated_message_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     executed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=current_utc_time, nullable=False)
 

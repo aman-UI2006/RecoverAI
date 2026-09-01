@@ -17,6 +17,9 @@ import {
   Activity,
   Layers,
   User,
+  MessageSquare,
+  Send,
+  Lock,
 } from 'lucide-react';
 import { api, currentApiState } from '../services/api';
 import { LifecycleStepper } from '../components/LifecycleStepper';
@@ -486,6 +489,59 @@ export const TransactionDetailPage: React.FC = () => {
           ) : (
             <div className="text-xs text-slate-500 py-6 text-center">
               No recovery attempt execution records present.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Customer Communication Intelligence Preview Card (Step 48) */}
+      <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4" data-testid="communication-preview-card">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-cyan-400" />
+            <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
+              Customer Recovery Communication Copy
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+              Tone: {transaction.scenario_type.includes('SUBSCRIPTION') ? 'Empathetic' : transaction.amount >= 10000 ? 'Urgent' : 'Informative'}
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">
+              {transaction.mode === 'REAL_TEST' ? 'REAL_TEST (Content Generation Only)' : 'SIMULATION Model'}
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-xs text-slate-400">
+            <span className="flex items-center gap-1">
+              <Send className="w-3.5 h-3.5 text-slate-500" />
+              Channel: <strong className="text-slate-200">SMS / WhatsApp</strong>
+            </span>
+            <span className="flex items-center gap-1 font-mono text-[11px] text-amber-400">
+              <Lock className="w-3 h-3 text-amber-400" />
+              PII Redacted Preview
+            </span>
+          </div>
+
+          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800/80 text-xs text-slate-200 font-mono leading-relaxed space-y-2">
+            <p>
+              {transaction.scenario_type.includes('SUBSCRIPTION')
+                ? `We noticed your recent payment of ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount)} didn't go through. We understand these things happen! You can easily update your payment details using this secure link: ${transaction.razorpay_payment_link_id ? `https://rzp.io/i/${transaction.razorpay_payment_link_id}` : 'https://rzp.io/i/recov_demo'}`
+                : `Payment Action Required: Your transaction of ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount)} is pending. Please complete your payment via secure link: ${transaction.razorpay_payment_link_id ? `https://rzp.io/i/${transaction.razorpay_payment_link_id}` : 'https://rzp.io/i/recov_demo'}`}
+            </p>
+          </div>
+
+          {transaction.mode === 'REAL_TEST' ? (
+            <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 font-medium flex items-center justify-between">
+              <span>REAL_TEST Boundary: Content generated for inspection only. No external SMS/Email dispatched.</span>
+              <span className="font-mono text-amber-400 font-bold uppercase">Dispatched: NO</span>
+            </div>
+          ) : (
+            <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-300 font-medium flex items-center justify-between">
+              <span>SIMULATION Boundary: Delivery modeled. Simulated conversion probability: 78.0%.</span>
+              <span className="font-mono text-emerald-400 font-bold uppercase">Dispatched: SIMULATED</span>
             </div>
           )}
         </div>

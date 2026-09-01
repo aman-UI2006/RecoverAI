@@ -53,6 +53,7 @@ class RecoveryAttemptSummary(BaseModel):
     external_resource_type: str = Field(..., description="Type of external resource.")
     razorpay_payment_link_id: Optional[str] = Field(None, description="Created Razorpay Payment Link ID.")
     razorpay_reference_id: Optional[str] = Field(None, description="Custom reference ID.")
+    generated_message_text: Optional[str] = Field(None, description="Generated recovery message text preview.")
     executed_at: Optional[datetime] = Field(None, description="Execution timestamp.")
     created_at: datetime = Field(..., description="Record creation timestamp.")
 

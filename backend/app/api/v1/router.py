@@ -13,6 +13,7 @@ from backend.app.api.v1.endpoints import (
     policies,
     evaluations,
     ai_decisions,
+    communication,
 )
 
 api_v1_router = APIRouter()
@@ -25,6 +26,7 @@ api_v1_router.include_router(audit.router)
 api_v1_router.include_router(policies.router)
 api_v1_router.include_router(evaluations.router)
 api_v1_router.include_router(ai_decisions.router)
+api_v1_router.include_router(communication.router)
 
 
 
