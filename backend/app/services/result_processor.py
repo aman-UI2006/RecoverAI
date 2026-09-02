@@ -249,11 +249,10 @@ class ResultProcessor:
                 "message": "Merchant isolation mismatch between payload notes and transaction.",
             }
 
-        # 4. Idempotency Check: If RecoveryAttempt is already SUCCESS or FAILURE, skip duplicate processing
-        if attempt.execution_status in (ExecutionStatus.SUCCESS.value, ExecutionStatus.FAILURE.value):
+        # 4. Idempotency Check: If Transaction is already terminal (RECOVERED or FAILED), skip duplicate processing
+        if tx.status in (TransactionStatus.RECOVERED.value, TransactionStatus.FAILED.value):
             logger.info(
-                f"Idempotent skip: RecoveryAttempt '{attempt.id}' for transaction '{tx.id}' "
-                f"already has execution_status '{attempt.execution_status}'."
+                f"Idempotent skip: Transaction '{tx.id}' is already in terminal status '{tx.status}'."
             )
             return {
                 "status": "IDEMPOTENT_SKIPPED",

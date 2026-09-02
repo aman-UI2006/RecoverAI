@@ -125,49 +125,50 @@ class ActionExecutor:
 
         mode_str = cap_res.execution_mode.value if hasattr(cap_res.execution_mode, "value") else str(cap_res.execution_mode)
 
-        # 7. Create PENDING RecoveryAttempt record
-        attempt_id = generate_uuid()
+        # 7. Check for existing RecoveryAttempt record or create a new PENDING one
         now = current_utc_time()
-        attempt = RecoveryAttempt(
-            id=attempt_id,
-            transaction_id=tx.id,
-            decision_context_id=request.decision_context_id,
-            logical_operation_key=logical_op_key,
-            recommended_action=request.action_type,
-            action_payload=request.action_payload,
-            policy_status="APPROVED",
-            policy_reason="Policy approved for execution",
-            policy_version="1.0",
-            execution_status=ExecutionStatus.PENDING.value,
-            external_resource_type=mode_str,
-            created_at=now,
+        stmt_existing = select(RecoveryAttempt).where(
+            RecoveryAttempt.logical_operation_key == logical_op_key
         )
-        session.add(attempt)
+        existing_attempt = (await session.execute(stmt_existing)).scalar_one_or_none()
 
-        try:
-            await session.flush()
-        except IntegrityError:
-            await session.rollback()
-            # Fetch existing attempt inserted concurrently
-            stmt_dup = select(RecoveryAttempt).where(
-                RecoveryAttempt.logical_operation_key == logical_op_key
-            )
-            existing_dup = (await session.execute(stmt_dup)).scalar_one()
-            return ActionExecutionResponse(
-                execution_id=existing_dup.id,
+        if existing_attempt:
+            attempt = existing_attempt
+            attempt_id = existing_attempt.id
+            if existing_attempt.execution_status in (ExecutionStatus.SUCCESS.value, ExecutionStatus.EXECUTING.value):
+                return ActionExecutionResponse(
+                    execution_id=existing_attempt.id,
+                    transaction_id=tx.id,
+                    merchant_id=request.merchant_id,
+                    logical_operation_key=logical_op_key,
+                    action_type=request.action_type,
+                    execution_status=existing_attempt.execution_status,
+                    external_resource_type=existing_attempt.external_resource_type or mode_str,
+                    external_resource_id=existing_attempt.external_resource_id,
+                    razorpay_payment_link_id=existing_attempt.razorpay_payment_link_id,
+                    razorpay_reference_id=existing_attempt.razorpay_reference_id,
+                    audit_event_id="audit_existing_duplicate",
+                    executed_at=existing_attempt.executed_at or existing_attempt.created_at,
+                    is_duplicate=True,
+                )
+        else:
+            attempt_id = generate_uuid()
+            attempt = RecoveryAttempt(
+                id=attempt_id,
                 transaction_id=tx.id,
-                merchant_id=request.merchant_id,
+                decision_context_id=request.decision_context_id,
                 logical_operation_key=logical_op_key,
-                action_type=request.action_type,
-                execution_status=existing_dup.execution_status,
-                external_resource_type=existing_dup.external_resource_type,
-                external_resource_id=existing_dup.external_resource_id,
-                razorpay_payment_link_id=existing_dup.razorpay_payment_link_id,
-                razorpay_reference_id=existing_dup.razorpay_reference_id,
-                audit_event_id="audit_concurrent_duplicate",
-                executed_at=existing_dup.executed_at or existing_dup.created_at,
-                is_duplicate=True,
+                recommended_action=request.action_type,
+                action_payload=request.action_payload,
+                policy_status="APPROVED",
+                policy_reason="Policy approved for execution",
+                policy_version="1.0",
+                execution_status=ExecutionStatus.PENDING.value,
+                external_resource_type=mode_str,
+                created_at=now,
             )
+            session.add(attempt)
+            await session.flush()
 
         # 8. Authoritative State Mutation via StateTransitionService: APPROVED -> EXECUTING
         updated_tx, audit_record = await StateTransitionService.transition(
@@ -229,7 +230,7 @@ class ActionExecutor:
                 rzp_reference_id = delegate_res.get("razorpay_reference_id")
             else:
                 execution_status = ExecutionStatus.SUCCESS.value
-                external_resource_id = f"sim_res_{generate_uuid()[:12]}"
+                external_resource_id = f"plink_sim_{generate_uuid()[:12]}"
                 rzp_payment_link_id = external_resource_id
                 rzp_reference_id = f"ref_{generate_uuid()[:8]}"
 
