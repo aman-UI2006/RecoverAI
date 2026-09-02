@@ -56,8 +56,8 @@
 - `[x]` **Step 50: Database Deployment**
 - `[x]` **Step 51: Backend Deployment**
 - `[x]` **Step 52: Frontend Deployment**
-- `[ ]` **Step 53: Production Validation**
-- `[ ]` **Step 54: Real Test Trigger**
+- `[x]` **Step 53: Production Validation**
+- `[x]` **Step 54: Real Test Trigger**
 - `[ ]` **Step 55: Payment Link Webhook**
 - `[ ]` **Step 56: Outcome Ingestion**
 - `[ ]` **Step 57: Final State Machine**
