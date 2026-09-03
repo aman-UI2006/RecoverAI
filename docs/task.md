@@ -58,7 +58,7 @@
 - `[x]` **Step 52: Frontend Deployment**
 - `[x]` **Step 53: Production Validation**
 - `[x]` **Step 54: Real Test Trigger**
-- `[ ]` **Step 55: Payment Link Webhook**
+- `[x]` **Step 55: Architecture Documentation**
 - `[ ]` **Step 56: Outcome Ingestion**
 - `[ ]` **Step 57: Final State Machine**
 - `[ ]` **Step 58: Attribution Verification**
