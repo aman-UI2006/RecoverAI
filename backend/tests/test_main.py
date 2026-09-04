@@ -22,15 +22,16 @@ async def test_1_health_check_endpoint():
 
 @pytest.mark.asyncio
 async def test_2_cors_middleware_headers():
-    """2. Test CORS middleware allows allowed origin (http://localhost:5173)."""
-    headers = {
-        "Origin": "http://localhost:5173",
-        "Access-Control-Request-Method": "GET",
-    }
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as client:
-        response = await client.options("/health", headers=headers)
-        assert response.status_code == 200
-        assert response.headers.get("access-control-allow-origin") == "http://localhost:5173"
+    """2. Test CORS middleware allows allowed origins (http://localhost:3000 and http://localhost:5173)."""
+    for origin in ["http://localhost:3000", "http://localhost:5173"]:
+        headers = {
+            "Origin": origin,
+            "Access-Control-Request-Method": "GET",
+        }
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as client:
+            response = await client.options("/health", headers=headers)
+            assert response.status_code == 200
+            assert response.headers.get("access-control-allow-origin") == origin
 
 
 @pytest.mark.asyncio
