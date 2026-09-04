@@ -6,7 +6,6 @@ import {
   XCircle,
   User,
   FileText,
-  Clock,
   ShieldAlert,
   Zap,
   ExternalLink
@@ -70,22 +69,22 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const isResolved = item.status !== 'PENDING';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B1F3A]/40 backdrop-blur-sm font-sans">
+      <div className="relative w-full max-w-2xl bg-white border border-[#E5EAF1] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/80">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5EAF1] bg-white">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            <div className="p-2 rounded-lg bg-[#FDF8EC] border border-[#D99A00]/20 text-[#D99A00]">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Inspect & Action Review</h2>
-              <p className="text-xs text-slate-400">Authorization & Manual Decision Control</p>
+              <h2 className="text-base font-bold text-[#0B1F3A]">Inspect & Action Review</h2>
+              <p className="text-xs text-[#53627A]">Authorization & Manual Decision Control</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-[#7A8799] hover:text-[#0B1F3A] hover:bg-[#F8FAFD] transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -96,51 +95,51 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         <div className="p-6 overflow-y-auto space-y-5 flex-1">
           {/* Error Alert Display */}
           {(errorAlert || validationError) && (
-            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start space-x-3 text-red-400 text-sm">
-              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div className="p-4 rounded-lg bg-[#FDF2F4] border border-[#D6455D]/20 flex items-start space-x-3 text-[#D6455D] text-xs font-bold">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium">Action Submission Error</p>
-                <p className="text-xs text-red-300/80 mt-0.5">{errorAlert || validationError}</p>
+                <p className="font-bold">Action Submission Error</p>
+                <p className="text-xs text-[#D6455D] mt-0.5 font-normal">{errorAlert || validationError}</p>
               </div>
             </div>
           )}
 
           {/* Transaction Metadata Card */}
-          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="p-4 rounded-lg bg-[#F8FAFD] border border-[#E5EAF1] space-y-3 font-numeric">
+            <div className="flex flex-wrap items-center justify-between gap-2 font-sans">
               <div className="flex items-center space-x-2">
-                <span className="text-xs font-mono font-semibold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                <span className="text-xs font-mono font-bold text-[#2454D6] bg-[#EEF4FF] px-2.5 py-0.5 rounded border border-[#2F5BFF]/20">
                   Tx: {item.transaction_id}
                 </span>
-                <span className="text-xs font-medium text-slate-400">
-                  Merchant: <span className="text-slate-200">{item.merchant_id}</span>
+                <span className="text-xs font-bold text-[#53627A]">
+                  Merchant: <span className="text-[#0B1F3A] font-mono">{item.merchant_id}</span>
                 </span>
               </div>
-              <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+              <span className={`text-[11px] px-2.5 py-0.5 rounded font-bold border ${
                 item.mode === 'REAL_TEST'
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                  ? 'bg-[#FDF2F4] text-[#D6455D] border-[#D6455D]/20'
+                  : 'bg-[#EEF4FF] text-[#2454D6] border-[#2F5BFF]/20'
               }`}>
                 {item.mode}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-800/60 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2 border-t border-[#E5EAF1] text-xs">
               <div>
-                <span className="text-xs text-slate-400 block">Amount</span>
-                <span className="text-base font-bold text-white font-mono">
+                <span className="text-[10px] text-[#7A8799] uppercase font-bold font-sans block">Amount</span>
+                <span className="text-base font-bold text-[#0B1F3A]">
                   ₹{item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
-              <div>
-                <span className="text-xs text-slate-400 block">Scenario Type</span>
-                <span className="text-xs font-medium text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20 inline-block mt-0.5">
+              <div className="font-sans">
+                <span className="text-[10px] text-[#7A8799] uppercase font-bold block">Scenario Type</span>
+                <span className="text-xs font-bold text-[#D99A00] bg-[#FDF8EC] px-2 py-0.5 rounded border border-[#D99A00]/20 inline-block mt-0.5 font-mono">
                   {item.scenario_type}
                 </span>
               </div>
-              <div>
-                <span className="text-xs text-slate-400 block">Escalated At</span>
-                <span className="text-xs text-slate-300 font-mono">
+              <div className="font-sans">
+                <span className="text-[10px] text-[#7A8799] uppercase font-bold block">Escalated At</span>
+                <span className="text-xs text-[#0B1F3A] font-bold">
                   {new Date(item.created_at).toLocaleString()}
                 </span>
               </div>
@@ -148,22 +147,22 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
           </div>
 
           {/* Escalation Reason Box */}
-          <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-2">
-            <div className="flex items-center space-x-2 text-amber-400 text-xs font-semibold uppercase tracking-wider">
-              <Zap className="w-4 h-4" />
+          <div className="p-4 rounded-lg bg-[#FDF8EC] border border-[#D99A00]/20 space-y-2">
+            <div className="flex items-center space-x-2 text-[#D99A00] text-[10px] font-bold uppercase tracking-wider">
+              <Zap className="w-3.5 h-3.5" />
               <span>Escalation Reason Code</span>
             </div>
-            <p className="text-sm font-medium text-amber-200 font-mono bg-slate-950/80 p-2.5 rounded-lg border border-amber-500/10">
+            <p className="text-xs font-bold text-[#0B1F3A] font-mono bg-white p-2.5 rounded border border-[#D99A00]/20">
               {item.reason}
             </p>
           </div>
 
           {/* Deep Inspection Links */}
-          <div className="flex items-center space-x-4 text-xs">
+          <div className="flex items-center space-x-4 text-xs font-bold">
             <Link
               to={`/transactions/${item.transaction_id}`}
               target="_blank"
-              className="flex items-center space-x-1.5 text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="flex items-center space-x-1.5 text-[#2F5BFF] hover:text-[#1A47E8] transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>View Full Lifecycle Stepper</span>
@@ -171,7 +170,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             <Link
               to={`/ai-decision/${item.transaction_id}`}
               target="_blank"
-              className="flex items-center space-x-1.5 text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="flex items-center space-x-1.5 text-[#2F5BFF] hover:text-[#1A47E8] transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Inspect AI Diagnosis & ENRV Rationale</span>
@@ -180,10 +179,10 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
           {/* Decision Form Controls (Only active if PENDING) */}
           {!isResolved ? (
-            <div className="space-y-4 pt-2 border-t border-slate-800">
+            <div className="space-y-4 pt-2 border-t border-[#E5EAF1]">
               <div>
-                <label htmlFor="reviewerId" className="block text-xs font-medium text-slate-300 mb-1 flex items-center space-x-1">
-                  <User className="w-3.5 h-3.5 text-slate-400" />
+                <label htmlFor="reviewerId" className="block text-xs font-bold text-[#0B1F3A] mb-1 flex items-center space-x-1">
+                  <User className="w-3.5 h-3.5 text-[#7A8799]" />
                   <span>Reviewer Operator ID / Authorization Name *</span>
                 </label>
                 <input
@@ -192,13 +191,13 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   value={reviewerId}
                   onChange={(e) => setReviewerId(e.target.value)}
                   placeholder="e.g. rev_operator_01"
-                  className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E5EAF1] text-xs text-[#0B1F3A] font-mono font-bold focus:outline-none focus:border-[#2F5BFF]/50"
                 />
               </div>
 
               <div>
-                <label htmlFor="reviewerNotes" className="block text-xs font-medium text-slate-300 mb-1 flex items-center space-x-1">
-                  <FileText className="w-3.5 h-3.5 text-slate-400" />
+                <label htmlFor="reviewerNotes" className="block text-xs font-bold text-[#0B1F3A] mb-1 flex items-center space-x-1">
+                  <FileText className="w-3.5 h-3.5 text-[#7A8799]" />
                   <span>Decision Rationale / Audit Notes</span>
                 </label>
                 <textarea
@@ -207,28 +206,28 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="State operational justification for override or termination..."
-                  className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E5EAF1] text-xs text-[#0B1F3A] focus:outline-none focus:border-[#2F5BFF]/50 resize-none"
                 />
               </div>
             </div>
           ) : (
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div className="p-4 rounded-lg bg-[#F8FAFD] border border-[#E5EAF1] space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400">Current Status</span>
-                <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
-                  item.status === 'APPROVED' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                  item.status === 'REJECTED' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                  'bg-slate-800 text-slate-400'
+                <span className="text-xs text-[#53627A] font-bold">Current Status</span>
+                <span className={`text-[11px] px-2.5 py-0.5 rounded font-bold border ${
+                  item.status === 'APPROVED' ? 'bg-[#E6F4ED] text-[#16A36A] border-[#16A36A]/20' :
+                  item.status === 'REJECTED' ? 'bg-[#FDF2F4] text-[#D6455D] border-[#D6455D]/20' :
+                  'bg-[#F8FAFD] text-[#7A8799] border-[#E5EAF1]'
                 }`}>
                   {item.status} ({item.decision})
                 </span>
               </div>
-              <div className="text-xs text-slate-300">
-                <span className="text-slate-500">Reviewer:</span> {item.reviewer_id || 'System'}
+              <div className="text-xs text-[#0B1F3A] font-numeric font-bold">
+                <span className="text-[#7A8799] font-sans">Reviewer:</span> {item.reviewer_id || 'System'}
               </div>
               {item.notes && (
-                <div className="text-xs text-slate-300 bg-slate-900 p-2 rounded border border-slate-800 mt-1">
-                  <span className="text-slate-500 block">Notes:</span>
+                <div className="text-xs text-[#0B1F3A] bg-white p-2 rounded border border-[#E5EAF1] mt-1">
+                  <span className="text-[#7A8799] block text-[10px] uppercase font-bold">Notes:</span>
                   {item.notes}
                 </div>
               )}
@@ -237,11 +236,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         </div>
 
         {/* Footer Action Buttons */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-t border-slate-800 bg-slate-900/80">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-t border-[#E5EAF1] bg-white">
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-bold text-[#53627A] hover:text-[#0B1F3A] bg-white hover:bg-[#F8FAFD] border border-[#E5EAF1] rounded-lg transition-all cursor-pointer shadow-sm"
           >
             Close
           </button>
@@ -251,7 +250,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               <button
                 onClick={() => handleAction('REJECT_PERMANENT')}
                 disabled={isSubmitting}
-                className="flex items-center space-x-2 px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-500 active:bg-red-700 disabled:opacity-50 rounded-lg transition-colors shadow-lg shadow-red-600/20"
+                className="flex items-center space-x-2 px-4 py-2 text-xs font-bold text-white bg-[#D6455D] hover:bg-[#B53449] disabled:opacity-50 rounded-lg transition-all shadow-sm cursor-pointer"
               >
                 <XCircle className="w-4 h-4" />
                 <span>{isSubmitting ? 'Processing...' : 'REJECT_PERMANENT (Terminate)'}</span>
@@ -260,7 +259,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               <button
                 onClick={() => handleAction('APPROVE_OVERRIDE')}
                 disabled={isSubmitting}
-                className="flex items-center space-x-2 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-50 rounded-lg transition-colors shadow-lg shadow-emerald-600/20"
+                className="flex items-center space-x-2 px-4 py-2 text-xs font-bold text-white bg-[#16A36A] hover:bg-[#0D633F] disabled:opacity-50 rounded-lg transition-all shadow-sm cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>{isSubmitting ? 'Processing...' : 'APPROVE_OVERRIDE (Force Execution)'}</span>

@@ -5,15 +5,9 @@ import {
   RotateCcw,
   CheckCircle2,
   XCircle,
-  Clock,
   Search,
-  Filter,
   Eye,
-  AlertTriangle,
   Zap,
-  Check,
-  ChevronRight,
-  TrendingUp,
   DollarSign
 } from 'lucide-react';
 import { api } from '../services/api';
@@ -201,25 +195,25 @@ export const HumanReviewPage: React.FC = () => {
   const rejectedCount = queueItems.filter((i) => i.status === 'REJECTED').length;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Toast Banner */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-2xl flex items-center space-x-3 backdrop-blur-md animate-fadeIn">
-          <CheckCircle2 className="w-5 h-5 shrink-0" />
-          <span className="text-sm font-medium">{toastMessage}</span>
+        <div className="fixed top-20 right-6 z-50 p-4 rounded-xl bg-[#E6F4ED] border border-[#16A36A]/30 text-[#16A36A] shadow-lg flex items-center space-x-3 backdrop-blur-md font-bold text-xs">
+          <CheckCircle2 className="w-5 h-5 shrink-0 text-[#16A36A]" />
+          <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-[#E5EAF1] p-6 rounded-xl shadow-sm">
         <div>
           <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-bold text-white tracking-tight">Human Review Queue</h1>
-            <span className="text-xs font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
+            <h1 className="text-2xl font-bold text-[#0B1F3A] tracking-tight">Human Review Queue</h1>
+            <span className="text-xs font-mono font-bold bg-[#FDF8EC] text-[#D99A00] border border-[#D99A00]/20 px-2.5 py-0.5 rounded">
               STEP 36
             </span>
           </div>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-xs text-[#53627A] mt-1">
             Process escalated high-value or policy-rejected transactions requiring manual operator authorization
           </p>
         </div>
@@ -227,64 +221,64 @@ export const HumanReviewPage: React.FC = () => {
         <button
           onClick={fetchReviewQueue}
           disabled={isRefreshing}
-          className="flex items-center space-x-2 px-4 py-2 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors shadow-md disabled:opacity-50"
+          className="flex items-center space-x-2 px-4 py-2 text-xs font-bold text-[#0B1F3A] bg-white hover:bg-[#F8FAFD] rounded-lg border border-[#E5EAF1] transition-all shadow-sm cursor-pointer disabled:opacity-50"
         >
-          <RotateCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <RotateCcw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
           <span>{isRefreshing ? 'Syncing Queue...' : 'Refresh Queue'}</span>
         </button>
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-slate-900/80 border border-amber-500/30 backdrop-blur-sm space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-numeric">
+        <div className="p-4 rounded-xl bg-white border border-[#D99A00]/30 shadow-sm space-y-2">
+          <div className="flex items-center justify-between text-[#7A8799] text-xs font-bold font-sans">
             <span>Pending Escalations</span>
-            <ShieldAlert className="w-4 h-4 text-amber-400" />
+            <ShieldAlert className="w-4 h-4 text-[#D99A00]" />
           </div>
-          <div className="text-2xl font-bold text-amber-400 font-mono">{pendingCount}</div>
-          <p className="text-[11px] text-slate-500">Requires manual authorization decision</p>
+          <div className="text-2xl font-bold text-[#D99A00]">{pendingCount}</div>
+          <p className="text-[11px] text-[#7A8799] font-sans">Requires manual authorization decision</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-sm space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+        <div className="p-4 rounded-xl bg-white border border-[#E5EAF1] shadow-sm space-y-2">
+          <div className="flex items-center justify-between text-[#7A8799] text-xs font-bold font-sans">
             <span>High-Value Items (≥₹10k)</span>
-            <DollarSign className="w-4 h-4 text-indigo-400" />
+            <DollarSign className="w-4 h-4 text-[#2F5BFF]" />
           </div>
-          <div className="text-2xl font-bold text-indigo-400 font-mono">{highValueCount}</div>
-          <p className="text-[11px] text-slate-500">Above merchant auto-execution cap</p>
+          <div className="text-2xl font-bold text-[#2454D6]">{highValueCount}</div>
+          <p className="text-[11px] text-[#7A8799] font-sans">Above merchant auto-execution cap</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-sm space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+        <div className="p-4 rounded-xl bg-white border border-[#E5EAF1] shadow-sm space-y-2">
+          <div className="flex items-center justify-between text-[#7A8799] text-xs font-bold font-sans">
             <span>Approved Overrides</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 text-[#16A36A]" />
           </div>
-          <div className="text-2xl font-bold text-emerald-400 font-mono">{approvedCount}</div>
-          <p className="text-[11px] text-slate-500">Forced execution authorized</p>
+          <div className="text-2xl font-bold text-[#16A36A]">{approvedCount}</div>
+          <p className="text-[11px] text-[#7A8799] font-sans">Forced execution authorized</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 backdrop-blur-sm space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+        <div className="p-4 rounded-xl bg-white border border-[#E5EAF1] shadow-sm space-y-2">
+          <div className="flex items-center justify-between text-[#7A8799] text-xs font-bold font-sans">
             <span>Terminated Actions</span>
-            <XCircle className="w-4 h-4 text-red-400" />
+            <XCircle className="w-4 h-4 text-[#D6455D]" />
           </div>
-          <div className="text-2xl font-bold text-red-400 font-mono">{rejectedCount}</div>
-          <p className="text-[11px] text-slate-500">Permanently rejected & terminated</p>
+          <div className="text-2xl font-bold text-[#D6455D]">{rejectedCount}</div>
+          <p className="text-[11px] text-[#7A8799] font-sans">Permanently rejected & terminated</p>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-xl bg-white border border-[#E5EAF1] shadow-sm">
         {/* Status Filter Tabs */}
         <div className="flex flex-wrap items-center gap-1.5">
           {['PENDING', 'APPROVED', 'REJECTED', 'ALL'].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 statusFilter === status
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  ? 'bg-[#2F5BFF] text-white shadow-sm'
+                  : 'text-[#53627A] hover:text-[#0B1F3A] hover:bg-[#F8FAFD]'
               }`}
             >
               {status === 'ALL' ? 'ALL STATUSES' : status}
@@ -294,55 +288,55 @@ export const HumanReviewPage: React.FC = () => {
 
         {/* Search Input */}
         <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#7A8799]" />
           <input
             type="text"
             placeholder="Search Tx ID or Escalation Code..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-white border border-[#E5EAF1] text-xs text-[#0B1F3A] placeholder-[#7A8799] focus:outline-none focus:border-[#2F5BFF]/50"
           />
         </div>
       </div>
 
       {/* Review Queue Cards Grid / List */}
       {isLoading ? (
-        <div className="p-12 text-center text-slate-500 space-y-3">
-          <RotateCcw className="w-8 h-8 animate-spin mx-auto text-indigo-500" />
-          <p className="text-sm">Loading escalated human review items...</p>
+        <div className="p-12 text-center text-[#7A8799] space-y-3 bg-white rounded-xl border border-[#E5EAF1]">
+          <RotateCcw className="w-8 h-8 animate-spin mx-auto text-[#2F5BFF]" />
+          <p className="text-xs font-bold">Loading escalated human review items...</p>
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="p-12 text-center rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
-          <UserCheck className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-base font-semibold text-slate-300">No Escalated Review Items Found</h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
+        <div className="p-12 text-center rounded-xl bg-white border border-[#E5EAF1] space-y-3 shadow-sm">
+          <UserCheck className="w-10 h-10 text-[#7A8799] mx-auto" />
+          <h3 className="text-sm font-bold text-[#0B1F3A]">No Escalated Review Items Found</h3>
+          <p className="text-xs text-[#53627A] max-w-md mx-auto">
             There are currently no transactions matching your selected filters requiring manual operator authorization.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-numeric">
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className={`p-5 rounded-xl border transition-all flex flex-col justify-between space-y-4 ${
+              className={`p-5 rounded-xl border transition-all flex flex-col justify-between space-y-4 shadow-sm ${
                 item.status === 'PENDING'
-                  ? 'bg-slate-900/90 border-amber-500/30 hover:border-amber-500/50 shadow-lg shadow-amber-950/20'
-                  : 'bg-slate-900/50 border-slate-800 opacity-80'
+                  ? 'bg-white border-[#D99A00]/40'
+                  : 'bg-white border-[#E5EAF1] opacity-80'
               }`}
             >
               <div className="space-y-3">
                 {/* Card Top Row */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded border border-indigo-500/20">
+                  <span className="text-xs font-mono font-bold text-[#2454D6] bg-[#EEF4FF] px-2.5 py-0.5 rounded border border-[#2F5BFF]/20">
                     Tx: {item.transaction_id}
                   </span>
                   <span
-                    className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
+                    className={`text-[11px] px-2.5 py-0.5 rounded font-bold border font-sans ${
                       item.status === 'PENDING'
-                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse'
+                        ? 'bg-[#FDF8EC] text-[#D99A00] border-[#D99A00]/20'
                         : item.status === 'APPROVED'
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                        : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                        ? 'bg-[#E6F4ED] text-[#16A36A] border-[#16A36A]/20'
+                        : 'bg-[#FDF2F4] text-[#D6455D] border-[#D6455D]/20'
                     }`}
                   >
                     {item.status}
@@ -352,43 +346,43 @@ export const HumanReviewPage: React.FC = () => {
                 {/* Amount & Scenario Row */}
                 <div className="flex items-baseline justify-between pt-1">
                   <div>
-                    <span className="text-[11px] text-slate-500 block">Amount</span>
-                    <span className="text-lg font-bold text-white font-mono">
+                    <span className="text-[10px] text-[#7A8799] uppercase font-bold font-sans block">Amount</span>
+                    <span className="text-lg font-bold text-[#0B1F3A]">
                       ₹{item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[11px] text-slate-500 block">Scenario</span>
-                    <span className="text-xs text-slate-300 font-medium bg-slate-800 px-2 py-0.5 rounded">
+                  <div className="text-right font-sans">
+                    <span className="text-[10px] text-[#7A8799] uppercase font-bold block">Scenario</span>
+                    <span className="text-xs text-[#0B1F3A] font-bold bg-[#F8FAFD] px-2 py-0.5 rounded border border-[#E5EAF1]">
                       {item.scenario_type}
                     </span>
                   </div>
                 </div>
 
                 {/* Escalation Code Banner */}
-                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800/80 space-y-1">
-                  <div className="flex items-center space-x-1.5 text-amber-400 text-[11px] font-semibold uppercase tracking-wider">
-                    <Zap className="w-3.5 h-3.5" />
+                <div className="p-3 rounded-lg bg-[#F8FAFD] border border-[#E5EAF1] space-y-1 font-sans">
+                  <div className="flex items-center space-x-1.5 text-[#D99A00] text-[10px] font-bold uppercase tracking-wider">
+                    <Zap className="w-3.5 h-3.5 text-[#D99A00]" />
                     <span>Escalation Code</span>
                   </div>
-                  <p className="text-xs text-amber-200/90 font-mono line-clamp-2">
+                  <p className="text-xs text-[#0B1F3A] font-mono font-bold line-clamp-2">
                     {item.reason}
                   </p>
                 </div>
               </div>
 
               {/* Card Footer Action */}
-              <div className="pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs">
-                <span className="text-slate-500 font-mono text-[11px]">
+              <div className="pt-3 border-t border-[#E5EAF1] flex items-center justify-between text-xs font-sans">
+                <span className="text-[#7A8799] font-mono text-[11px]">
                   {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
 
                 <button
                   onClick={() => handleOpenInspectModal(item)}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     item.status === 'PENDING'
-                      ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30'
-                      : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                      ? 'bg-[#FDF8EC] hover:bg-[#FDF8EC]/80 text-[#D99A00] border border-[#D99A00]/30 shadow-sm'
+                      : 'bg-white hover:bg-[#F8FAFD] text-[#0B1F3A] border border-[#E5EAF1] shadow-sm'
                   }`}
                 >
                   <Eye className="w-3.5 h-3.5" />

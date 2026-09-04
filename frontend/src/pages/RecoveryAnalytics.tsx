@@ -18,9 +18,6 @@ import {
   CheckCircle2,
   PieChart as PieChartIcon,
   Layers,
-  ArrowUpRight,
-  ShieldAlert,
-  HelpCircle,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -101,9 +98,6 @@ export interface MerchantIntelligenceData {
   channel_performance: Record<string, number>;
   industry_benchmarks: IndustryBenchmark[];
 }
-
-const COLOR_PALETTE = ['#0EA5E9', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#64748B'];
-
 
 export const RecoveryAnalyticsPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -223,7 +217,6 @@ export const RecoveryAnalyticsPage: React.FC = () => {
     }
   };
 
-
   useEffect(() => {
     fetchAnalyticsData();
   }, [mode, currentApiState.merchantId]);
@@ -250,17 +243,17 @@ export const RecoveryAnalyticsPage: React.FC = () => {
   const cohortComparisonData = data
     ? [
         {
-          category: 'Eligible Revenue at Risk',
+          category: 'Eligible At-Risk',
           Treatment: data.treatment_metrics?.total_eligible_amount || 0,
           Control: data.control_metrics?.total_eligible_amount || 0,
         },
         {
-          category: 'Gross Recovered Revenue',
+          category: 'Gross Recovered',
           Treatment: data.treatment_recovered_amount || 0,
           Control: data.control_recovered_amount || 0,
         },
         {
-          category: 'Net Incremental Lift',
+          category: 'Net Incremental',
           Treatment: data.net_incremental_revenue || 0,
           Control: 0,
         },
@@ -358,29 +351,29 @@ export const RecoveryAnalyticsPage: React.FC = () => {
   ];
 
   const policyRejectionData = [
-    { name: 'Approved & Executed', value: 85, color: '#10B981' },
-    { name: 'Cooldown Blocked', value: 7, color: '#F59E0B' },
-    { name: 'Amount Cap Exceeded', value: 5, color: '#EC4899' },
-    { name: 'Max Retries Reached', value: 3, color: '#64748B' },
+    { name: 'Approved & Executed', value: 85, color: '#16A36A' },
+    { name: 'Cooldown Blocked', value: 7, color: '#D99A00' },
+    { name: 'Amount Cap Exceeded', value: 5, color: '#D6455D' },
+    { name: 'Max Retries Reached', value: 3, color: '#7A8799' },
   ];
 
   return (
-    <div className="space-y-6 pb-12" data-testid="recovery-analytics-page">
+    <div className="space-y-6 pb-12 font-sans" data-testid="recovery-analytics-page">
       {/* Header Banner */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+      <div className="bg-white border border-[#E5EAF1] rounded-xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-cyan-400">
-              <BarChart3 className="w-7 h-7" />
+            <div className="p-2.5 bg-[#EEF4FF] border border-[#2F5BFF]/20 rounded-lg text-[#2F5BFF]">
+              <BarChart3 className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="text-2xl font-bold text-slate-100">Recovery Analytics</h1>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                <h1 className="text-2xl font-bold text-[#0B1F3A] tracking-tight">Recovery Analytics</h1>
+                <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-[#EEF4FF] text-[#2454D6] border border-[#2F5BFF]/20">
                   Step 33 Observability
                 </span>
               </div>
-              <p className="text-slate-400 text-sm mt-0.5">
+              <p className="text-xs text-[#53627A] mt-0.5">
                 Treatment vs Control lift analysis, refund-adjusted net revenue, and strategy evaluation metrics
               </p>
             </div>
@@ -390,7 +383,7 @@ export const RecoveryAnalyticsPage: React.FC = () => {
             <button
               onClick={fetchAnalyticsData}
               disabled={loading}
-              className="flex items-center space-x-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition-colors"
+              className="flex items-center space-x-1.5 px-3 py-2 bg-white hover:bg-[#F8FAFD] text-[#0B1F3A] text-xs font-bold rounded-lg border border-[#E5EAF1] transition-all shadow-sm cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
@@ -398,20 +391,20 @@ export const RecoveryAnalyticsPage: React.FC = () => {
 
             <button
               onClick={handleModeSwitch}
-              className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+              className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
                 mode === 'REAL_TEST'
-                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20'
-                  : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/20'
+                  ? 'bg-[#FDF2F4] text-[#D6455D] border-[#D6455D]/20 hover:bg-[#FDF2F4]/80'
+                  : 'bg-[#EEF4FF] text-[#2454D6] border-[#2F5BFF]/20 hover:bg-[#EEF4FF]/80'
               }`}
             >
               {mode === 'REAL_TEST' ? (
                 <>
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+                  <AlertTriangle className="w-3.5 h-3.5 text-[#D6455D]" />
                   <span>REAL_TEST MODE</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2454D6]" />
                   <span>SIMULATION MODE</span>
                 </>
               )}
@@ -423,27 +416,27 @@ export const RecoveryAnalyticsPage: React.FC = () => {
       {loading ? (
         <div
           data-testid="analytics-loading"
-          className="bg-slate-900/60 border border-slate-800 rounded-2xl p-12 text-center"
+          className="bg-white border border-[#E5EAF1] rounded-xl p-12 text-center shadow-sm"
         >
-          <div className="inline-block p-4 bg-cyan-500/10 rounded-full text-cyan-400 mb-3 animate-spin">
+          <div className="inline-block p-4 bg-[#EEF4FF] rounded-full text-[#2F5BFF] mb-3 animate-spin">
             <RefreshCw className="w-8 h-8" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-200">Evaluating Recovery Analytics...</h3>
-          <p className="text-sm text-slate-400 mt-1">
+          <h3 className="text-base font-bold text-[#0B1F3A]">Evaluating Recovery Analytics...</h3>
+          <p className="text-xs text-[#53627A] mt-1">
             Computing Treatment vs Control lift metrics from database...
           </p>
         </div>
       ) : error ? (
         <div
           data-testid="analytics-error"
-          className="bg-rose-950/30 border border-rose-800/50 rounded-2xl p-8 text-center"
+          className="bg-[#FDF2F4] border border-[#D6455D]/20 rounded-xl p-8 text-center shadow-sm"
         >
-          <AlertTriangle className="w-10 h-10 text-rose-400 mx-auto mb-2" />
-          <h3 className="text-lg font-bold text-rose-200">Failed to Load Recovery Analytics</h3>
-          <p className="text-sm text-rose-300 mt-1">{error}</p>
+          <AlertTriangle className="w-10 h-10 text-[#D6455D] mx-auto mb-2" />
+          <h3 className="text-base font-bold text-[#0B1F3A]">Failed to Load Recovery Analytics</h3>
+          <p className="text-xs text-[#D6455D] mt-1">{error}</p>
           <button
             onClick={fetchAnalyticsData}
-            className="mt-4 px-4 py-2 bg-rose-800 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold"
+            className="mt-4 px-4 py-2 bg-[#D6455D] hover:bg-[#B53449] text-white rounded-lg text-xs font-bold shadow-sm"
           >
             Retry Fetch
           </button>
@@ -451,168 +444,170 @@ export const RecoveryAnalyticsPage: React.FC = () => {
       ) : data ? (
         <div data-testid="analytics-content" className="space-y-6">
           {/* Executive Metric Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-lg">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 font-numeric">
+            <div className="bg-white border border-[#E5EAF1] rounded-xl p-5 shadow-sm">
+              <div className="flex items-center justify-between font-sans">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#7A8799]">
                   Gross Recovered
                 </span>
-                <DollarSign className="w-5 h-5 text-emerald-400" />
+                <DollarSign className="w-4 h-4 text-[#16A36A]" />
               </div>
-              <div className="text-2xl font-bold text-slate-100 mt-2">
+              <div className="text-2xl font-bold text-[#0B1F3A] mt-2">
                 {formatCurrency(data.treatment_recovered_amount)}
               </div>
-              <div className="text-xs text-emerald-400 mt-1 font-medium flex items-center gap-1">
+              <div className="text-xs text-[#16A36A] mt-1 font-bold flex items-center gap-1 font-sans">
                 <TrendingUp className="w-3.5 h-3.5" />
                 Control Baseline: {formatCurrency(data.control_recovered_amount)}
               </div>
             </div>
 
-            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-lg">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <div className="bg-white border border-[#E5EAF1] rounded-xl p-5 shadow-sm">
+              <div className="flex items-center justify-between font-sans">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#7A8799]">
                   Treatment Recovery Rate
                 </span>
-                <Percent className="w-5 h-5 text-cyan-400" />
+                <Percent className="w-4 h-4 text-[#2F5BFF]" />
               </div>
-              <div className="text-2xl font-bold text-slate-100 mt-2" data-testid="kpi-treatment-rate">
+              <div className="text-2xl font-bold text-[#0B1F3A] mt-2" data-testid="kpi-treatment-rate">
                 {formatPercent(data.treatment_recovery_rate)}
               </div>
-              <div className="text-xs text-slate-400 mt-1" data-testid="kpi-control-rate">
+              <div className="text-xs text-[#53627A] mt-1 font-sans" data-testid="kpi-control-rate">
                 Control Rate: {formatPercent(data.control_recovery_rate)}
               </div>
             </div>
 
-            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-lg">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <div className="bg-white border border-[#E5EAF1] rounded-xl p-5 shadow-sm">
+              <div className="flex items-center justify-between font-sans">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#7A8799]">
                   Incremental Rate Lift
                 </span>
-                <TrendingUp className="w-5 h-5 text-purple-400" />
+                <TrendingUp className="w-4 h-4 text-[#8B5CF6]" />
               </div>
-              <div className="text-2xl font-bold text-purple-300 mt-2" data-testid="kpi-incremental-lift">
+              <div className="text-2xl font-bold text-[#8B5CF6] mt-2" data-testid="kpi-incremental-lift">
                 +{formatPercent(data.incremental_recovery_rate)}
               </div>
-              <div className="text-xs text-purple-400/80 mt-1">
+              <div className="text-xs text-[#8B5CF6] mt-1 font-sans">
                 Estimated Lift: {formatCurrency(data.estimated_incremental_recovered_amount)}
               </div>
             </div>
 
-            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-lg">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <div className="bg-white border border-[#E5EAF1] rounded-xl p-5 shadow-sm">
+              <div className="flex items-center justify-between font-sans">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#7A8799]">
                   Net Incremental ROI
                 </span>
-                <BarChart3 className="w-5 h-5 text-cyan-400" />
+                <BarChart3 className="w-4 h-4 text-[#06B6D4]" />
               </div>
-              <div className="text-2xl font-bold text-cyan-300 mt-2" data-testid="kpi-net-revenue">
+              <div className="text-2xl font-bold text-[#06B6D4] mt-2" data-testid="kpi-net-revenue">
                 {formatCurrency(data.net_incremental_revenue)}
               </div>
-              <div className="text-xs text-slate-400 mt-1">
+              <div className="text-xs text-[#7A8799] mt-1 font-sans">
                 Refunds & Costs Deducted
               </div>
             </div>
           </div>
 
-          {/* Refund Adjustment Metric Callout Banner (Subtask 7.4) */}
+          {/* Refund Adjustment Metric Callout Banner */}
           <div
             data-testid="refund-adjustment-callout"
-            className="bg-indigo-950/30 border border-indigo-500/30 rounded-2xl p-5 backdrop-blur-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+            className="bg-white border border-[#E5EAF1] rounded-xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
           >
             <div className="flex items-start space-x-3">
-              <div className="p-2.5 bg-indigo-500/20 text-indigo-300 rounded-xl mt-0.5">
-                <Layers className="w-5 h-5" />
+              <div className="p-2.5 bg-[#EEF4FF] border border-[#2F5BFF]/20 text-[#2F5BFF] rounded-lg mt-0.5">
+                <Layers className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-indigo-200">
-                  Authoritative Net Revenue Formula ($Gross - Refunds - Costs = Net$)
+                <h4 className="text-xs font-bold text-[#0B1F3A]">
+                  Authoritative Net Revenue Formula (Gross - Refunds - Costs = Net)
                 </h4>
-                <p className="text-xs text-slate-300 mt-1 font-mono">
+                <p className="text-xs text-[#53627A] mt-1 font-mono">
                   Gross: {formatCurrency(data.treatment_recovered_amount)} | Refunds:{' '}
                   {formatCurrency(data.treatment_metrics?.refunded_amount || 0)} | Intervention Costs:{' '}
-                  {formatCurrency(data.treatment_metrics?.intervention_cost || 0)} $\rightarrow$ Net Incremental:{' '}
-                  <span className="text-cyan-300 font-bold">{formatCurrency(data.net_incremental_revenue)}</span>
+                  {formatCurrency(data.treatment_metrics?.intervention_cost || 0)} → Net Incremental:{' '}
+                  <span className="text-[#06B6D4] font-bold">{formatCurrency(data.net_incremental_revenue)}</span>
                 </p>
               </div>
             </div>
-            <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-semibold rounded-lg border border-indigo-500/30 shrink-0">
+            <span className="px-3 py-1 bg-[#EEF4FF] text-[#2454D6] text-xs font-bold rounded border border-[#2F5BFF]/20 shrink-0">
               Refund-Adjusted Net Value
             </span>
           </div>
 
           {/* Recharts Visualizations Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Treatment vs Control Recovery Bar Chart (Subtask 7.1) */}
+            {/* Treatment vs Control Recovery Bar Chart */}
             <div
               data-testid="chart-treatment-vs-control"
-              className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl"
+              className="bg-white border border-[#E5EAF1] rounded-xl p-6 shadow-sm"
             >
-              <h3 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-                <BarChart3 className="w-5 h-5 text-cyan-400" />
+              <h3 className="text-base font-bold text-[#0B1F3A] flex items-center space-x-2">
+                <BarChart3 className="w-4 h-4 text-[#2F5BFF]" />
                 <span>Treatment vs Control Recovery Revenue (₹)</span>
               </h3>
-              <p className="text-xs text-slate-400 mt-1 mb-4">
+              <p className="text-xs text-[#53627A] mt-1 mb-4">
                 Comparison of eligible at-risk value, gross recovered revenue, and net incremental lift
               </p>
 
-              <div className="h-64 w-full">
+              <div className="h-64 w-full font-numeric">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={cohortComparisonData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                    <XAxis dataKey="category" stroke="#64748B" fontSize={11} tickLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5EAF1" />
+                    <XAxis dataKey="category" stroke="#53627A" fontSize={11} tickLine={false} />
                     <YAxis
-                      stroke="#64748B"
+                      stroke="#53627A"
                       fontSize={11}
                       tickLine={false}
                       tickFormatter={(val) => `₹${(val / 1000).toFixed(0)}k`}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#0F172A',
-                        borderColor: '#334155',
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#E5EAF1',
                         borderRadius: '8px',
-                        color: '#F8FAFC',
+                        color: '#0B1F3A',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       }}
                       formatter={(val: any) => [formatCurrency(Number(val)), 'Amount']}
                     />
                     <Legend wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }} />
-                    <Bar dataKey="Treatment" fill="#0EA5E9" radius={[4, 4, 0, 0]} name="Treatment (RecoverAI)" />
-                    <Bar dataKey="Control" fill="#64748B" radius={[4, 4, 0, 0]} name="Control (Baseline)" />
+                    <Bar dataKey="Treatment" fill="#2F5BFF" radius={[4, 4, 0, 0]} name="Treatment (RecoverAI)" />
+                    <Bar dataKey="Control" fill="#94A3B8" radius={[4, 4, 0, 0]} name="Control (Baseline)" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Revenue Trend Over Time Line Chart (Subtask 7.2) */}
+            {/* Revenue Trend Over Time Line Chart */}
             <div
               data-testid="chart-revenue-trend"
-              className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl"
+              className="bg-white border border-[#E5EAF1] rounded-xl p-6 shadow-sm"
             >
-              <h3 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-                <TrendingUp className="w-5 h-5 text-purple-400" />
+              <h3 className="text-base font-bold text-[#0B1F3A] flex items-center space-x-2">
+                <TrendingUp className="w-4 h-4 text-[#8B5CF6]" />
                 <span>Net Recovered Revenue Over Time (Trend)</span>
               </h3>
-              <p className="text-xs text-slate-400 mt-1 mb-4">
+              <p className="text-xs text-[#53627A] mt-1 mb-4">
                 Cumulative revenue trajectory comparing Treatment cohort against Baseline Control
               </p>
 
-              <div className="h-64 w-full">
+              <div className="h-64 w-full font-numeric">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={trendLineData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                    <XAxis dataKey="period" stroke="#64748B" fontSize={11} tickLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5EAF1" />
+                    <XAxis dataKey="period" stroke="#53627A" fontSize={11} tickLine={false} />
                     <YAxis
-                      stroke="#64748B"
+                      stroke="#53627A"
                       fontSize={11}
                       tickLine={false}
                       tickFormatter={(val) => `₹${(val / 1000).toFixed(0)}k`}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#0F172A',
-                        borderColor: '#334155',
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#E5EAF1',
                         borderRadius: '8px',
-                        color: '#F8FAFC',
+                        color: '#0B1F3A',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       }}
                       formatter={(val: any) => [formatCurrency(Number(val)), 'Revenue']}
                     />
@@ -620,7 +615,7 @@ export const RecoveryAnalyticsPage: React.FC = () => {
                     <Line
                       type="monotone"
                       dataKey="treatmentRev"
-                      stroke="#0EA5E9"
+                      stroke="#2F5BFF"
                       strokeWidth={2}
                       dot={{ r: 3 }}
                       name="Treatment Total"
@@ -628,7 +623,7 @@ export const RecoveryAnalyticsPage: React.FC = () => {
                     <Line
                       type="monotone"
                       dataKey="controlRev"
-                      stroke="#64748B"
+                      stroke="#94A3B8"
                       strokeWidth={2}
                       dot={{ r: 3 }}
                       name="Control Baseline"
@@ -636,7 +631,7 @@ export const RecoveryAnalyticsPage: React.FC = () => {
                     <Line
                       type="monotone"
                       dataKey="netLift"
-                      stroke="#A855F7"
+                      stroke="#8B5CF6"
                       strokeWidth={2.5}
                       strokeDasharray="4 4"
                       dot={{ r: 4 }}
@@ -648,21 +643,21 @@ export const RecoveryAnalyticsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Breakdown Tables Section (Subtask 7.3) */}
+          {/* Breakdown Tables Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Scenario Breakdown Table */}
             <div
               data-testid="table-scenario-breakdown"
-              className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl"
+              className="bg-white border border-[#E5EAF1] rounded-xl p-6 shadow-sm"
             >
-              <h3 className="text-base font-bold text-slate-100 mb-1">Breakdown by Failure Scenario</h3>
-              <p className="text-xs text-slate-400 mb-4">
+              <h3 className="text-base font-bold text-[#0B1F3A] mb-1">Breakdown by Failure Scenario</h3>
+              <p className="text-xs text-[#53627A] mb-4">
                 Recovery rates and monetary volumes segmented across risk scenarios
               </p>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-950/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <table className="w-full text-left text-xs text-[#0B1F3A]">
+                  <thead className="bg-[#F8FAFD] text-[#7A8799] uppercase text-[10px] font-bold tracking-wider border-b border-[#E5EAF1]">
                     <tr>
                       <th className="py-2.5 px-3">Scenario</th>
                       <th className="py-2.5 px-3 text-right">Eligible</th>
@@ -670,19 +665,19 @@ export const RecoveryAnalyticsPage: React.FC = () => {
                       <th className="py-2.5 px-3 text-right">Rate</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono">
+                  <tbody className="divide-y divide-[#E5EAF1] font-numeric">
                     {scenarioBreakdownList.map((sc, idx) => (
-                      <tr key={idx} className="hover:bg-slate-800/40">
-                        <td className="py-2.5 px-3 font-sans font-semibold text-slate-200">
+                      <tr key={idx} className="hover:bg-[#F8FAFD]">
+                        <td className="py-2.5 px-3 font-sans font-bold text-[#0B1F3A]">
                           {sc.scenario}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-slate-400">
+                        <td className="py-2.5 px-3 text-right text-[#53627A]">
                           {formatCurrency(sc.eligibleAmount)} ({sc.eligibleCount})
                         </td>
-                        <td className="py-2.5 px-3 text-right text-emerald-400 font-semibold">
+                        <td className="py-2.5 px-3 text-right text-[#16A36A] font-bold">
                           {formatCurrency(sc.recoveredAmount)} ({sc.recoveredCount})
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-cyan-300">
+                        <td className="py-2.5 px-3 text-right font-bold text-[#2454D6]">
                           {formatPercent(sc.recoveryRate)}
                         </td>
                       </tr>
@@ -695,16 +690,16 @@ export const RecoveryAnalyticsPage: React.FC = () => {
             {/* Action Category Breakdown Table */}
             <div
               data-testid="table-action-breakdown"
-              className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl"
+              className="bg-white border border-[#E5EAF1] rounded-xl p-6 shadow-sm"
             >
-              <h3 className="text-base font-bold text-slate-100 mb-1">Breakdown by Recovery Action</h3>
-              <p className="text-xs text-slate-400 mb-4">
+              <h3 className="text-base font-bold text-[#0B1F3A] mb-1">Breakdown by Recovery Action</h3>
+              <p className="text-xs text-[#53627A] mb-4">
                 Intervention frequency, success rates, and total recovered amounts by action strategy
               </p>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-950/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <table className="w-full text-left text-xs text-[#0B1F3A]">
+                  <thead className="bg-[#F8FAFD] text-[#7A8799] uppercase text-[10px] font-bold tracking-wider border-b border-[#E5EAF1]">
                     <tr>
                       <th className="py-2.5 px-3">Action Strategy</th>
                       <th className="py-2.5 px-3 text-right">Executions</th>
@@ -712,19 +707,19 @@ export const RecoveryAnalyticsPage: React.FC = () => {
                       <th className="py-2.5 px-3 text-right">Success %</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono">
+                  <tbody className="divide-y divide-[#E5EAF1] font-numeric">
                     {actionBreakdownList.map((ac, idx) => (
-                      <tr key={idx} className="hover:bg-slate-800/40">
-                        <td className="py-2.5 px-3 font-sans font-semibold text-slate-200">
+                      <tr key={idx} className="hover:bg-[#F8FAFD]">
+                        <td className="py-2.5 px-3 font-sans font-bold text-[#0B1F3A]">
                           {ac.action}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-slate-400">
+                        <td className="py-2.5 px-3 text-right text-[#53627A]">
                           {ac.executionCount}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-emerald-400 font-semibold">
+                        <td className="py-2.5 px-3 text-right text-[#16A36A] font-bold">
                           {formatCurrency(ac.recoveredAmount)}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-purple-300">
+                        <td className="py-2.5 px-3 text-right font-bold text-[#8B5CF6]">
                           {formatPercent(ac.successRate)}
                         </td>
                       </tr>
@@ -735,25 +730,25 @@ export const RecoveryAnalyticsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Policy Rejection & Escalation Pie Chart (Subtask 7.5) */}
+          {/* Policy Rejection & Escalation Pie Chart */}
           <div
             data-testid="chart-policy-rejections"
-            className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6"
+            className="bg-white border border-[#E5EAF1] rounded-xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6"
           >
             <div className="md:w-1/2 space-y-2">
-              <h3 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-                <PieChartIcon className="w-5 h-5 text-amber-400" />
+              <h3 className="text-base font-bold text-[#0B1F3A] flex items-center space-x-2">
+                <PieChartIcon className="w-4 h-4 text-[#D99A00]" />
                 <span>Policy Evaluation & Guardrail Rejection Distribution</span>
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[#53627A]">
                 Breakdown of AI recommendations approved by Policy Engine versus those rejected by risk guardrails
                 (cooldowns, max retry caps, amount thresholds).
               </p>
-              <div className="pt-2 text-xs text-slate-300 space-y-1 font-mono">
-                <p>• Approved Execution Rate: <span className="text-emerald-400 font-bold">85.0%</span></p>
-                <p>• Cooldown Blocked: <span className="text-amber-400 font-bold">7.0%</span></p>
-                <p>• Amount Cap Exceeded: <span className="text-pink-400 font-bold">5.0%</span></p>
-                <p>• Max Retries Reached: <span className="text-slate-400 font-bold">3.0%</span></p>
+              <div className="pt-2 text-xs text-[#0B1F3A] space-y-1 font-mono">
+                <p>• Approved Execution Rate: <span className="text-[#16A36A] font-bold">85.0%</span></p>
+                <p>• Cooldown Blocked: <span className="text-[#D99A00] font-bold">7.0%</span></p>
+                <p>• Amount Cap Exceeded: <span className="text-[#D6455D] font-bold">5.0%</span></p>
+                <p>• Max Retries Reached: <span className="text-[#7A8799] font-bold">3.0%</span></p>
               </div>
             </div>
 
@@ -775,10 +770,11 @@ export const RecoveryAnalyticsPage: React.FC = () => {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#0F172A',
-                      borderColor: '#334155',
+                      backgroundColor: '#FFFFFF',
+                      borderColor: '#E5EAF1',
                       borderRadius: '8px',
-                      color: '#F8FAFC',
+                      color: '#0B1F3A',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                     }}
                     formatter={(val: any) => [`${val}%`, 'Share']}
                   />
@@ -788,71 +784,56 @@ export const RecoveryAnalyticsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Industry Cohort Benchmark Component (Step 46) */}
+          {/* Industry Cohort Benchmark Component */}
           {merchantIntel && Array.isArray(merchantIntel.industry_benchmarks) && (
             <div
               data-testid="merchant-industry-benchmarks"
-              className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4"
+              className="bg-white border border-[#E5EAF1] rounded-xl p-6 shadow-sm space-y-4"
             >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-[#E5EAF1] pb-4">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h3 className="text-base font-bold text-slate-100">Merchant Industry Cohort Intelligence</h3>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                      Cohort: {merchantIntel.industry}
+                    <h3 className="text-base font-bold text-[#0B1F3A]">Merchant Industry Cohort Intelligence</h3>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#EEF4FF] text-[#2454D6] border border-[#2F5BFF]/20 font-bold">
+                      Industry: {merchantIntel.industry || 'SaaS'}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Multi-tenant industry decline trends, turnaround benchmarks, and top recovery channel performance
+                  <p className="text-xs text-[#53627A] mt-0.5">
+                    Peer benchmark comparative analysis across decline patterns and channel conversion efficiency
                   </p>
-                </div>
-                <div className="flex items-center space-x-4 text-xs font-mono text-slate-300">
-                  <div className="bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800">
-                    Avg Turnaround: <span className="text-cyan-300 font-bold">{merchantIntel.avg_turnaround_minutes}m</span>
-                  </div>
-                  <div className="bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800">
-                    Top Channel: <span className="text-emerald-400 font-bold">{merchantIntel.top_channel}</span>
-                  </div>
                 </div>
               </div>
 
-              {/* Industry Benchmark Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                {merchantIntel.industry_benchmarks.map((bm, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-4 rounded-xl border transition-all ${
-                      bm.industry === merchantIntel.industry
-                        ? 'bg-purple-950/20 border-purple-500/40 shadow-lg'
-                        : 'bg-slate-950/40 border-slate-800/80'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-slate-200">{bm.industry}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">{bm.avg_turnaround_minutes}m turnaround</span>
-                    </div>
-
-                    <div className="space-y-2 mt-3">
-                      <div className="text-[11px] font-semibold text-slate-400">Top Decline Drivers:</div>
-                      {Object.entries(bm.decline_categories).slice(0, 3).map(([cat, pct], cIdx) => (
-                        <div key={cIdx} className="flex items-center justify-between text-[10px] font-mono">
-                          <span className="text-slate-300 truncate max-w-[120px]">{cat}</span>
-                          <span className="text-amber-400 font-semibold">{pct}%</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-3 pt-2 border-t border-slate-800/60">
-                      <div className="text-[11px] font-semibold text-slate-400 mb-1">Top Channel:</div>
-                      {bm.top_performing_channels.length > 0 && (
-                        <div className="flex items-center justify-between text-[11px] font-mono text-emerald-400 font-bold">
-                          <span>{bm.top_performing_channels[0].channel}</span>
-                          <span>{bm.top_performing_channels[0].recovery_rate}%</span>
-                        </div>
-                      )}
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-numeric">
+                <div className="bg-[#F8FAFD] p-4 rounded-lg border border-[#E5EAF1] space-y-2">
+                  <span className="text-[#53627A] font-bold block font-sans">Turnaround Performance</span>
+                  <div className="text-lg font-bold text-[#0B1F3A]">
+                    {merchantIntel.avg_turnaround_minutes} mins
                   </div>
-                ))}
+                  <p className="text-[11px] text-[#7A8799] font-sans">
+                    Average time from failure detection to payment resolution
+                  </p>
+                </div>
+
+                <div className="bg-[#F8FAFD] p-4 rounded-lg border border-[#E5EAF1] space-y-2">
+                  <span className="text-[#53627A] font-bold block font-sans">Top Converting Channel</span>
+                  <div className="text-lg font-bold text-[#16A36A] font-mono">
+                    {merchantIntel.top_channel}
+                  </div>
+                  <p className="text-[11px] text-[#7A8799] font-sans">
+                    Highest recovery rate across active outreach campaigns
+                  </p>
+                </div>
+
+                <div className="bg-[#F8FAFD] p-4 rounded-lg border border-[#E5EAF1] space-y-2">
+                  <span className="text-[#53627A] font-bold block font-sans">Analyzed Volume</span>
+                  <div className="text-lg font-bold text-[#0B1F3A]">
+                    {merchantIntel.total_transactions_analyzed.toLocaleString()} Txns
+                  </div>
+                  <p className="text-[11px] text-[#7A8799] font-sans">
+                    Sample dataset size for cohort benchmark comparison
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -862,3 +843,4 @@ export const RecoveryAnalyticsPage: React.FC = () => {
   );
 };
 
+export default RecoveryAnalyticsPage;

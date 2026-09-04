@@ -59,7 +59,7 @@ async def execute_real_test_creation() -> bool:
     session = session_factory()
 
     suffix = uuid.uuid4().hex[:6]
-    merchant_id = f"m_real_{suffix}"
+    merchant_id = "m_real_2f9b3a"
     customer_id = f"c_real_{suffix}"
     tx_id = f"t_real_{suffix}"
     amount_paise = 1000  # Rs. 10.00 for small test transaction
@@ -67,21 +67,32 @@ async def execute_real_test_creation() -> bool:
     try:
         # 1. Provision Merchant, Policy, Customer & Transaction
         logger.info("\n1. Provisioning Test Merchant, Customer & Transaction (AT_RISK, REAL_TEST)...")
-        merchant = Merchant(
-            id=merchant_id,
-            name="Real Test Merchant",
-            email=f"real_{suffix}@merchant.test",
-            industry="E-commerce",
-        )
-        policy = Policy(
-            merchant_id=merchant_id,
-            policy_version="v1.0",
-            max_recovery_attempts=3,
-            max_auto_action_amount=500000.00,
-            min_recovery_probability=0.10,
-            cooldown_hours=24,
-            is_active=True,
-        )
+        from sqlalchemy import select
+        stmt_m = select(Merchant).where(Merchant.id == merchant_id)
+        merchant = (await session.execute(stmt_m)).scalar_one_or_none()
+        if not merchant:
+            merchant = Merchant(
+                id=merchant_id,
+                name="Real Test Merchant",
+                email="real_2f9b3a@merchant.test",
+                industry="E-commerce",
+            )
+            session.add(merchant)
+
+        stmt_p = select(Policy).where(Policy.merchant_id == merchant_id)
+        policy = (await session.execute(stmt_p)).scalar_one_or_none()
+        if not policy:
+            policy = Policy(
+                merchant_id=merchant_id,
+                policy_version="v1.0",
+                max_recovery_attempts=3,
+                max_auto_action_amount=500000.00,
+                min_recovery_probability=0.10,
+                cooldown_hours=24,
+                is_active=True,
+            )
+            session.add(policy)
+
         customer = Customer(
             id=customer_id,
             merchant_id=merchant_id,
@@ -99,9 +110,9 @@ async def execute_real_test_creation() -> bool:
             scenario_type="PAYMENT_FAILURE",
             mode="REAL_TEST",
         )
-        session.add_all([merchant, policy, customer, tx])
+        session.add_all([customer, tx])
         await session.commit()
-        logger.info(f"   [PASS] Created Transaction ID: '{tx_id}', Amount: Rs 10.00")
+        logger.info(f"   [PASS] Created Transaction ID: '{tx_id}', Merchant ID: '{merchant_id}', Amount: Rs 10.00")
 
         # 2. Stage 1: DETECT
         logger.info("\n2. [STAGE 1 DETECT] Ingesting failure event (APP_EVENT: PAYMENT_FAILED)...")

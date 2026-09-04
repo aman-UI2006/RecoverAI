@@ -187,17 +187,17 @@ export const PolicyManagerPage: React.FC = () => {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Toast Notification Banner */}
       {toastMessage && (
-        <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-xl flex items-center justify-between shadow-lg backdrop-blur-md animate-fade-in">
+        <div className="bg-[#E6F4ED] border border-[#16A36A]/30 text-[#16A36A] p-4 rounded-xl flex items-center justify-between shadow-sm">
           <div className="flex items-center space-x-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-            <span className="font-medium text-sm">{toastMessage}</span>
+            <CheckCircle2 className="w-5 h-5 text-[#16A36A] flex-shrink-0" />
+            <span className="font-bold text-xs">{toastMessage}</span>
           </div>
           <button
             onClick={() => setToastMessage(null)}
-            className="text-emerald-400/70 hover:text-emerald-300 text-xs font-semibold px-2 py-1 rounded hover:bg-emerald-500/20"
+            className="text-[#16A36A] hover:text-[#0D633F] text-xs font-bold px-2 py-1 rounded hover:bg-[#16A36A]/10 cursor-pointer"
           >
             Dismiss
           </button>
@@ -205,20 +205,20 @@ export const PolicyManagerPage: React.FC = () => {
       )}
 
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-xl shadow-xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white border border-[#E5EAF1] p-6 rounded-xl shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400">
+            <div className="p-2.5 bg-[#EEF4FF] border border-[#2F5BFF]/20 rounded-lg text-[#2F5BFF]">
               <Sliders className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-[#0B1F3A] tracking-tight flex items-center gap-3">
                 Policy Manager & Safety Guardrails
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-mono">
+                <span className="text-xs px-2.5 py-0.5 rounded bg-[#EEF4FF] text-[#2454D6] border border-[#2F5BFF]/20 font-mono font-bold">
                   {policy.policy_version}
                 </span>
               </h1>
-              <p className="text-sm text-slate-400">
+              <p className="text-xs text-[#53627A] mt-0.5">
                 Configure merchant-level automated recovery parameters, maximum attempt caps, and cooldown windows
               </p>
             </div>
@@ -226,91 +226,91 @@ export const PolicyManagerPage: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-3">
-          <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center space-x-2 ${
-            isActive ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+          <div className={`px-3 py-1.5 rounded text-xs font-bold border flex items-center space-x-2 ${
+            isActive ? 'bg-[#E6F4ED] text-[#16A36A] border-[#16A36A]/20' : 'bg-[#FDF2F4] text-[#D6455D] border-[#D6455D]/20'
           }`}>
-            <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
+            <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-[#16A36A]' : 'bg-[#D6455D]'}`} />
             <span>{isActive ? 'POLICY ENGINE ACTIVE' : 'POLICY ENGINE DISABLED'}</span>
           </div>
         </div>
       </div>
 
       {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl backdrop-blur-md">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 font-numeric">
+        <div className="bg-white border border-[#E5EAF1] p-4 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between text-[#7A8799] text-xs mb-1 font-sans font-bold">
             <span>Policy Version</span>
-            <ShieldCheck className="w-4 h-4 text-blue-400" />
+            <ShieldCheck className="w-4 h-4 text-[#2F5BFF]" />
           </div>
-          <div className="text-xl font-bold text-slate-100 font-mono">{policy.policy_version}</div>
-          <div className="text-[11px] text-slate-500 mt-1">Active Ruleset</div>
+          <div className="text-xl font-bold text-[#0B1F3A] font-mono">{policy.policy_version}</div>
+          <div className="text-[11px] text-[#7A8799] mt-1 font-sans">Active Ruleset</div>
         </div>
 
-        <div className="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl backdrop-blur-md">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="bg-white border border-[#E5EAF1] p-4 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between text-[#7A8799] text-xs mb-1 font-sans font-bold">
             <span>Max Retries</span>
-            <RotateCcw className="w-4 h-4 text-amber-400" />
+            <RotateCcw className="w-4 h-4 text-[#D99A00]" />
           </div>
-          <div className="text-xl font-bold text-slate-100">{maxAttempts} Attempts</div>
-          <div className="text-[11px] text-slate-500 mt-1">Per transaction cap</div>
+          <div className="text-xl font-bold text-[#0B1F3A]">{maxAttempts} Attempts</div>
+          <div className="text-[11px] text-[#7A8799] mt-1 font-sans">Per transaction cap</div>
         </div>
 
-        <div className="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl backdrop-blur-md">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="bg-white border border-[#E5EAF1] p-4 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between text-[#7A8799] text-xs mb-1 font-sans font-bold">
             <span>Amount Cap</span>
-            <Zap className="w-4 h-4 text-purple-400" />
+            <Zap className="w-4 h-4 text-[#8B5CF6]" />
           </div>
-          <div className="text-xl font-bold text-slate-100 font-mono">
+          <div className="text-xl font-bold text-[#0B1F3A]">
             ₹{maxAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-[11px] text-slate-500 mt-1">Auto-execution max</div>
+          <div className="text-[11px] text-[#7A8799] mt-1 font-sans">Auto-execution max</div>
         </div>
 
-        <div className="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl backdrop-blur-md">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="bg-white border border-[#E5EAF1] p-4 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between text-[#7A8799] text-xs mb-1 font-sans font-bold">
             <span>Prob Threshold</span>
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
+            <TrendingUp className="w-4 h-4 text-[#16A36A]" />
           </div>
-          <div className="text-xl font-bold text-slate-100 font-mono">
+          <div className="text-xl font-bold text-[#0B1F3A]">
             {(minProb * 100).toFixed(1)}%
           </div>
-          <div className="text-[11px] text-slate-500 mt-1">ML confidence floor</div>
+          <div className="text-[11px] text-[#7A8799] mt-1 font-sans">ML confidence floor</div>
         </div>
 
-        <div className="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl backdrop-blur-md">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="bg-white border border-[#E5EAF1] p-4 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between text-[#7A8799] text-xs mb-1 font-sans font-bold">
             <span>Cooldown Window</span>
-            <Clock className="w-4 h-4 text-cyan-400" />
+            <Clock className="w-4 h-4 text-[#06B6D4]" />
           </div>
-          <div className="text-xl font-bold text-slate-100">{cooldown} Hours</div>
-          <div className="text-[11px] text-slate-500 mt-1">Inter-attempt pause</div>
+          <div className="text-xl font-bold text-[#0B1F3A]">{cooldown} Hours</div>
+          <div className="text-[11px] text-[#7A8799] mt-1 font-sans">Inter-attempt pause</div>
         </div>
       </div>
 
-      {/* Step 44: Dynamic Threshold Adjustment Indicator */}
-      <div className="bg-blue-950/30 border border-blue-800/40 p-4 rounded-2xl backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Adaptive Policy Feedback Loop */}
+      <div className="bg-white border border-[#E5EAF1] p-4 rounded-xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400">
-            <TrendingUp className="w-5 h-5" />
+          <div className="p-2 bg-[#EEF4FF] border border-[#2F5BFF]/20 rounded-lg text-[#2F5BFF]">
+            <TrendingUp className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-semibold text-slate-200">Adaptive Policy Feedback Loop</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <span className="text-xs font-bold text-[#0B1F3A]">Adaptive Policy Feedback Loop</span>
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E6F4ED] text-[#16A36A] border border-[#16A36A]/20">
                 ACTIVE TUNING
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              Threshold dynamically adjusts based on batch Net ROI. Enforces hard safety bounds: <code className="text-blue-300 font-mono">5.0% ≤ P ≤ 50.0%</code> (Rate clamp: ≤ 5%/cycle).
+            <p className="text-xs text-[#53627A] mt-0.5">
+              Threshold dynamically adjusts based on batch Net ROI. Enforces hard safety bounds: <code className="text-[#2454D6] font-mono font-bold">5.0% ≤ P ≤ 50.0%</code> (Rate clamp: ≤ 5%/cycle).
             </p>
           </div>
         </div>
-        <div className="flex items-center space-x-4 text-xs font-mono">
-          <div className="bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300">
-            Floor: <span className="text-emerald-400 font-bold">{(minProb * 100).toFixed(1)}%</span>
+        <div className="flex items-center space-x-3 text-xs font-mono">
+          <div className="bg-[#F8FAFD] border border-[#E5EAF1] px-3 py-1.5 rounded-lg text-[#53627A]">
+            Floor: <span className="text-[#16A36A] font-bold">{(minProb * 100).toFixed(1)}%</span>
           </div>
-          <div className="bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300">
-            Rule Version: <span className="text-blue-400 font-bold">{policy.policy_version}</span>
+          <div className="bg-[#F8FAFD] border border-[#E5EAF1] px-3 py-1.5 rounded-lg text-[#53627A]">
+            Rule Version: <span className="text-[#2454D6] font-bold">{policy.policy_version}</span>
           </div>
         </div>
       </div>
@@ -318,28 +318,28 @@ export const PolicyManagerPage: React.FC = () => {
       {/* Main Content Grid: Form + Read-Only Defaults */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Policy Configuration Form (2 Cols) */}
-        <div className="lg:col-span-2 bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-xl shadow-xl space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div className="lg:col-span-2 bg-white border border-[#E5EAF1] p-6 rounded-xl shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-[#E5EAF1] pb-4">
             <div>
-              <h2 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-blue-400" />
+              <h2 className="text-base font-bold text-[#0B1F3A] flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-[#2F5BFF]" />
                 Merchant Policy Rules Editor
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[#53627A] mt-0.5">
                 Adjust safety parameters to tune automated recovery intervention limits
               </p>
             </div>
-            <span className="text-xs text-slate-500 font-mono">ID: {policy.id}</span>
+            <span className="text-xs text-[#7A8799] font-mono font-bold">ID: {policy.id}</span>
           </div>
 
           <form onSubmit={handleSave} className="space-y-6">
             {/* Toggle Switch: Active State */}
-            <div className="flex items-center justify-between p-4 bg-slate-800/40 border border-slate-700/50 rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-[#F8FAFD] border border-[#E5EAF1] rounded-lg">
               <div>
-                <label className="text-sm font-semibold text-slate-200 block">
+                <label className="text-xs font-bold text-[#0B1F3A] block">
                   Policy Engine Status
                 </label>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-[#53627A]">
                   Toggle automated recovery policy evaluation for this merchant
                 </span>
               </div>
@@ -350,15 +350,15 @@ export const PolicyManagerPage: React.FC = () => {
                   onChange={(e) => setIsActive(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <div className="w-11 h-6 bg-[#E5EAF1] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2F5BFF]"></div>
               </label>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Max Attempts Field */}
               <div className="space-y-2">
-                <label htmlFor="max_recovery_attempts" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <RotateCcw className="w-4 h-4 text-amber-400" />
+                <label htmlFor="max_recovery_attempts" className="text-xs font-bold text-[#0B1F3A] flex items-center gap-1.5">
+                  <RotateCcw className="w-3.5 h-3.5 text-[#D99A00]" />
                   Max Recovery Attempts
                 </label>
                 <input
@@ -368,23 +368,23 @@ export const PolicyManagerPage: React.FC = () => {
                   max="10"
                   value={maxAttempts}
                   onChange={(e) => setMaxAttempts(parseInt(e.target.value, 10))}
-                  className={`w-full bg-slate-950/80 border ${
-                    formErrors.max_recovery_attempts ? 'border-rose-500/80' : 'border-slate-700/80'
-                  } rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+                  className={`w-full bg-white border ${
+                    formErrors.max_recovery_attempts ? 'border-[#D6455D]' : 'border-[#E5EAF1]'
+                  } rounded-lg px-4 py-2 text-xs text-[#0B1F3A] font-numeric focus:outline-none focus:border-[#2F5BFF]/50`}
                 />
                 {formErrors.max_recovery_attempts && (
-                  <p className="text-xs text-rose-400 flex items-center gap-1">
+                  <p className="text-xs text-[#D6455D] flex items-center gap-1 font-bold">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     {formErrors.max_recovery_attempts}
                   </p>
                 )}
-                <p className="text-[11px] text-slate-500">Allowed attempts per failing transaction (1 to 10)</p>
+                <p className="text-[11px] text-[#7A8799]">Allowed attempts per failing transaction (1 to 10)</p>
               </div>
 
               {/* Max Auto Amount Field */}
               <div className="space-y-2">
-                <label htmlFor="max_auto_action_amount" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-purple-400" />
+                <label htmlFor="max_auto_action_amount" className="text-xs font-bold text-[#0B1F3A] flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-[#8B5CF6]" />
                   Max Auto-Action Amount Cap (₹)
                 </label>
                 <input
@@ -394,27 +394,27 @@ export const PolicyManagerPage: React.FC = () => {
                   step="500"
                   value={maxAmount}
                   onChange={(e) => setMaxAmount(parseFloat(e.target.value))}
-                  className={`w-full bg-slate-950/80 border ${
-                    formErrors.max_auto_action_amount ? 'border-rose-500/80' : 'border-slate-700/80'
-                  } rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+                  className={`w-full bg-white border ${
+                    formErrors.max_auto_action_amount ? 'border-[#D6455D]' : 'border-[#E5EAF1]'
+                  } rounded-lg px-4 py-2 text-xs text-[#0B1F3A] font-numeric focus:outline-none focus:border-[#2F5BFF]/50`}
                 />
                 {formErrors.max_auto_action_amount && (
-                  <p className="text-xs text-rose-400 flex items-center gap-1">
+                  <p className="text-xs text-[#D6455D] flex items-center gap-1 font-bold">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     {formErrors.max_auto_action_amount}
                   </p>
                 )}
-                <p className="text-[11px] text-slate-500">Transactions above this cap escalate to Human Review</p>
+                <p className="text-[11px] text-[#7A8799]">Transactions above this cap escalate to Human Review</p>
               </div>
 
               {/* Min Probability Threshold */}
               <div className="space-y-2">
-                <label htmlFor="min_recovery_probability" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                <label htmlFor="min_recovery_probability" className="text-xs font-bold text-[#0B1F3A] flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
-                    <TrendingUp className="w-4 h-4 text-emerald-400" />
+                    <TrendingUp className="w-3.5 h-3.5 text-[#16A36A]" />
                     Min Recovery Probability Floor
                   </span>
-                  <span className="text-xs font-mono text-emerald-400">
+                  <span className="text-xs font-mono text-[#16A36A]">
                     {(minProb * 100).toFixed(1)}% ({minProb.toFixed(2)})
                   </span>
                 </label>
@@ -425,7 +425,7 @@ export const PolicyManagerPage: React.FC = () => {
                   step="0.01"
                   value={minProb}
                   onChange={(e) => setMinProb(parseFloat(e.target.value))}
-                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  className="w-full h-2 bg-[#F1F5F9] rounded-lg appearance-none cursor-pointer accent-[#2F5BFF]"
                 />
                 <input
                   id="min_recovery_probability"
@@ -435,23 +435,23 @@ export const PolicyManagerPage: React.FC = () => {
                   step="0.01"
                   value={minProb}
                   onChange={(e) => setMinProb(parseFloat(e.target.value))}
-                  className={`w-full bg-slate-950/80 border ${
-                    formErrors.min_recovery_probability ? 'border-rose-500/80' : 'border-slate-700/80'
-                  } rounded-xl px-4 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-mono`}
+                  className={`w-full bg-white border ${
+                    formErrors.min_recovery_probability ? 'border-[#D6455D]' : 'border-[#E5EAF1]'
+                  } rounded-lg px-4 py-2 text-xs text-[#0B1F3A] font-mono focus:outline-none focus:border-[#2F5BFF]/50`}
                 />
                 {formErrors.min_recovery_probability && (
-                  <p className="text-xs text-rose-400 flex items-center gap-1">
+                  <p className="text-xs text-[#D6455D] flex items-center gap-1 font-bold">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     {formErrors.min_recovery_probability}
                   </p>
                 )}
-                <p className="text-[11px] text-slate-500">ML recovery probability threshold (0.00 to 1.00)</p>
+                <p className="text-[11px] text-[#7A8799]">ML recovery probability threshold (0.00 to 1.00)</p>
               </div>
 
               {/* Cooldown Hours */}
               <div className="space-y-2">
-                <label htmlFor="cooldown_hours" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-cyan-400" />
+                <label htmlFor="cooldown_hours" className="text-xs font-bold text-[#0B1F3A] flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-[#06B6D4]" />
                   Cooldown Window (Hours)
                 </label>
                 <input
@@ -461,38 +461,38 @@ export const PolicyManagerPage: React.FC = () => {
                   max="168"
                   value={cooldown}
                   onChange={(e) => setCooldown(parseInt(e.target.value, 10))}
-                  className={`w-full bg-slate-950/80 border ${
-                    formErrors.cooldown_hours ? 'border-rose-500/80' : 'border-slate-700/80'
-                  } rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+                  className={`w-full bg-white border ${
+                    formErrors.cooldown_hours ? 'border-[#D6455D]' : 'border-[#E5EAF1]'
+                  } rounded-lg px-4 py-2 text-xs text-[#0B1F3A] font-numeric focus:outline-none focus:border-[#2F5BFF]/50`}
                 />
                 {formErrors.cooldown_hours && (
-                  <p className="text-xs text-rose-400 flex items-center gap-1">
+                  <p className="text-xs text-[#D6455D] flex items-center gap-1 font-bold">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     {formErrors.cooldown_hours}
                   </p>
                 )}
-                <p className="text-[11px] text-slate-500">Minimum delay required between consecutive retries</p>
+                <p className="text-[11px] text-[#7A8799]">Minimum delay required between consecutive retries</p>
               </div>
             </div>
 
             {/* Form Action Buttons */}
-            <div className="flex items-center justify-end space-x-4 pt-4 border-t border-slate-800/80">
+            <div className="flex items-center justify-end space-x-4 pt-4 border-t border-[#E5EAF1]">
               <button
                 type="button"
                 onClick={handleReset}
                 disabled={saving}
-                className="px-4 py-2.5 rounded-xl border border-slate-700/80 hover:border-slate-600 text-slate-300 hover:text-white text-xs font-semibold flex items-center space-x-2 transition-all disabled:opacity-50"
+                className="px-4 py-2 rounded-lg border border-[#E5EAF1] hover:bg-[#F8FAFD] text-[#53627A] hover:text-[#0B1F3A] text-xs font-bold flex items-center space-x-2 transition-all cursor-pointer disabled:opacity-50"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset Fields</span>
               </button>
 
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50"
+                className="px-5 py-2 rounded-lg bg-[#2F5BFF] hover:bg-[#1A47E8] text-white text-xs font-bold flex items-center space-x-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-3.5 h-3.5" />
                 <span>{saving ? 'Saving & Deploying...' : 'Save & Deploy Policy'}</span>
               </button>
             </div>
@@ -500,64 +500,64 @@ export const PolicyManagerPage: React.FC = () => {
         </div>
 
         {/* Global Safety Defaults Reference Panel (1 Col) */}
-        <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-xl shadow-xl space-y-6">
-          <div className="flex items-center space-x-3 border-b border-slate-800/80 pb-4">
-            <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded-xl text-purple-400">
-              <Lock className="w-5 h-5" />
+        <div className="bg-white border border-[#E5EAF1] p-6 rounded-xl shadow-sm space-y-6">
+          <div className="flex items-center space-x-3 border-b border-[#E5EAF1] pb-4">
+            <div className="p-2 bg-[#EEF4FF] border border-[#2F5BFF]/20 rounded-lg text-[#2F5BFF]">
+              <Lock className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-slate-100">Global Safety Bounds</h2>
-              <p className="text-xs text-slate-400">Frozen architectural safety ceilings</p>
+              <h2 className="text-base font-bold text-[#0B1F3A]">Global Safety Bounds</h2>
+              <p className="text-xs text-[#53627A] mt-0.5">Frozen architectural safety ceilings</p>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-1">
+          <div className="space-y-4 font-sans">
+            <div className="p-3 bg-[#F8FAFD] border border-[#E5EAF1] rounded-lg space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Hard Attempt Ceiling</span>
-                <span className="font-semibold text-amber-400 font-mono">5 Attempts</span>
+                <span className="text-[#53627A] font-bold">Hard Attempt Ceiling</span>
+                <span className="font-bold text-[#D99A00] font-mono">5 Attempts</span>
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-[#7A8799]">
                 Absolute max retry ceiling. No policy can exceed 5 attempts.
               </p>
             </div>
 
-            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-1">
+            <div className="p-3 bg-[#F8FAFD] border border-[#E5EAF1] rounded-lg space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Global Amount Limit</span>
-                <span className="font-semibold text-purple-400 font-mono">₹100,000.00</span>
+                <span className="text-[#53627A] font-bold">Global Amount Limit</span>
+                <span className="font-bold text-[#8B5CF6] font-numeric">₹100,000.00</span>
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-[#7A8799]">
                 Transactions &gt; ₹100,000 mandatory human escalation.
               </p>
             </div>
 
-            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-1">
+            <div className="p-3 bg-[#F8FAFD] border border-[#E5EAF1] rounded-lg space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Minimum Probability Floor</span>
-                <span className="font-semibold text-emerald-400 font-mono">5.0% (0.05)</span>
+                <span className="text-[#53627A] font-bold">Minimum Probability Floor</span>
+                <span className="font-bold text-[#16A36A] font-mono">5.0% (0.05)</span>
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-[#7A8799]">
                 System rejects recommendations with $P &lt; 0.05$.
               </p>
             </div>
 
-            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-1">
+            <div className="p-3 bg-[#F8FAFD] border border-[#E5EAF1] rounded-lg space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Minimum Cooldown</span>
-                <span className="font-semibold text-cyan-400 font-mono">1 Hour</span>
+                <span className="text-[#53627A] font-bold">Minimum Cooldown</span>
+                <span className="font-bold text-[#06B6D4] font-mono">1 Hour</span>
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-[#7A8799]">
                 Prevents spamming customers with rapid retries.
               </p>
             </div>
 
-            <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start space-x-3">
-              <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-blue-300 space-y-1">
-                <span className="font-semibold block">Escalation Boundary</span>
-                <p className="text-blue-300/80">
-                  When policy status yields <span className="font-mono text-amber-300">ESCALATED</span> or transaction amount exceeds auto cap, recovery halts for Human Review approval.
+            <div className="p-3 bg-[#EEF4FF] border border-[#2F5BFF]/20 rounded-lg flex items-start space-x-3">
+              <Info className="w-4 h-4 text-[#2F5BFF] flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-[#0B1F3A] space-y-1">
+                <span className="font-bold block">Escalation Boundary</span>
+                <p className="text-[#53627A]">
+                  When policy status yields <span className="font-mono text-[#D99A00] font-bold">ESCALATED</span> or transaction amount exceeds auto cap, recovery halts for Human Review approval.
                 </p>
               </div>
             </div>
@@ -567,3 +567,5 @@ export const PolicyManagerPage: React.FC = () => {
     </div>
   );
 };
+
+export default PolicyManagerPage;

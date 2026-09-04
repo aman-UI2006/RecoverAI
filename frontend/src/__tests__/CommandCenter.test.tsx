@@ -52,7 +52,7 @@ describe('Step 28: Command Center Page & Stat Cards Test Suite', () => {
     });
   });
 
-  it('2. Toggles mode between SIMULATION and REAL_TEST mode in Command Center', async () => {
+  it('2. Reflects global mode changes when apiStateChanged is dispatched', async () => {
     vi.spyOn(apiModule.api, 'get').mockResolvedValue({
       data: {
         treatment_metrics: { total_eligible_amount: 100000 },
@@ -73,13 +73,15 @@ describe('Step 28: Command Center Page & Stat Cards Test Suite', () => {
       </BrowserRouter>
     );
 
-    const modeBtn = screen.getByRole('button', { name: /SIMULATION MODE/i });
-    expect(modeBtn).toBeInTheDocument();
+    expect(screen.getByText(/SIMULATION MODE/i)).toBeInTheDocument();
 
-    fireEvent.click(modeBtn);
+    // Trigger global mode change via apiStateChanged event from Header
+    apiModule.currentApiState.mode = 'REAL_TEST';
+    window.dispatchEvent(new CustomEvent('apiStateChanged'));
 
-    expect(screen.getByRole('button', { name: /REAL_TEST MODE/i })).toBeInTheDocument();
-    expect(apiModule.currentApiState.mode).toBe('REAL_TEST');
+    await waitFor(() => {
+      expect(screen.getByText(/REAL_TEST MODE/i)).toBeInTheDocument();
+    });
   });
 
   it('3. Renders fallback telemetry when API call encounters network error', async () => {

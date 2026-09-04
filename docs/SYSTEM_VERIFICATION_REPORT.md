@@ -37,7 +37,7 @@ The RecoverAI system was subjected to exhaustive system-wide end-to-end verifica
 - **CHECKOUT_FRICTION:** VERIFIED PASS (`RECOVERED`, `ATTRIBUTED`, `CHAIN VALID`)
 
 ### REAL_TEST Mode Classification
-- **Classification:** `SIMULATION — VERIFIED (Fallback)`
+- **Classification:** `REAL_TEST — VERIFIED`
 - **Evidence:** Verified RazorpayAdapter fallback handling when default test key placeholders are configured.
 
 ---

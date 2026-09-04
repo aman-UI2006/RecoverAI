@@ -22,6 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.database import get_db
 from backend.app.core.security import get_current_identity, AuthenticatedIdentity
+from backend.app.schemas.auth import RoleEnum
 from backend.app.models.domain import Transaction, DecisionContext, RecoveryActionScore, Diagnosis, AuditEvent
 from backend.app.schemas.ai_decision import (
     AIDecisionResponse,
@@ -52,7 +53,9 @@ async def get_ai_decision_context(
     Enforces multi-tenant isolation with HTTP 404 response for cross-tenant or missing requests.
     """
     # 1. Determine effective tenant merchant scope
-    if identity.merchant_id:
+    if identity.role == RoleEnum.ROLE_ADMIN.value:
+        effective_merchant_id = merchant_id or x_merchant_id or identity.merchant_id
+    elif identity.merchant_id:
         effective_merchant_id = identity.merchant_id
     else:
         effective_merchant_id = merchant_id or x_merchant_id

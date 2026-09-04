@@ -5,7 +5,6 @@ import {
   ShieldCheck,
   Stethoscope,
   Brain,
-  FileText,
   Clock,
   ExternalLink,
   CheckCircle2,
@@ -14,7 +13,6 @@ import {
   PlayCircle,
   Copy,
   Check,
-  Activity,
   Layers,
   User,
   MessageSquare,
@@ -42,6 +40,7 @@ export interface RecoveryAttemptData {
   execution_status: string;
   razorpay_payment_link_id?: string;
   razorpay_reference_id?: string;
+  action_payload?: Record<string, any>;
   executed_at?: string;
   created_at: string;
 }
@@ -86,18 +85,47 @@ export const TransactionDetailPage: React.FC = () => {
   const [notFound, setNotFound] = useState<boolean>(false);
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
-  const fetchTransactionDetail = async () => {
-    if (!transactionId) {
-      setNotFound(true);
-      setLoading(false);
-      return;
+  const authoritativeShortUrl = React.useMemo(() => {
+    if (!transaction) return null;
+    if (transaction.recovery_attempts && transaction.recovery_attempts.length > 0) {
+      for (const att of transaction.recovery_attempts) {
+        if (att.action_payload && att.action_payload.short_url) {
+          return att.action_payload.short_url as string;
+        }
+      }
     }
+    return null;
+  }, [transaction]);
 
+  const activePaymentLinkId = transaction?.razorpay_payment_link_id || transaction?.recovery_attempts?.[0]?.razorpay_payment_link_id;
+
+  const fetchTransactionDetail = async () => {
     setLoading(true);
     setNotFound(false);
 
+    let targetId = transactionId;
+
     try {
-      const res = await api.get(`/api/v1/transactions/${transactionId}`, {
+      if (!targetId) {
+        // Fetch latest active transaction for current merchant & mode context
+        const listRes = await api.get('/api/v1/transactions', {
+          params: {
+            limit: 1,
+            merchant_id: currentApiState.merchantId,
+            mode: currentApiState.mode,
+          },
+        });
+        if (listRes.data && Array.isArray(listRes.data.items) && listRes.data.items.length > 0) {
+          targetId = listRes.data.items[0].transaction_id || listRes.data.items[0].id;
+        }
+      }
+
+      if (!targetId) {
+        setNotFound(true);
+        return;
+      }
+
+      const res = await api.get(`/api/v1/transactions/${targetId}`, {
         params: {
           merchant_id: currentApiState.merchantId,
         },
@@ -109,113 +137,8 @@ export const TransactionDetailPage: React.FC = () => {
         setNotFound(true);
       }
     } catch (err: any) {
-      console.warn('[TransactionDetail API Fallback]:', err?.message);
-      // Fallback mock detail dataset for seamless demo inspection (Subtask 7.1 - 7.5)
-      const mockDetail: TransactionDetailData = {
-        id: transactionId || 'pay_tx101',
-        merchant_id: currentApiState.merchantId,
-        customer_id: 'cust_8871A',
-        customer_email: 'buyer@example.com',
-        amount: 4999.0,
-        currency: 'INR',
-        status: 'RECOVERED',
-        scenario_type: 'PAYMENT_FAILURE',
-        retry_count: 1,
-        recovery_cycle: 1,
-        mode: currentApiState.mode,
-        razorpay_payment_link_id: 'plink_RQ991283',
-        created_at: new Date(Date.now() - 3600000).toISOString(),
-        updated_at: new Date(Date.now() - 1200000).toISOString(),
-        diagnosis: {
-          id: 'diag_101',
-          failure_code: 'BANK_DOWNTIME_HDFC',
-          failure_category: 'ISSUER_DOWNTIME',
-          root_cause_explanation: 'HDFC Bank core banking gateway latency exceeded timeout threshold (5000ms). High probability of transient recovery via alternative smart routing or payment link outreach.',
-          confidence_score: 0.94,
-          diagnosis_source: 'ML_CLASSIFIER',
-          created_at: new Date(Date.now() - 3300000).toISOString(),
-        },
-        recovery_attempts: [
-          {
-            id: 'att_001',
-            logical_operation_key: `op_${transactionId || 'pay_tx101'}_01`,
-            recommended_action: 'RETRY_SMART_ROUTING',
-            policy_status: 'APPROVED',
-            execution_status: 'SUCCESS',
-            razorpay_payment_link_id: 'plink_RQ991283',
-            executed_at: new Date(Date.now() - 1800000).toISOString(),
-            created_at: new Date(Date.now() - 2400000).toISOString(),
-          },
-        ],
-        audit_timeline: [
-          {
-            id: 'evt_001',
-            event_type: 'EVENT_INGESTED',
-            actor: 'INGESTION_SERVICE',
-            state_from: undefined,
-            state_to: 'DETECTED',
-            details: { scenario: 'PAYMENT_FAILURE', amount_in_paise: 499900 },
-            event_hash: 'a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef',
-            created_at: new Date(Date.now() - 3600000).toISOString(),
-          },
-          {
-            id: 'evt_002',
-            event_type: 'DIAGNOSIS_COMPLETED',
-            actor: 'DIAGNOSIS_ENGINE',
-            state_from: 'DETECTED',
-            state_to: 'DIAGNOSED',
-            details: { failure_code: 'BANK_DOWNTIME_HDFC', confidence: 0.94 },
-            event_hash: 'b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef01',
-            created_at: new Date(Date.now() - 3300000).toISOString(),
-          },
-          {
-            id: 'evt_003',
-            event_type: 'AI_ACTION_RECOMMENDED',
-            actor: 'AI_RECOMMENDER',
-            state_from: 'DIAGNOSED',
-            state_to: 'INTERVENTION_SELECTED',
-            details: { action: 'RETRY_SMART_ROUTING', enrv_score: 4250.0 },
-            event_hash: 'c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef012',
-            created_at: new Date(Date.now() - 2700000).toISOString(),
-          },
-          {
-            id: 'evt_004',
-            event_type: 'POLICY_CHECK_PASSED',
-            actor: 'POLICY_ENGINE',
-            state_from: 'INTERVENTION_SELECTED',
-            state_to: 'APPROVED',
-            details: { rules_passed: 4, policy_id: 'pol_default' },
-            event_hash: 'd4e5f678901234567890abcdef1234567890abcdef1234567890abcdef0123',
-            created_at: new Date(Date.now() - 2400000).toISOString(),
-          },
-          {
-            id: 'evt_005',
-            event_type: 'ACTION_DISPATCHED',
-            actor: 'ACTION_EXECUTOR',
-            state_from: 'APPROVED',
-            state_to: 'EXECUTING',
-            details: { mode: currentApiState.mode, resource_id: 'plink_RQ991283' },
-            event_hash: 'e5f678901234567890abcdef1234567890abcdef1234567890abcdef01234',
-            created_at: new Date(Date.now() - 1800000).toISOString(),
-          },
-          {
-            id: 'evt_006',
-            event_type: 'RECOVERY_VERIFIED',
-            actor: 'RESULT_PROCESSOR',
-            state_from: 'EXECUTING',
-            state_to: 'RECOVERED',
-            details: { attribution: 'DIRECT_REFERENCE', recovered_amount: 4999.0 },
-            event_hash: 'f678901234567890abcdef1234567890abcdef1234567890abcdef012345',
-            created_at: new Date(Date.now() - 1200000).toISOString(),
-          },
-        ],
-      };
-
-      if (transactionId === 'not_found_tx') {
-        setNotFound(true);
-      } else {
-        setTransaction(mockDetail);
-      }
+      console.warn('[TransactionDetail API Error]:', err?.message);
+      setNotFound(true);
     } finally {
       setLoading(false);
     }
@@ -223,7 +146,10 @@ export const TransactionDetailPage: React.FC = () => {
 
   useEffect(() => {
     fetchTransactionDetail();
-  }, [transactionId, currentApiState.merchantId]);
+    const handleStateChange = () => fetchTransactionDetail();
+    window.addEventListener('apiStateChanged', handleStateChange);
+    return () => window.removeEventListener('apiStateChanged', handleStateChange);
+  }, [transactionId]);
 
   const handleCopyHash = (hash: string) => {
     navigator.clipboard.writeText(hash);
@@ -243,15 +169,15 @@ export const TransactionDetailPage: React.FC = () => {
     switch (statusStr) {
       case 'RECOVERED':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded text-xs font-bold bg-[#E6F4ED] text-[#16A36A] border border-[#16A36A]/20">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#16A36A]" />
             RECOVERED
           </span>
         );
       case 'EXECUTING':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-            <PlayCircle className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded text-xs font-bold bg-[#EEF4FF] text-[#2454D6] border border-[#2F5BFF]/20">
+            <PlayCircle className="w-3.5 h-3.5 text-[#2454D6]" />
             EXECUTING
           </span>
         );
@@ -259,39 +185,39 @@ export const TransactionDetailPage: React.FC = () => {
       case 'STOPPED':
       case 'EXPIRED':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/30">
-            <XCircle className="w-3.5 h-3.5 text-rose-400" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded text-xs font-bold bg-[#FDF2F4] text-[#D6455D] border border-[#D6455D]/20">
+            <XCircle className="w-3.5 h-3.5 text-[#D6455D]" />
             {statusStr}
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/30">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded text-xs font-bold bg-[#FDF8EC] text-[#D99A00] border border-[#D99A00]/20">
+            <AlertTriangle className="w-3.5 h-3.5 text-[#D99A00]" />
             {statusStr}
           </span>
         );
     }
   };
 
-  // Subtask 15/16: 404 Not Found View
+  // 404 Not Found View
   if (notFound) {
     return (
-      <div className="glass-panel rounded-2xl p-12 border border-slate-800 text-center max-w-lg mx-auto space-y-4 my-12">
-        <div className="p-4 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 w-16 h-16 mx-auto flex items-center justify-center">
+      <div className="bg-white rounded-xl p-12 border border-[#E5EAF1] text-center max-w-lg mx-auto space-y-4 my-12 shadow-sm">
+        <div className="p-4 rounded-full bg-[#FDF2F4] text-[#D6455D] border border-[#D6455D]/20 w-16 h-16 mx-auto flex items-center justify-center">
           <XCircle className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-slate-100">Transaction Not Found</h2>
-        <p className="text-xs text-slate-400">
-          The requested transaction ID <span className="font-mono text-slate-200">'{transactionId}'</span> was not found in the active merchant context ({currentApiState.merchantId}).
+        <h2 className="text-xl font-bold text-[#0B1F3A]">Transaction Not Found</h2>
+        <p className="text-xs text-[#53627A]">
+          The requested transaction ID <span className="font-mono text-[#0B1F3A] font-bold">'{transactionId}'</span> was not found in the active merchant context ({currentApiState.merchantId}).
         </p>
         <div className="pt-4">
           <button
             onClick={() => navigate('/queue')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs hover:bg-cyan-400 transition-all shadow-md shadow-cyan-500/20"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#2F5BFF] text-white font-bold text-xs hover:bg-[#1A47E8] transition-all shadow-sm cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Recovery Queue
+            <span>Back to Recovery Queue</span>
           </button>
         </div>
       </div>
@@ -301,304 +227,310 @@ export const TransactionDetailPage: React.FC = () => {
   if (loading || !transaction) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-24 bg-slate-900/60 rounded-xl border border-slate-800" />
-        <div className="h-32 bg-slate-900/60 rounded-xl border border-slate-800" />
+        <div className="h-24 bg-white rounded-xl border border-[#E5EAF1]" />
+        <div className="h-32 bg-white rounded-xl border border-[#E5EAF1]" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="h-64 bg-slate-900/60 rounded-xl border border-slate-800" />
-          <div className="h-64 bg-slate-900/60 rounded-xl border border-slate-800" />
+          <div className="h-64 bg-white rounded-xl border border-[#E5EAF1]" />
+          <div className="h-64 bg-white rounded-xl border border-[#E5EAF1]" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Navigation & Header Banner (Subtask 7.1) */}
+    <div className="space-y-6">
+      {/* Navigation & Header Banner */}
       <div className="space-y-4">
         <Link
           to="/queue"
-          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-400 font-semibold transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-[#53627A] hover:text-[#2F5BFF] font-bold transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Recovery Queue
+          <span>Back to Recovery Queue</span>
         </Link>
 
-        <div className="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="bg-white rounded-xl p-6 border border-[#E5EAF1] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
           <div className="space-y-2">
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl font-extrabold text-slate-100 font-mono tracking-tight">
+              <h1 className="text-2xl font-bold text-[#0B1F3A] font-mono tracking-tight">
                 {transaction.id}
               </h1>
               {renderStatusBadge(transaction.status)}
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+              <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-[#F8FAFD] text-[#53627A] border border-[#E5EAF1]">
                 {transaction.scenario_type}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">
+              <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-[#EEF4FF] text-[#2454D6] border border-[#2F5BFF]/20 font-mono">
                 {transaction.mode}
               </span>
             </div>
 
-            <div className="flex items-center gap-4 text-xs text-slate-400 flex-wrap">
+            <div className="flex items-center gap-4 text-xs text-[#53627A] flex-wrap font-sans">
               <div className="flex items-center gap-1">
-                <User className="w-3.5 h-3.5 text-slate-500" />
-                <span>Customer: <strong className="text-slate-200 font-mono">{transaction.customer_email || transaction.customer_id}</strong></span>
+                <User className="w-3.5 h-3.5 text-[#7A8799]" />
+                <span>Customer: <strong className="text-[#0B1F3A] font-mono">{transaction.customer_email || transaction.customer_id}</strong></span>
               </div>
               <div>•</div>
               <div className="flex items-center gap-1">
-                <Layers className="w-3.5 h-3.5 text-slate-500" />
-                <span>Merchant: <strong className="text-slate-200 font-mono">{transaction.merchant_id}</strong></span>
+                <Layers className="w-3.5 h-3.5 text-[#7A8799]" />
+                <span>Merchant: <strong className="text-[#0B1F3A] font-mono">{transaction.merchant_id}</strong></span>
               </div>
               <div>•</div>
               <div className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-slate-500" />
+                <Clock className="w-3.5 h-3.5 text-[#7A8799]" />
                 <span>Created: {new Date(transaction.created_at).toLocaleString()}</span>
               </div>
             </div>
           </div>
 
-          <div className="text-left md:text-right border-t md:border-t-0 border-slate-800 pt-4 md:pt-0">
-            <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Transaction Value</div>
-            <div className="text-3xl font-black text-slate-100 font-display mt-0.5">
+          <div className="text-left md:text-right border-t md:border-t-0 border-[#E5EAF1] pt-4 md:pt-0">
+            <div className="text-xs text-[#7A8799] uppercase tracking-wider font-bold">Transaction Value</div>
+            <div className="text-2xl font-bold text-[#0B1F3A] font-numeric tracking-tight mt-0.5">
               {formatCurrency(transaction.amount)}
             </div>
-            <div className="text-[11px] text-slate-500 mt-1">
+            <div className="text-[11px] text-[#7A8799] mt-1 font-sans">
               Attempt #{transaction.retry_count} (Cycle {transaction.recovery_cycle})
             </div>
           </div>
         </div>
       </div>
 
-      {/* Lifecycle Stepper (Subtask 7.2) */}
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800">
+      {/* Lifecycle Stepper Card */}
+      <div className="bg-white rounded-xl p-6 border border-[#E5EAF1] shadow-sm">
         <LifecycleStepper currentStatus={transaction.status} />
       </div>
 
       {/* Diagnosis & AI Decision Breakdown Panels */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Root Cause Diagnosis Panel (Subtask 7.3) */}
-        <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-            <Stethoscope className="w-5 h-5 text-cyan-400" />
-            <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
+        {/* Root Cause Diagnosis Panel */}
+        <div className="bg-white rounded-xl p-6 border border-[#E5EAF1] space-y-4 shadow-sm">
+          <div className="flex items-center gap-2 border-b border-[#E5EAF1] pb-3">
+            <Stethoscope className="w-4 h-4 text-[#2F5BFF]" />
+            <h3 className="text-xs font-bold text-[#0B1F3A] uppercase tracking-wider">
               Root Cause Diagnosis
             </h3>
           </div>
 
           {transaction.diagnosis ? (
-            <div className="space-y-4">
+            <div className="space-y-4 font-numeric">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
-                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Failure Code</div>
-                  <div className="text-xs font-mono font-bold text-cyan-400 mt-0.5">
+                <div className="bg-[#F8FAFD] p-3 rounded-lg border border-[#E5EAF1]">
+                  <div className="text-[10px] text-[#7A8799] uppercase font-bold">Failure Code</div>
+                  <div className="text-xs font-mono font-bold text-[#2454D6] mt-0.5">
                     {transaction.diagnosis.failure_code}
                   </div>
                 </div>
 
-                <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
-                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Classifier Source</div>
-                  <div className="text-xs font-bold text-emerald-400 mt-0.5">
+                <div className="bg-[#F8FAFD] p-3 rounded-lg border border-[#E5EAF1]">
+                  <div className="text-[10px] text-[#7A8799] uppercase font-bold">Classifier Source</div>
+                  <div className="text-xs font-bold text-[#16A36A] mt-0.5">
                     {transaction.diagnosis.diagnosis_source}
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <div className="text-xs text-slate-400 font-semibold">Root Cause Explanation:</div>
-                <p className="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-3 rounded-lg border border-slate-800/80">
+              <div className="space-y-1.5 font-sans">
+                <div className="text-xs text-[#53627A] font-bold">Root Cause Explanation:</div>
+                <p className="text-xs text-[#0B1F3A] leading-relaxed bg-[#F8FAFD] p-3 rounded-lg border border-[#E5EAF1]">
                   {transaction.diagnosis.root_cause_explanation}
                 </p>
               </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-400">Diagnosis Confidence Score:</span>
-                  <span className="text-cyan-400 font-mono font-bold">
+              <div className="space-y-1 font-sans">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-[#53627A]">Diagnosis Confidence Score:</span>
+                  <span className="text-[#2F5BFF] font-mono">
                     {Math.round(transaction.diagnosis.confidence_score * 100)}%
                   </span>
                 </div>
-                <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+                <div className="w-full bg-[#F1F5F9] rounded-full h-2 overflow-hidden border border-[#E5EAF1]">
                   <div
-                    className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full transition-all duration-500"
+                    className="bg-[#2F5BFF] h-full transition-all duration-300"
                     style={{ width: `${Math.round(transaction.diagnosis.confidence_score * 100)}%` }}
                   />
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-xs text-slate-500 py-6 text-center">
+            <div className="text-xs text-[#7A8799] py-6 text-center">
               No root cause diagnosis recorded for this transaction.
             </div>
           )}
         </div>
 
-        {/* AI Decision Breakdown Panel (Subtask 7.4) */}
-        <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-            <Brain className="w-5 h-5 text-cyan-400" />
-            <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
+        {/* AI Decision Breakdown Panel */}
+        <div className="bg-white rounded-xl p-6 border border-[#E5EAF1] space-y-4 shadow-sm">
+          <div className="flex items-center gap-2 border-b border-[#E5EAF1] pb-3">
+            <Brain className="w-4 h-4 text-[#2F5BFF]" />
+            <h3 className="text-xs font-bold text-[#0B1F3A] uppercase tracking-wider">
               AI Recommendation & Policy Decision
             </h3>
           </div>
 
           {transaction.recovery_attempts && transaction.recovery_attempts.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 font-numeric">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
-                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Action Strategy</div>
-                  <div className="text-xs font-bold text-slate-100 mt-0.5">
+                <div className="bg-[#F8FAFD] p-3 rounded-lg border border-[#E5EAF1]">
+                  <div className="text-[10px] text-[#7A8799] uppercase font-bold">Action Strategy</div>
+                  <div className="text-xs font-bold text-[#0B1F3A] mt-0.5">
                     {transaction.recovery_attempts[0].recommended_action}
                   </div>
                 </div>
 
-                <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
-                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Policy Gate Status</div>
-                  <div className="text-xs font-bold text-emerald-400 mt-0.5">
+                <div className="bg-[#F8FAFD] p-3 rounded-lg border border-[#E5EAF1]">
+                  <div className="text-[10px] text-[#7A8799] uppercase font-bold">Policy Gate Status</div>
+                  <div className="text-xs font-bold text-[#16A36A] mt-0.5">
                     {transaction.recovery_attempts[0].policy_status}
                   </div>
                 </div>
               </div>
 
-              <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800 space-y-1">
-                <div className="text-[10px] text-slate-400 uppercase font-semibold">Logical Operation Key</div>
-                <div className="text-[11px] font-mono text-cyan-400 break-all">
+              <div className="bg-[#F8FAFD] p-3 rounded-lg border border-[#E5EAF1] space-y-1">
+                <div className="text-[10px] text-[#7A8799] uppercase font-bold">Logical Operation Key</div>
+                <div className="text-[11px] font-mono text-[#2454D6] break-all font-bold">
                   {transaction.recovery_attempts[0].logical_operation_key}
                 </div>
               </div>
 
-              {/* Subtask 12: External Razorpay Resource Link */}
-              {transaction.razorpay_payment_link_id || transaction.recovery_attempts[0].razorpay_payment_link_id ? (
-                <div className="bg-cyan-500/10 p-3 rounded-lg border border-cyan-500/30 flex items-center justify-between">
+              {/* External Razorpay Resource Link */}
+              {activePaymentLinkId ? (
+                <div className="bg-[#EEF4FF] p-3 rounded-lg border border-[#2F5BFF]/20 flex items-center justify-between font-sans">
                   <div className="space-y-0.5">
-                    <div className="text-[10px] font-bold text-cyan-400 uppercase">Razorpay Payment Link Created</div>
-                    <div className="text-xs font-mono text-slate-200">
-                      {transaction.razorpay_payment_link_id || transaction.recovery_attempts[0].razorpay_payment_link_id}
+                    <div className="text-[10px] font-bold text-[#2454D6] uppercase">Razorpay Payment Link Created</div>
+                    <div className="text-xs font-mono font-bold text-[#0B1F3A]">
+                      {activePaymentLinkId}
                     </div>
                   </div>
-                  <a
-                    href={`https://dashboard.razorpay.com/app/paymentlinks/${transaction.razorpay_payment_link_id || transaction.recovery_attempts[0].razorpay_payment_link_id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-cyan-400 hover:text-cyan-300 bg-cyan-950/60 px-3 py-1.5 rounded-lg border border-cyan-500/40"
-                  >
-                    Demo Link
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  {authoritativeShortUrl ? (
+                    <a
+                      href={authoritativeShortUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#2F5BFF] hover:text-[#1A47E8] bg-white px-3 py-1.5 rounded-lg border border-[#2F5BFF]/30 shadow-sm"
+                    >
+                      <span>Demo Link</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  ) : (
+                    <span className="text-[11px] font-mono text-[#7A8799] italic">
+                      Customer-facing URL unavailable
+                    </span>
+                  )}
                 </div>
               ) : null}
             </div>
           ) : (
-            <div className="text-xs text-slate-500 py-6 text-center">
+            <div className="text-xs text-[#7A8799] py-6 text-center">
               No recovery attempt execution records present.
             </div>
           )}
         </div>
       </div>
 
-      {/* Customer Communication Intelligence Preview Card (Step 48) */}
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4" data-testid="communication-preview-card">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      {/* Customer Communication Copy Card */}
+      <div className="bg-white rounded-xl p-6 border border-[#E5EAF1] space-y-4 shadow-sm" data-testid="communication-preview-card">
+        <div className="flex items-center justify-between border-b border-[#E5EAF1] pb-3">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-cyan-400" />
-            <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
+            <MessageSquare className="w-4 h-4 text-[#2F5BFF]" />
+            <h3 className="text-xs font-bold text-[#0B1F3A] uppercase tracking-wider">
               Customer Recovery Communication Copy
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+            <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-[#EEF4FF] text-[#2454D6] border border-[#2F5BFF]/20">
               Tone: {transaction.scenario_type.includes('SUBSCRIPTION') ? 'Empathetic' : transaction.amount >= 10000 ? 'Urgent' : 'Informative'}
             </span>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">
+            <span className="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-[#F8FAFD] text-[#53627A] border border-[#E5EAF1]">
               {transaction.mode === 'REAL_TEST' ? 'REAL_TEST (Content Generation Only)' : 'SIMULATION Model'}
             </span>
           </div>
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span className="flex items-center gap-1">
-              <Send className="w-3.5 h-3.5 text-slate-500" />
-              Channel: <strong className="text-slate-200">SMS / WhatsApp</strong>
+        <div className="space-y-3 font-sans">
+          <div className="flex items-center justify-between text-xs text-[#53627A]">
+            <span className="flex items-center gap-1.5 font-bold">
+              <Send className="w-3.5 h-3.5 text-[#7A8799]" />
+              Channel: <strong className="text-[#0B1F3A]">SMS / WhatsApp</strong>
             </span>
-            <span className="flex items-center gap-1 font-mono text-[11px] text-amber-400">
-              <Lock className="w-3 h-3 text-amber-400" />
+            <span className="flex items-center gap-1 font-mono text-[11px] text-[#D99A00] font-bold">
+              <Lock className="w-3 h-3 text-[#D99A00]" />
               PII Redacted Preview
             </span>
           </div>
 
-          <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800/80 text-xs text-slate-200 font-mono leading-relaxed space-y-2">
+          <div className="bg-[#F8FAFD] p-4 rounded-xl border border-[#E5EAF1] text-xs text-[#0B1F3A] font-mono leading-relaxed space-y-2">
             <p>
               {transaction.scenario_type.includes('SUBSCRIPTION')
-                ? `We noticed your recent payment of ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount)} didn't go through. We understand these things happen! You can easily update your payment details using this secure link: ${transaction.razorpay_payment_link_id ? `https://rzp.io/i/${transaction.razorpay_payment_link_id}` : 'https://rzp.io/i/recov_demo'}`
-                : `Payment Action Required: Your transaction of ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount)} is pending. Please complete your payment via secure link: ${transaction.razorpay_payment_link_id ? `https://rzp.io/i/${transaction.razorpay_payment_link_id}` : 'https://rzp.io/i/recov_demo'}`}
+                ? `We noticed your recent payment of ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount)} didn't go through. We understand these things happen! You can easily update your payment details using this secure link: ${authoritativeShortUrl || (activePaymentLinkId ? `[URL unavailable for Payment Link ID: ${activePaymentLinkId}]` : '[Link Unavailable]')}`
+                : `Payment Action Required: Your transaction of ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount)} is pending. Please complete your payment via secure link: ${authoritativeShortUrl || (activePaymentLinkId ? `[URL unavailable for Payment Link ID: ${activePaymentLinkId}]` : '[Link Unavailable]')}`}
             </p>
           </div>
 
           {transaction.mode === 'REAL_TEST' ? (
-            <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 font-medium flex items-center justify-between">
+            <div className="p-2.5 rounded-lg bg-[#FDF8EC] border border-[#D99A00]/20 text-[11px] text-[#D99A00] font-bold flex items-center justify-between">
               <span>REAL_TEST Boundary: Content generated for inspection only. No external SMS/Email dispatched.</span>
-              <span className="font-mono text-amber-400 font-bold uppercase">Dispatched: NO</span>
+              <span className="font-mono text-[#D99A00] uppercase">Dispatched: NO</span>
             </div>
           ) : (
-            <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-300 font-medium flex items-center justify-between">
+            <div className="p-2.5 rounded-lg bg-[#E6F4ED] border border-[#16A36A]/20 text-[11px] text-[#16A36A] font-bold flex items-center justify-between">
               <span>SIMULATION Boundary: Delivery modeled. Simulated conversion probability: 78.0%.</span>
-              <span className="font-mono text-emerald-400 font-bold uppercase">Dispatched: SIMULATED</span>
+              <span className="font-mono text-[#16A36A] uppercase">Dispatched: SIMULATED</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Inline Cryptographic Audit Timeline Panel (Subtask 7.5) */}
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      {/* Inline Cryptographic Audit Timeline Panel */}
+      <div className="bg-white rounded-xl p-6 border border-[#E5EAF1] space-y-6 shadow-sm">
+        <div className="flex items-center justify-between border-b border-[#E5EAF1] pb-3">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
-            <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-[#16A36A]" />
+            <h3 className="text-xs font-bold text-[#0B1F3A] uppercase tracking-wider">
               Cryptographic Audit Chain Timeline
             </h3>
           </div>
-          <span className="text-xs text-emerald-400 font-mono flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="text-xs text-[#16A36A] font-bold font-mono flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#16A36A]" />
             SHA-256 Hash Chain Verified
           </span>
         </div>
 
         {transaction.audit_timeline && transaction.audit_timeline.length > 0 ? (
-          <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800">
+          <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E5EAF1]">
             {transaction.audit_timeline.map((evt, index) => (
               <div key={evt.id || index} className="relative flex flex-col space-y-1">
                 {/* Timeline Dot */}
-                <div className="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-cyan-500 border-2 border-slate-950 ring-2 ring-cyan-500/20" />
+                <div className="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-[#2F5BFF] border-2 border-white ring-2 ring-[#2F5BFF]/20" />
 
-                <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center justify-between flex-wrap gap-2 font-sans">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-xs text-slate-100">{evt.event_type}</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-slate-400 border border-slate-800">
+                    <span className="font-bold text-xs text-[#0B1F3A]">{evt.event_type}</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#F8FAFD] text-[#53627A] border border-[#E5EAF1]">
                       Actor: {evt.actor}
                     </span>
                     {evt.state_from && evt.state_to && (
-                      <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                      <span className="text-[10px] font-mono font-bold text-[#2454D6] bg-[#EEF4FF] px-2 py-0.5 rounded border border-[#2F5BFF]/20">
                         {evt.state_from} → {evt.state_to}
                       </span>
                     )}
                   </div>
-                  <span className="text-[11px] text-slate-500 font-mono">
+                  <span className="text-[11px] text-[#7A8799] font-mono">
                     {new Date(evt.created_at).toLocaleString()}
                   </span>
                 </div>
 
                 {/* Cryptographic SHA-256 Signature */}
-                <div className="flex items-center justify-between bg-slate-900/90 px-3 py-1.5 rounded-lg border border-slate-800 text-[10px] font-mono text-slate-400 overflow-x-auto">
+                <div className="flex items-center justify-between bg-[#F8FAFD] px-3 py-1.5 rounded-lg border border-[#E5EAF1] text-[10px] font-mono text-[#53627A] overflow-x-auto">
                   <div className="flex items-center gap-2 truncate">
-                    <span className="text-slate-500 select-none">SHA-256:</span>
-                    <span className="text-slate-300 truncate">{evt.event_hash}</span>
+                    <span className="text-[#7A8799] select-none font-bold">SHA-256:</span>
+                    <span className="text-[#0B1F3A] truncate font-bold">{evt.event_hash}</span>
                   </div>
                   <button
                     onClick={() => handleCopyHash(evt.event_hash)}
-                    className="ml-2 text-slate-400 hover:text-cyan-400 shrink-0 flex items-center gap-1"
+                    className="ml-2 text-[#7A8799] hover:text-[#2F5BFF] shrink-0 flex items-center gap-1 cursor-pointer"
                     title="Copy Hash"
                   >
                     {copiedHash === evt.event_hash ? (
-                      <Check className="w-3 h-3 text-emerald-400" />
+                      <Check className="w-3 h-3 text-[#16A36A]" />
                     ) : (
                       <Copy className="w-3 h-3" />
                     )}
@@ -608,7 +540,7 @@ export const TransactionDetailPage: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="text-xs text-slate-500 py-6 text-center">
+          <div className="text-xs text-[#7A8799] py-6 text-center">
             No audit timeline events recorded for this transaction.
           </div>
         )}
@@ -616,3 +548,5 @@ export const TransactionDetailPage: React.FC = () => {
     </div>
   );
 };
+
+export default TransactionDetailPage;

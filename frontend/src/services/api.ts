@@ -22,7 +22,7 @@ const getStoredToken = (): string | null => {
 
 // In-memory Auth / Tenant state
 export const currentApiState: APIState = {
-  merchantId: 'm_alpha_123',
+  merchantId: '',
   mode: 'SIMULATION',
   token: getStoredToken(),
   apiKey: 'key_admin_secret_999',

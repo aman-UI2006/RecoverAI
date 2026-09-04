@@ -10,7 +10,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   ArrowUpRight,
-  Sparkles,
   Layers,
 } from 'lucide-react';
 import {
@@ -75,13 +74,13 @@ export const CommandCenterPage: React.FC = () => {
     try {
       // Fetch analytics summary metrics
       const summaryRes = await api.get<AnalyticsSummary>('/api/v1/analytics/summary', {
-        params: { mode, merchant_id: currentApiState.merchantId },
+        params: { mode: currentApiState.mode, merchant_id: currentApiState.merchantId },
       });
       setData(summaryRes.data);
 
       // Fetch recent active recovery queue transactions
       const txRes = await api.get('/api/v1/transactions', {
-        params: { limit: 5, merchant_id: currentApiState.merchantId, mode },
+        params: { limit: 5, merchant_id: currentApiState.merchantId, mode: currentApiState.mode },
       });
       if (txRes.data && Array.isArray(txRes.data.items)) {
         setRecentTransactions(txRes.data.items);
@@ -163,7 +162,13 @@ export const CommandCenterPage: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  }, [mode, currentApiState.merchantId]);
+    const handleStateChange = () => {
+      setMode(currentApiState.mode);
+      fetchData();
+    };
+    window.addEventListener('apiStateChanged', handleStateChange);
+    return () => window.removeEventListener('apiStateChanged', handleStateChange);
+  }, []);
 
   const formatCurrency = (val: number): string => {
     return new Intl.NumberFormat('en-IN', {
@@ -175,12 +180,6 @@ export const CommandCenterPage: React.FC = () => {
 
   const formatPercent = (val: number): string => {
     return `${(val * 100).toFixed(1)}%`;
-  };
-
-  const handleModeSwitch = () => {
-    const nextMode = mode === 'SIMULATION' ? 'REAL_TEST' : 'SIMULATION';
-    currentApiState.mode = nextMode;
-    setMode(nextMode);
   };
 
   // Recharts Chart Data
@@ -205,21 +204,20 @@ export const CommandCenterPage: React.FC = () => {
     : [];
 
   return (
-    <div className="space-y-8">
-      {/* Top Banner & Title Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* Page Header Banner */}
+      <div className="fintech-card-hero p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-extrabold text-slate-100 font-display tracking-tight">
-              Command Center
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-extrabold text-[#0B1F44] tracking-tight">
+              <span className="text-gradient-highlight">Revenue Recovery</span> Command Center
             </h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Sparkles className="w-3 h-3 text-cyan-400" />
-              Live Telemetry
+            <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-[#EEF6FF] text-[#2F66F5] border border-[#2F66F5]/20">
+              Live Telemetry & Operations
             </span>
           </div>
-          <p className="text-sm text-slate-400 mt-1">
-            Real-time executive performance dashboard comparing AI Treatment recovery lift against Baseline Control.
+          <p className="text-xs text-[#5E6B7E] mt-1 font-medium">
+            Real-time automated payment failure diagnosis, AI intervention selection, and incremental lift attribution.
           </p>
         </div>
 
@@ -228,42 +226,40 @@ export const CommandCenterPage: React.FC = () => {
           <button
             onClick={fetchData}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-[#F8FAFD] text-[#0B1F44] text-xs font-bold border border-[#111827] transition-all shadow-xs cursor-pointer"
             title="Refresh Metrics"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
+            <RefreshCw className={`w-3.5 h-3.5 text-[#5E6B7E] ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
           </button>
 
-          <button
-            onClick={handleModeSwitch}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all border ${
+          <div
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border select-none ${
               mode === 'REAL_TEST'
-                ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20'
-                : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/20'
+                ? 'bg-[#ECFDF5] text-[#059669] border-[#10B981] shadow-xs'
+                : 'bg-[#EFF6FF] text-[#1D4ED8] border-[#3B82F6] shadow-xs'
             }`}
           >
-            {mode === 'REAL_TEST' ? (
-              <>
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                REAL_TEST MODE
-              </>
-            ) : (
-              <>
-                <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
-                SIMULATION MODE
-              </>
-            )}
-          </button>
+            <span
+              className={`w-2 h-2 rounded-full ${
+                mode === 'REAL_TEST' ? 'bg-[#10B981] animate-pulse' : 'bg-[#2563EB]'
+              }`}
+            />
+            <span>
+              {mode === 'REAL_TEST'
+                ? 'REAL_TEST MODE (Razorpay Test Mode)'
+                : 'SIMULATION MODE (Synthetic Evaluation)'}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* KPI Stat Cards Grid (Subtask 7.1) */}
+      {/* Compact KPI Executive Summary Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <MetricCard
           title="Revenue at Risk"
           value={data ? formatCurrency(data.treatment_metrics?.total_eligible_amount || 0) : '₹0'}
-          subtitle="Total failed transactions value"
+          subtitle="Total failed transactions"
           icon={ShieldAlert}
           variant="amber"
           loading={loading}
@@ -295,7 +291,7 @@ export const CommandCenterPage: React.FC = () => {
             isPositive: true,
           }}
           icon={TrendingUp}
-          variant="cyan"
+          variant="blue"
           loading={loading}
           error={!!error}
           onRetry={fetchData}
@@ -304,7 +300,7 @@ export const CommandCenterPage: React.FC = () => {
         <MetricCard
           title="Net Recovery ROI"
           value={data ? formatCurrency(data.net_incremental_revenue || 0) : '₹0'}
-          subtitle="After costs & refund deductions"
+          subtitle="Net value after deductions"
           icon={Award}
           variant="purple"
           loading={loading}
@@ -328,25 +324,25 @@ export const CommandCenterPage: React.FC = () => {
         />
       </div>
 
-      {/* Main Performance Comparison Chart (Subtask 7.2) */}
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
-        <div className="flex items-center justify-between">
+      {/* Main Performance Comparison Chart Card */}
+      <div className="bg-white rounded-xl p-6 border border-[#E5EAF1] space-y-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-slate-100 font-display flex items-center gap-2">
-              <Layers className="w-5 h-5 text-cyan-400" />
-              Treatment vs Control Recovery Cohort Comparison
+            <h2 className="text-base font-bold text-[#0B1F3A] flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[#2F5BFF]" />
+              Treatment vs Control Recovery Cohort
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#53627A] mt-0.5">
               Incremental lift analysis comparing AI-driven interventions against un-intervened baseline control transactions.
             </p>
           </div>
-          <div className="flex items-center gap-3 text-xs font-semibold text-slate-400">
+          <div className="flex items-center gap-4 text-xs font-semibold text-[#53627A]">
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-cyan-500 inline-block"></span>
+              <span className="w-3 h-3 rounded-sm bg-[#2F5BFF] inline-block"></span>
               Treatment Cohort
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-slate-600 inline-block"></span>
+              <span className="w-3 h-3 rounded-sm bg-[#94A3B8] inline-block"></span>
               Control Baseline
             </span>
           </div>
@@ -355,59 +351,61 @@ export const CommandCenterPage: React.FC = () => {
         {/* Recharts Container */}
         <div className="h-72 w-full pt-4">
           {loading ? (
-            <div className="h-full flex items-center justify-center bg-slate-900/40 rounded-xl border border-slate-800/60 animate-pulse">
-              <span className="text-xs font-medium text-slate-500">Loading performance chart...</span>
+            <div className="h-full flex items-center justify-center bg-[#F8FAFD] rounded-lg border border-[#E5EAF1] skeleton-shimmer">
+              <span className="text-xs font-medium text-[#7A8799]">Loading performance telemetry chart...</span>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                <XAxis dataKey="name" stroke="#64748B" fontSize={12} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis dataKey="name" stroke="#7A8799" fontSize={11} tickLine={false} />
                 <YAxis
-                  stroke="#64748B"
-                  fontSize={12}
+                  stroke="#7A8799"
+                  fontSize={11}
                   tickLine={false}
                   tickFormatter={(val) => `₹${(val / 1000).toFixed(0)}k`}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#0F172A',
-                    borderColor: '#334155',
+                    backgroundColor: '#FFFFFF',
+                    borderColor: '#E5EAF1',
                     borderRadius: '8px',
-                    color: '#F8FAFC',
+                    color: '#0B1F3A',
+                    fontSize: '12px',
+                    boxShadow: '0 4px 6px -1px rgba(11, 31, 58, 0.1)',
                   }}
                   formatter={(value: any) => [formatCurrency(Number(value)), 'Value']}
                 />
-                <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                <Bar dataKey="Treatment" fill="#0EA5E9" radius={[4, 4, 0, 0]} name="Treatment (RecoverAI)" />
-                <Bar dataKey="Control" fill="#475569" radius={[4, 4, 0, 0]} name="Control (Baseline)" />
+                <Legend wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }} />
+                <Bar dataKey="Treatment" fill="#2F5BFF" radius={[4, 4, 0, 0]} name="Treatment (RecoverAI)" />
+                <Bar dataKey="Control" fill="#94A3B8" radius={[4, 4, 0, 0]} name="Control (Baseline)" />
               </BarChart>
             </ResponsiveContainer>
           )}
         </div>
       </div>
 
-      {/* Recent Active Recovery Queue Summary Table (Subtask 7.4) */}
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+      {/* Recent Active Recovery Queue Table */}
+      <div className="bg-white rounded-xl p-6 border border-[#E5EAF1] space-y-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-100 font-display">Recent Active Recovery Queue</h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <h2 className="text-base font-bold text-[#0B1F3A]">Recent Active Recovery Queue</h2>
+            <p className="text-xs text-[#53627A] mt-0.5">
               Latest transactions undergoing AI risk assessment, diagnosis, or intervention execution.
             </p>
           </div>
           <Link
             to="/recovery-queue"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition-colors"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#2F5BFF] hover:text-[#1A47E8] transition-colors"
           >
-            View Full Queue
+            <span>View Full Queue</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-900/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#F8FAFD] text-[#53627A] uppercase text-[10px] font-bold tracking-wider border-b border-[#E5EAF1]">
               <tr>
                 <th className="py-3 px-4">Transaction ID</th>
                 <th className="py-3 px-4">Failure Scenario</th>
@@ -417,60 +415,60 @@ export const CommandCenterPage: React.FC = () => {
                 <th className="py-3 px-4 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-[#E5EAF1] font-numeric">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-500">
+                  <td colSpan={6} className="py-8 text-center text-[#7A8799]">
                     Loading active transactions...
                   </td>
                 </tr>
               ) : recentTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-500">
+                  <td colSpan={6} className="py-8 text-center text-[#7A8799]">
                     No active recovery transactions found in current mode context.
                   </td>
                 </tr>
               ) : (
                 recentTransactions.map((tx) => {
                   const statusColors: Record<string, string> = {
-                    RECOVERED: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-                    EXECUTING: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
-                    DIAGNOSED: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
-                    HUMAN_REVIEW_REQUIRED: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-                    FAILED: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+                    RECOVERED: 'bg-[#E6F4ED] text-[#16A36A] border-[#16A36A]/20',
+                    EXECUTING: 'bg-[#EEF4FF] text-[#2454D6] border-[#2F5BFF]/20',
+                    DIAGNOSED: 'bg-[#EEF4FF] text-[#2454D6] border-[#2F5BFF]/20',
+                    HUMAN_REVIEW_REQUIRED: 'bg-[#FDF8EC] text-[#D99A00] border-[#D99A00]/20',
+                    FAILED: 'bg-[#FDF2F4] text-[#D6455D] border-[#D6455D]/20',
                   };
 
                   const badgeClass =
-                    statusColors[tx.status] || 'bg-slate-800 text-slate-300 border-slate-700';
+                    statusColors[tx.status] || 'bg-[#F8FAFD] text-[#53627A] border-[#E5EAF1]';
 
                   return (
-                    <tr key={tx.id} className="hover:bg-slate-800/40 transition-colors">
-                      <td className="py-3 px-4 font-mono font-semibold text-slate-100">
+                    <tr key={tx.id} className="hover:bg-[#F8FAFD] transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#2F5BFF]">
                         {tx.transaction_id}
                       </td>
-                      <td className="py-3 px-4 text-slate-400 font-medium">{tx.scenario_type}</td>
-                      <td className="py-3 px-4 font-semibold text-slate-200">
+                      <td className="py-3.5 px-4 text-[#53627A] font-sans font-medium">{tx.scenario_type}</td>
+                      <td className="py-3.5 px-4 font-bold text-[#0B1F3A]">
                         {formatCurrency(tx.amount_in_paise / 100)}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <span
-                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}`}
+                          className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass}`}
                         >
                           {tx.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-slate-400">
+                      <td className="py-3.5 px-4 text-[#7A8799] font-sans">
                         {new Date(tx.created_at).toLocaleTimeString([], {
                           hour: '2-digit',
                           minute: '2-digit',
                         })}
                       </td>
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right">
                         <Link
                           to={`/transactions/${tx.transaction_id}`}
-                          className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 font-semibold"
+                          className="inline-flex items-center gap-1 text-[#2F5BFF] hover:text-[#1A47E8] font-bold"
                         >
-                          Inspect
+                          <span>Inspect</span>
                           <ArrowUpRight className="w-3 h-3" />
                         </Link>
                       </td>
@@ -485,3 +483,5 @@ export const CommandCenterPage: React.FC = () => {
     </div>
   );
 };
+
+export default CommandCenterPage;

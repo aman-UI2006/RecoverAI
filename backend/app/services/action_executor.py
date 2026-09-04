@@ -189,6 +189,7 @@ class ActionExecutor:
         external_resource_id = None
         rzp_payment_link_id = None
         rzp_reference_id = None
+        delegate_res = None
         executed_time = current_utc_time()
 
         if mode_str == "REAL_TEST":
@@ -240,6 +241,11 @@ class ActionExecutor:
         attempt.razorpay_payment_link_id = rzp_payment_link_id
         attempt.razorpay_reference_id = rzp_reference_id
         attempt.executed_at = executed_time
+
+        if adapter_delegate and isinstance(delegate_res, dict) and delegate_res.get("short_url"):
+            current_payload = dict(attempt.action_payload or {})
+            current_payload["short_url"] = delegate_res["short_url"]
+            attempt.action_payload = current_payload
 
         await session.commit()
         await session.refresh(attempt)

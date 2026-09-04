@@ -3,12 +3,13 @@ import {
   AlertCircle,
   Stethoscope,
   Brain,
-  ShieldCheck,
   PlayCircle,
   CheckCircle2,
   XCircle,
   UserCheck,
-  Clock,
+  Award,
+  BarChart,
+  Lock,
 } from 'lucide-react';
 
 interface LifecycleStepperProps {
@@ -24,108 +25,137 @@ interface StepDefinition {
 
 const LIFECYCLE_STEPS: StepDefinition[] = [
   {
-    key: 'DETECTED',
+    key: 'DETECT',
     label: '1. Detect',
-    description: 'Payment Failure Ingested',
+    description: 'Failure Ingested',
     icon: AlertCircle,
   },
   {
-    key: 'DIAGNOSED',
+    key: 'DIAGNOSE',
     label: '2. Diagnose',
     description: 'Root Cause Classified',
     icon: Stethoscope,
   },
   {
-    key: 'INTERVENTION_SELECTED',
+    key: 'DECIDE',
     label: '3. Decide',
-    description: 'AI Action Recommended',
+    description: 'AI Strategy & ENRV',
     icon: Brain,
   },
   {
-    key: 'APPROVED',
-    label: '4. Policy Gate',
-    description: 'Safety Rules Approved',
-    icon: ShieldCheck,
-  },
-  {
-    key: 'EXECUTING',
+    key: 'EXECUTE',
     label: '5. Execute',
-    description: 'Intervention Dispatched',
+    description: 'Action Dispatched',
     icon: PlayCircle,
   },
   {
-    key: 'RECOVERED',
-    label: '6. Verified',
-    description: 'Terminal Outcome',
+    key: 'VERIFY',
+    label: '5. Verify',
+    description: 'Webhook Verification',
     icon: CheckCircle2,
+  },
+  {
+    key: 'ATTRIBUTE',
+    label: '6. Attribute',
+    description: 'Direct Reference Match',
+    icon: Award,
+  },
+  {
+    key: 'MEASURE',
+    label: '7. Measure',
+    description: 'Incremental Value',
+    icon: BarChart,
+  },
+  {
+    key: 'AUDIT',
+    label: '8. Audit',
+    description: 'SHA-256 Hash Chain',
+    icon: Lock,
   },
 ];
 
 const STATUS_ORDER: Record<string, number> = {
+  AT_RISK: 1,
   DETECTED: 1,
   DIAGNOSED: 2,
   INTERVENTION_SELECTED: 3,
-  APPROVED: 4,
-  EXECUTING: 5,
-  RECOVERED: 6,
-  FAILED: 6,
-  STOPPED: 6,
-  EXPIRED: 6,
-  ESCALATED: 4,
-  MANUAL_REVIEW: 4,
+  APPROVED: 3,
+  EXECUTING: 4,
+  RECOVERED: 8,
+  FAILED: 8,
+  STOPPED: 8,
+  EXPIRED: 8,
+  ESCALATED: 3,
+  MANUAL_REVIEW: 3,
 };
 
 export const LifecycleStepper: React.FC<LifecycleStepperProps> = ({ currentStatus }) => {
-  const currentStepNum = STATUS_ORDER[currentStatus?.toUpperCase()] || 1;
-  const isFailedTerminal = ['FAILED', 'STOPPED', 'EXPIRED'].includes(currentStatus?.toUpperCase());
-  const isEscalated = ['ESCALATED', 'MANUAL_REVIEW'].includes(currentStatus?.toUpperCase());
+  const normalizedStatus = currentStatus?.toUpperCase() || 'AT_RISK';
+  const currentStepNum = STATUS_ORDER[normalizedStatus] || 1;
+  const isFailedTerminal = ['FAILED', 'STOPPED', 'EXPIRED'].includes(normalizedStatus);
+  const isEscalated = ['ESCALATED', 'MANUAL_REVIEW'].includes(normalizedStatus);
 
   return (
-    <div className="w-full space-y-3">
-      <div className="flex items-center justify-between text-xs font-semibold text-slate-400 mb-2">
-        <span>End-to-End Recovery Flow</span>
-        <span className="font-mono text-cyan-400">Current Status: {currentStatus}</span>
+    <div className="w-full space-y-4 font-sans">
+      <div className="flex items-center justify-between text-xs font-bold text-[#5E6B7E]">
+        <span className="uppercase tracking-wider font-bold text-[11px] text-[#0B1F44]">
+          End-to-End Recovery Flow
+        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-[#5E6B7E] font-bold">
+            Current Status: {currentStatus}
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
         {LIFECYCLE_STEPS.map((step, idx) => {
           const stepNum = idx + 1;
-          const isCompleted = currentStepNum > stepNum || (currentStepNum === 6 && stepNum === 6 && currentStatus === 'RECOVERED');
-          const isCurrent = currentStepNum === stepNum && !(stepNum === 6 && isCompleted);
-          const isTerminalStep = stepNum === 6;
+          const isCompleted = currentStepNum > stepNum || (currentStepNum === 8 && stepNum === 8 && normalizedStatus === 'RECOVERED');
+          const isCurrent = currentStepNum === stepNum && !(stepNum === 8 && isCompleted);
 
           let IconComponent = step.icon;
-          let badgeColor = 'bg-slate-900 text-slate-500 border-slate-800';
-          let textColor = 'text-slate-500';
+          let badgeColor = 'bg-white text-[#5E6B7E] border-[#D9E1EC]';
+          let textColor = 'text-[#5E6B7E]';
+          let iconColor = 'text-[#5E6B7E]';
+          let iconBg = 'bg-[#F8FAFD] border-[#D9E1EC]';
 
           if (isCompleted) {
-            badgeColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
-            textColor = 'text-emerald-400';
+            badgeColor = 'bg-[#E6F4ED] text-[#16A36A] border-[#16A36A]/30';
+            textColor = 'text-[#16A36A]';
+            iconColor = 'text-[#16A36A]';
+            iconBg = 'bg-white border-[#16A36A]/20';
           } else if (isCurrent) {
-            if (isTerminalStep && isFailedTerminal) {
-              badgeColor = 'bg-rose-500/10 text-rose-400 border-rose-500/40 shadow-sm shadow-rose-500/10';
-              textColor = 'text-rose-400';
+            if (isFailedTerminal) {
+              badgeColor = 'bg-[#FDF2F4] text-[#D6455D] border-[#111827] shadow-sm pulse-node';
+              textColor = 'text-[#D6455D]';
+              iconColor = 'text-[#D6455D]';
+              iconBg = 'bg-white border-[#D6455D]/20';
               IconComponent = XCircle;
-            } else if (isEscalated && stepNum === 4) {
-              badgeColor = 'bg-amber-500/10 text-amber-400 border-amber-500/40 shadow-sm shadow-amber-500/10';
-              textColor = 'text-amber-400';
+            } else if (isEscalated) {
+              badgeColor = 'bg-[#FDF8EC] text-[#D99A00] border-[#111827] shadow-sm pulse-node';
+              textColor = 'text-[#D99A00]';
+              iconColor = 'text-[#D99A00]';
+              iconBg = 'bg-white border-[#D99A00]/20';
               IconComponent = UserCheck;
             } else {
-              badgeColor = 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40 shadow-sm shadow-cyan-500/10';
-              textColor = 'text-cyan-400';
+              badgeColor = 'bg-[#EEF6FF] text-[#2F66F5] border-[#111827] shadow-md pulse-node';
+              textColor = 'text-[#2F66F5]';
+              iconColor = 'text-[#2F66F5]';
+              iconBg = 'bg-white border-[#2F66F5]/30';
             }
           }
 
           return (
             <div
               key={step.key}
-              className={`flex flex-col items-center text-center p-3 rounded-xl border transition-all ${badgeColor}`}
+              className={`flex flex-col items-center text-center p-3 rounded-xl border transition-all duration-200 ${badgeColor}`}
             >
-              <div className="p-2 rounded-full mb-1.5 bg-slate-950/60 border border-slate-800">
-                <IconComponent className={`w-4 h-4 ${isCurrent ? 'animate-pulse' : ''}`} />
+              <div className={`p-1.5 rounded-lg mb-1.5 border ${iconBg}`}>
+                <IconComponent className={`w-4 h-4 ${iconColor} ${isCurrent ? 'animate-pulse' : ''}`} />
               </div>
-              <div className={`text-xs font-bold ${textColor}`}>{step.label}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5 leading-tight">{step.description}</div>
+              <div className={`text-[11px] font-bold ${textColor}`}>{step.label}</div>
+              <div className="text-[9px] font-semibold text-[#5E6B7E] mt-0.5 leading-tight">{step.description}</div>
             </div>
           );
         })}

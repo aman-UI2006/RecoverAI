@@ -54,6 +54,7 @@ class RecoveryAttemptSummary(BaseModel):
     razorpay_payment_link_id: Optional[str] = Field(None, description="Created Razorpay Payment Link ID.")
     razorpay_reference_id: Optional[str] = Field(None, description="Custom reference ID.")
     generated_message_text: Optional[str] = Field(None, description="Generated recovery message text preview.")
+    action_payload: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Action execution payload including short_url.")
     executed_at: Optional[datetime] = Field(None, description="Execution timestamp.")
     created_at: datetime = Field(..., description="Record creation timestamp.")
 

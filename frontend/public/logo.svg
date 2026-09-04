@@ -1,0 +1,61 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Outer Cross Blue Gradient -->
+    <linearGradient id="crossGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0052CC" />
+      <stop offset="50%" stop-color="#0066FF" />
+      <stop offset="100%" stop-color="#0038A8" />
+    </linearGradient>
+    
+    <!-- Arrow/1 Light Blue Gradient -->
+    <linearGradient id="arrowLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B75F7" />
+      <stop offset="100%" stop-color="#0052CC" />
+    </linearGradient>
+    
+    <!-- Arrow/1 Dark Blue Gradient -->
+    <linearGradient id="arrowDark" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#002266" />
+      <stop offset="100%" stop-color="#0044BB" />
+    </linearGradient>
+  </defs>
+
+  <!-- Thick Outer Rounded Cross / Plus Symbol -->
+  <path 
+    d="M 180 40 
+       C 155 40 140 55 140 80 
+       L 140 140 
+       L 80 140 
+       C 55 140 40 155 40 180 
+       L 40 332 
+       C 40 357 55 372 80 372 
+       L 140 372 
+       L 140 432 
+       C 140 457 155 472 180 472 
+       L 332 472 
+       C 357 472 372 457 372 432 
+       L 372 372 
+       L 432 372 
+       C 457 372 472 357 472 332 
+       L 472 180 
+       C 472 155 457 140 432 140 
+       L 372 140 
+       L 372 80 
+       C 372 55 357 40 332 40 
+       Z
+       M 180 84 L 332 84 C 340 84 344 88 344 96 L 344 168 L 416 168 C 424 168 428 172 428 180 L 428 332 C 428 340 424 344 416 344 L 344 344 L 344 416 C 344 424 340 428 332 428 L 180 428 C 172 428 168 424 168 416 L 168 344 L 96 344 C 88 344 84 340 84 332 L 84 180 C 84 172 88 168 96 168 L 168 168 L 168 96 C 168 88 172 84 180 84 Z" 
+    fill="url(#crossGradient)" 
+  />
+
+  <!-- Inner '1' & Upward Recovery Arrow Motif -->
+  <!-- Upper Right Bright Wedge of the 1 Arrow -->
+  <path 
+    d="M 215 275 L 345 145 L 345 375 L 285 375 L 285 245 Z" 
+    fill="url(#arrowLight)" 
+  />
+  <!-- Lower Left Dark Shadow Wedge of the 1 Arrow -->
+  <path 
+    d="M 125 315 L 215 225 L 215 375 L 125 315 Z" 
+    fill="url(#arrowDark)" 
+  />
+</svg>

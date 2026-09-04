@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Activity,
@@ -44,7 +44,7 @@ export const RecoveryQueuePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
 
-  // Pagination state (subtask 7.5)
+  // Pagination state
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -82,7 +82,7 @@ export const RecoveryQueuePage: React.FC = () => {
       }
     } catch (err: any) {
       console.warn('[RecoveryQueue API Fallback]:', err?.message);
-      // Resilient fallback mock dataset (Subtask 7.1 - 7.4)
+      // Resilient fallback mock dataset
       const mockQueue: RecoveryIntervention[] = [
         {
           id: 'int_001',
@@ -159,36 +159,39 @@ export const RecoveryQueuePage: React.FC = () => {
 
   useEffect(() => {
     fetchRecoveryQueue();
-  }, [statusFilter, page, limit, currentApiState.mode, currentApiState.merchantId]);
+    const handleStateChange = () => fetchRecoveryQueue();
+    window.addEventListener('apiStateChanged', handleStateChange);
+    return () => window.removeEventListener('apiStateChanged', handleStateChange);
+  }, [statusFilter, page, limit]);
 
-  // Status Badge Helper (Subtask 7.2)
+  // Status Badge Helper
   const renderStatusBadge = (status: RecoveryIntervention['status']) => {
     switch (status) {
       case 'EXECUTING':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-            <PlayCircle className="w-3 h-3 animate-pulse text-cyan-400" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#EEF4FF] text-[#2454D6] border border-[#2F5BFF]/20">
+            <PlayCircle className="w-3 h-3 text-[#2454D6]" />
             EXECUTING
           </span>
         );
       case 'SUCCESS':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#E6F4ED] text-[#16A36A] border border-[#16A36A]/20">
+            <CheckCircle2 className="w-3 h-3 text-[#16A36A]" />
             SUCCESS
           </span>
         );
       case 'UNKNOWN':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
-            <AlertTriangle className="w-3 h-3 text-amber-400" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#FDF8EC] text-[#D99A00] border border-[#D99A00]/20">
+            <AlertTriangle className="w-3 h-3 text-[#D99A00]" />
             UNKNOWN
           </span>
         );
       case 'FAILED':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">
-            <XCircle className="w-3 h-3 text-rose-400" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#FDF2F4] text-[#D6455D] border border-[#D6455D]/20">
+            <XCircle className="w-3 h-3 text-[#D6455D]" />
             FAILED
           </span>
         );
@@ -198,75 +201,72 @@ export const RecoveryQueuePage: React.FC = () => {
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
   return (
-    <div className="space-y-8">
-      {/* Top Banner Header */}
+    <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-extrabold text-slate-100 font-display tracking-tight">
-              Active Recovery Queue
-            </h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Activity className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+          <h1 className="text-2xl font-bold text-[#0B1F3A] tracking-tight flex items-center gap-2">
+            <span>Active Recovery Queue</span>
+            <span className="text-xs px-2.5 py-0.5 rounded bg-[#EEF4FF] text-[#2454D6] border border-[#2F5BFF]/20 font-bold">
               Live Interventions
             </span>
-          </div>
-          <p className="text-sm text-slate-400 mt-1">
+          </h1>
+          <p className="text-xs text-[#53627A] mt-0.5">
             Real-time monitoring of active recovery interventions, attempt retry counts, and logical operation keys.
           </p>
         </div>
 
-        {/* Subtask 7.3: Manual Queue Refresh Trigger Button */}
+        {/* Refresh Trigger Button */}
         <button
           onClick={fetchRecoveryQueue}
           disabled={loading}
-          className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 text-xs font-semibold border border-cyan-500/30 transition-all shadow-sm shadow-cyan-500/10"
+          className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#F8FAFD] text-[#0B1F3A] text-xs font-bold border border-[#E5EAF1] transition-all shadow-sm cursor-pointer"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Refresh Queue
+          <RefreshCw className={`w-3.5 h-3.5 text-[#53627A] ${loading ? 'animate-spin' : ''}`} />
+          <span>Refresh Queue</span>
         </button>
       </div>
 
-      {/* Exposure Summary Cards */}
+      {/* Summary Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glass-card rounded-xl p-5 border border-slate-800 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 uppercase tracking-wider font-semibold">
+        <div className="bg-white rounded-xl p-5 border border-[#E5EAF1] space-y-2 shadow-sm">
+          <div className="flex items-center justify-between text-xs text-[#7A8799] uppercase tracking-wider font-bold">
             <span>Total Queue Items</span>
-            <Layers className="w-4 h-4 text-cyan-400" />
+            <Layers className="w-4 h-4 text-[#2F5BFF]" />
           </div>
-          <div className="text-2xl font-extrabold text-slate-100 font-display">
+          <div className="text-2xl font-bold text-[#0B1F3A] font-numeric tracking-tight">
             {totalCount}
           </div>
-          <div className="text-xs text-slate-400">{`Page ${page} of ${totalPages}`}</div>
+          <div className="text-xs text-[#53627A]">{`Page ${page} of ${totalPages}`}</div>
         </div>
 
-        <div className="glass-card rounded-xl p-5 border border-slate-800 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 uppercase tracking-wider font-semibold">
+        <div className="bg-white rounded-xl p-5 border border-[#E5EAF1] space-y-2 shadow-sm">
+          <div className="flex items-center justify-between text-xs text-[#7A8799] uppercase tracking-wider font-bold">
             <span>Currently Executing</span>
-            <PlayCircle className="w-4 h-4 text-cyan-400 animate-pulse" />
+            <PlayCircle className="w-4 h-4 text-[#2454D6]" />
           </div>
-          <div className="text-2xl font-extrabold text-cyan-400 font-display">
+          <div className="text-2xl font-bold text-[#2454D6] font-numeric tracking-tight">
             {interventions.filter((i) => i.status === 'EXECUTING').length}
           </div>
-          <div className="text-xs text-slate-400">Active automated retry cycles</div>
+          <div className="text-xs text-[#53627A]">Active automated retry cycles</div>
         </div>
 
-        <div className="glass-card rounded-xl p-5 border border-slate-800 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 uppercase tracking-wider font-semibold">
+        <div className="bg-white rounded-xl p-5 border border-[#E5EAF1] space-y-2 shadow-sm">
+          <div className="flex items-center justify-between text-xs text-[#7A8799] uppercase tracking-wider font-bold">
             <span>Execution Mode</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <ShieldCheck className="w-4 h-4 text-[#16A36A]" />
           </div>
-          <div className="text-lg font-bold text-emerald-400 font-mono">
+          <div className="text-base font-bold text-[#16A36A] font-mono">
             {currentApiState.mode}
           </div>
-          <div className="text-xs text-slate-400">Merchant: {currentApiState.merchantId}</div>
+          <div className="text-xs text-[#53627A]">Merchant: {currentApiState.merchantId}</div>
         </div>
       </div>
 
-      {/* Main Panel with Filter Tabs & Interventions Table */}
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-6">
-        {/* Status Filter Tabs (Subtask 7.2) */}
-        <div className="flex items-center justify-between gap-4 border-b border-slate-800 pb-4 overflow-x-auto">
+      {/* Main Table Card */}
+      <div className="bg-white rounded-xl p-6 border border-[#E5EAF1] space-y-6 shadow-sm">
+        {/* Status Filter Tabs */}
+        <div className="flex items-center justify-between gap-4 border-b border-[#E5EAF1] pb-4 overflow-x-auto">
           <div className="flex items-center gap-1.5">
             {STATUS_TABS.map((tab) => (
               <button
@@ -275,10 +275,10 @@ export const RecoveryQueuePage: React.FC = () => {
                   setStatusFilter(tab.id);
                   setPage(1);
                 }}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
                   statusFilter === tab.id
-                    ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40 shadow-sm shadow-cyan-500/10'
-                    : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200'
+                    ? 'bg-[#EEF4FF] text-[#2454D6] border-[#2F5BFF]/30 font-bold'
+                    : 'bg-white text-[#53627A] border-[#E5EAF1] hover:bg-[#F8FAFD] hover:text-[#0B1F3A]'
                 }`}
               >
                 {tab.label}
@@ -286,15 +286,15 @@ export const RecoveryQueuePage: React.FC = () => {
             ))}
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-slate-400 shrink-0">
-            <span>Show:</span>
+          <div className="flex items-center gap-2 text-xs text-[#53627A] shrink-0">
+            <span className="font-semibold">Show:</span>
             <select
               value={limit}
               onChange={(e) => {
                 setLimit(Number(e.target.value));
                 setPage(1);
               }}
-              className="bg-slate-900 border border-slate-800 rounded px-2 py-1 text-slate-300 text-xs focus:outline-none"
+              className="bg-white border border-[#E5EAF1] rounded px-2 py-1 text-[#0B1F3A] text-xs focus:outline-none cursor-pointer"
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -303,10 +303,10 @@ export const RecoveryQueuePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Active Interventions Table (Subtask 7.1, 7.2, 7.4) */}
+        {/* Queue Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-900/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#F8FAFD] text-[#53627A] uppercase text-[10px] font-bold tracking-wider border-b border-[#E5EAF1]">
               <tr>
                 <th className="py-3.5 px-4">Transaction ID</th>
                 <th className="py-3.5 px-4">Action / Intervention</th>
@@ -317,26 +317,25 @@ export const RecoveryQueuePage: React.FC = () => {
                 <th className="py-3.5 px-4 text-right">Inspect</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-[#E5EAF1] font-numeric">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500">
+                  <td colSpan={7} className="py-12 text-center text-[#7A8799]">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <RefreshCw className="w-5 h-5 animate-spin text-cyan-400" />
+                      <RefreshCw className="w-5 h-5 animate-spin text-[#2F5BFF]" />
                       <span>Fetching active recovery queue...</span>
                     </div>
                   </td>
                 </tr>
               ) : interventions.length === 0 ? (
-                /* Subtask 7.5: Empty queue state */
                 <tr>
                   <td colSpan={7} className="py-12 text-center">
-                    <div className="flex flex-col items-center justify-center space-y-3 max-w-sm mx-auto">
-                      <div className="p-3 rounded-full bg-slate-800/80 text-slate-400 border border-slate-700">
-                        <Activity className="w-6 h-6" />
+                    <div className="flex flex-col items-center justify-center space-y-2 max-w-sm mx-auto">
+                      <div className="p-3 rounded-full bg-[#F8FAFD] text-[#7A8799] border border-[#E5EAF1]">
+                        <Activity className="w-5 h-5" />
                       </div>
-                      <h3 className="text-sm font-bold text-slate-200">No interventions in queue</h3>
-                      <p className="text-xs text-slate-400">
+                      <h3 className="text-xs font-bold text-[#0B1F3A]">No interventions in queue</h3>
+                      <p className="text-xs text-[#7A8799]">
                         No recovery interventions currently matched the status filter ({statusFilter}).
                       </p>
                     </div>
@@ -344,46 +343,46 @@ export const RecoveryQueuePage: React.FC = () => {
                 </tr>
               ) : (
                 interventions.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-semibold text-slate-100">
+                  <tr key={item.id} className="hover:bg-[#F8FAFD] transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[#2F5BFF]">
                       <Link
                         to={`/transactions/${item.transaction_id}`}
-                        className="hover:text-cyan-400 transition-colors"
+                        className="hover:underline"
                       >
                         {item.transaction_id}
                       </Link>
                     </td>
-                    <td className="py-3.5 px-4">
-                      <span className="font-semibold text-slate-200">{item.action_type}</span>
+                    <td className="py-3.5 px-4 font-sans font-semibold text-[#0B1F3A]">
+                      {item.action_type}
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
+                    <td className="py-3.5 px-4 font-mono text-[11px] text-[#53627A]">
                       {item.logical_operation_key}
                     </td>
-                    <td className="py-3.5 px-4">
-                      {/* Color-coded execution status badge (Subtask 7.2) */}
+                    <td className="py-3.5 px-4 font-sans">
                       {renderStatusBadge(item.status)}
                     </td>
-                    <td className="py-3.5 px-4">
-                      {/* Attempt retry counts and recovery cycle numbers (Subtask 7.4) */}
-                      <div className="flex items-center gap-1 text-slate-300">
-                        <Repeat className="w-3 h-3 text-cyan-400" />
-                        <span className="font-semibold">Attempt #{item.attempt_count}</span>
-                        <span className="text-slate-500 text-[10px]">(Cycle {item.cycle_number})</span>
+                    <td className="py-3.5 px-4 font-sans">
+                      <div className="flex items-center gap-1.5 text-[#0B1F3A]">
+                        <Repeat className="w-3 h-3 text-[#2F5BFF]" />
+                        <span className="font-bold">Attempt #{item.attempt_count}</span>
+                        <span className="text-[#7A8799] text-[10px]">(Cycle {item.cycle_number})</span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400 flex items-center gap-1.5 pt-4">
-                      <Clock className="w-3 h-3 text-slate-500" />
-                      {new Date(item.executed_at).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                    <td className="py-3.5 px-4 text-[#7A8799] font-sans">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3 h-3 text-[#7A8799]" />
+                        {new Date(item.executed_at).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </div>
                     </td>
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-3.5 px-4 text-right font-sans">
                       <Link
                         to={`/transactions/${item.transaction_id}`}
-                        className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 font-semibold"
+                        className="inline-flex items-center gap-1 text-[#2F5BFF] hover:text-[#1A47E8] font-bold"
                       >
-                        Details
+                        <span>Details</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
                       </Link>
                     </td>
@@ -394,32 +393,32 @@ export const RecoveryQueuePage: React.FC = () => {
           </table>
         </div>
 
-        {/* Pagination Controls (Subtask 7.5) */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-800 text-xs text-slate-400">
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between pt-4 border-t border-[#E5EAF1] text-xs text-[#53627A]">
           <div>
-            Showing <span className="font-bold text-slate-200">{interventions.length > 0 ? (page - 1) * limit + 1 : 0}</span> to{' '}
-            <span className="font-bold text-slate-200">{Math.min(page * limit, totalCount)}</span> of{' '}
-            <span className="font-bold text-slate-200">{totalCount}</span> interventions
+            Showing <span className="font-bold text-[#0B1F3A]">{interventions.length > 0 ? (page - 1) * limit + 1 : 0}</span> to{' '}
+            <span className="font-bold text-[#0B1F3A]">{Math.min(page * limit, totalCount)}</span> of{' '}
+            <span className="font-bold text-[#0B1F3A]">{totalCount}</span> interventions
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || loading}
-              className="flex items-center gap-1 px-3 py-1.5 rounded bg-slate-900 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition-all"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-[#E5EAF1] text-[#0B1F3A] text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F8FAFD] transition-all cursor-pointer"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-              Previous
+              <span>Previous</span>
             </button>
-            <span className="px-2 font-mono text-slate-300">
+            <span className="px-2 font-mono text-[#0B1F3A] font-bold">
               {`Page ${page} of ${totalPages}`}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || loading}
-              className="flex items-center gap-1 px-3 py-1.5 rounded bg-slate-900 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition-all"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-[#E5EAF1] text-[#0B1F3A] text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F8FAFD] transition-all cursor-pointer"
             >
-              Next
+              <span>Next</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -428,3 +427,5 @@ export const RecoveryQueuePage: React.FC = () => {
     </div>
   );
 };
+
+export default RecoveryQueuePage;

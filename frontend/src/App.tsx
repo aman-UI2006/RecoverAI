@@ -22,7 +22,9 @@ export const App: React.FC = () => {
             <Route path="/" element={<CommandCenterPage />} />
             <Route path="/revenue-risk" element={<RevenueRiskPage />} />
             <Route path="/recovery-queue" element={<RecoveryQueuePage />} />
+            <Route path="/transactions" element={<TransactionDetailPage />} />
             <Route path="/transactions/:id" element={<TransactionDetailPage />} />
+            <Route path="/transaction-detail" element={<TransactionDetailPage />} />
             <Route path="/ai-decision" element={<AIDecisionCenterPage />} />
             <Route path="/ai-decision/:id" element={<AIDecisionCenterPage />} />
             <Route path="/analytics" element={<RecoveryAnalyticsPage />} />

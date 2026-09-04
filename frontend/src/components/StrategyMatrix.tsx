@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { Grid, Info, Sparkles, AlertCircle } from 'lucide-react';
+import { Grid, Info, Sparkles } from 'lucide-react';
 
 export interface MatrixCellData {
   diagnosis: string;
@@ -105,28 +105,27 @@ export const StrategyMatrix: React.FC<StrategyMatrixProps> = ({
   // Helper to compute color intensity based on P(R | X, a)
   const getCellColorClass = (prob: number | null | undefined, isHighlighted: boolean) => {
     if (prob === undefined || prob === null) {
-      // Step 47 subtask 16: Render neutral gray cell state for uncalculated pairs
       return isHighlighted
-        ? 'bg-slate-700/60 border-slate-500 text-slate-400 font-mono shadow-inner'
-        : 'bg-slate-900/60 border-slate-800/60 text-slate-600 font-mono';
+        ? 'bg-[#F8FAFD] border-[#7A8799] text-[#7A8799] font-mono shadow-inner font-bold'
+        : 'bg-[#F8FAFD] border-[#E5EAF1] text-[#7A8799] font-mono';
     }
 
     if (prob >= 0.7) {
       return isHighlighted
-        ? 'bg-emerald-500/40 border-emerald-400 text-emerald-200 font-bold shadow-lg shadow-emerald-900/30'
-        : 'bg-emerald-500/25 border-emerald-500/40 text-emerald-300 font-semibold hover:bg-emerald-500/35';
+        ? 'bg-[#E6F4ED] border-[#16A36A] text-[#16A36A] font-bold shadow-md'
+        : 'bg-[#E6F4ED]/80 border-[#16A36A]/40 text-[#16A36A] font-bold hover:bg-[#E6F4ED]';
     } else if (prob >= 0.5) {
       return isHighlighted
-        ? 'bg-cyan-500/40 border-cyan-400 text-cyan-200 font-bold shadow-lg shadow-cyan-900/30'
-        : 'bg-cyan-500/20 border-cyan-500/35 text-cyan-300 font-semibold hover:bg-cyan-500/30';
+        ? 'bg-[#EEF4FF] border-[#2F5BFF] text-[#2454D6] font-bold shadow-md'
+        : 'bg-[#EEF4FF]/80 border-[#2F5BFF]/30 text-[#2454D6] font-bold hover:bg-[#EEF4FF]';
     } else if (prob >= 0.3) {
       return isHighlighted
-        ? 'bg-amber-500/35 border-amber-400 text-amber-200 font-bold shadow-lg shadow-amber-900/30'
-        : 'bg-amber-500/15 border-amber-500/30 text-amber-300 font-medium hover:bg-amber-500/25';
+        ? 'bg-[#FDF8EC] border-[#D99A00] text-[#D99A00] font-bold shadow-md'
+        : 'bg-[#FDF8EC]/80 border-[#D99A00]/30 text-[#D99A00] font-bold hover:bg-[#FDF8EC]';
     } else {
       return isHighlighted
-        ? 'bg-rose-500/30 border-rose-400 text-rose-200 font-bold shadow-lg shadow-rose-900/30'
-        : 'bg-rose-500/10 border-rose-500/25 text-rose-300 font-normal hover:bg-rose-500/20';
+        ? 'bg-[#FDF2F4] border-[#D6455D] text-[#D6455D] font-bold shadow-md'
+        : 'bg-[#FDF2F4]/80 border-[#D6455D]/30 text-[#D6455D] font-bold hover:bg-[#FDF2F4]';
     }
   };
 
@@ -142,43 +141,43 @@ export const StrategyMatrix: React.FC<StrategyMatrixProps> = ({
   return (
     <div
       data-testid="strategy-matrix-container"
-      className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md space-y-4"
+      className="bg-white border border-[#E5EAF1] rounded-xl p-6 shadow-sm font-sans space-y-4 font-numeric"
     >
       {/* Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E5EAF1] pb-4">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-400">
+          <div className="p-2.5 bg-[#EEF4FF] border border-[#2F5BFF]/20 rounded-xl text-[#2F5BFF]">
             <Grid className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-100 flex items-center space-x-2">
+            <h3 className="text-base font-bold text-[#0B1F3A] flex items-center space-x-2">
               <span>Action-Conditional Strategy Heatmap Matrix</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider">
-                $P(R \mid X, a)$ Mapping
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#EEF4FF] text-[#2454D6] border border-[#2F5BFF]/20 uppercase tracking-wider font-mono">
+                P(R | X, a) Mapping
               </span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#53627A] mt-0.5">
               Visual grid mapping failure diagnoses (Rows) to candidate recovery probabilities and ENRV estimates (Columns)
             </p>
           </div>
         </div>
 
         {/* Legend */}
-        <div className="flex items-center space-x-3 text-[11px] font-mono text-slate-400 bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800/80">
+        <div className="flex items-center space-x-3 text-[11px] font-mono font-bold text-[#53627A] bg-[#F8FAFD] px-3 py-1.5 rounded-lg border border-[#E5EAF1]">
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/40 border border-emerald-400"></span>
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#E6F4ED] border border-[#16A36A]"></span>
             <span>High (&ge;70%)</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-cyan-500/30 border border-cyan-400"></span>
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#EEF4FF] border border-[#2F5BFF]"></span>
             <span>Med (&ge;50%)</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-amber-500/25 border border-amber-400"></span>
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#FDF8EC] border border-[#D99A00]"></span>
             <span>Low (&ge;30%)</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-slate-800 border border-slate-700"></span>
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#F8FAFD] border border-[#E5EAF1]"></span>
             <span>Uncalculated</span>
           </div>
         </div>
@@ -189,16 +188,16 @@ export const StrategyMatrix: React.FC<StrategyMatrixProps> = ({
         <table className="w-full text-left text-xs border-collapse" data-testid="strategy-matrix-grid">
           <thead>
             <tr>
-              <th className="py-2.5 px-3 bg-slate-950/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-r border-slate-800 w-48">
+              <th className="py-2.5 px-3 bg-[#F8FAFD] text-[#7A8799] uppercase text-[10px] font-bold tracking-wider border-b border-r border-[#E5EAF1] w-48 font-sans">
                 Diagnosis / Action Strategy
               </th>
               {DEFAULT_ACTIONS.map((action) => (
                 <th
                   key={action}
-                  className={`py-2.5 px-2 text-center text-[10px] font-mono font-bold uppercase tracking-wider border-b border-slate-800 ${
+                  className={`py-2.5 px-2 text-center text-[10px] font-mono font-bold uppercase tracking-wider border-b border-[#E5EAF1] ${
                     activeAction === action
-                      ? 'bg-indigo-950/40 text-indigo-300 border-indigo-500/40'
-                      : 'bg-slate-950/60 text-slate-400'
+                      ? 'bg-[#EEF4FF] text-[#2454D6] border-[#2F5BFF]/40'
+                      : 'bg-[#F8FAFD] text-[#7A8799]'
                   }`}
                 >
                   {action.replace('_', ' ')}
@@ -206,17 +205,17 @@ export const StrategyMatrix: React.FC<StrategyMatrixProps> = ({
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-[#E5EAF1]">
             {DEFAULT_DIAGNOSES.map((diag) => {
               const isDiagActive = activeDiagnosis === diag;
               return (
-                <tr key={diag} className="border-b border-slate-800/60 hover:bg-slate-800/20">
+                <tr key={diag} className="hover:bg-[#F8FAFD]">
                   {/* Diagnosis Label (Row Header) */}
                   <td
-                    className={`py-3 px-3 border-r border-slate-800 font-sans font-semibold text-[11px] ${
+                    className={`py-3 px-3 border-r border-[#E5EAF1] font-sans font-bold text-[11px] ${
                       isDiagActive
-                        ? 'bg-indigo-950/30 text-indigo-300 border-l-2 border-l-indigo-500'
-                        : 'text-slate-300'
+                        ? 'bg-[#EEF4FF] text-[#2454D6] border-l-2 border-l-[#2F5BFF]'
+                        : 'text-[#0B1F3A]'
                     }`}
                   >
                     <div className="truncate max-w-[170px]" title={diag}>
@@ -246,7 +245,7 @@ export const StrategyMatrix: React.FC<StrategyMatrixProps> = ({
                               {(prob * 100).toFixed(0)}%
                             </span>
                           ) : (
-                            <span className="font-mono text-[10px] text-slate-500">N/A</span>
+                            <span className="font-mono text-[10px] text-[#7A8799]">N/A</span>
                           )}
 
                           {cell?.enrv !== null && cell?.enrv !== undefined && (
@@ -265,39 +264,39 @@ export const StrategyMatrix: React.FC<StrategyMatrixProps> = ({
         </table>
       </div>
 
-      {/* Hover Tooltip Details Panel (Step 47 subtask 7.3) */}
+      {/* Hover Tooltip Details Panel */}
       <div
         data-testid="strategy-matrix-tooltip"
-        className="mt-3 p-3 bg-slate-950/90 border border-slate-800 rounded-xl min-h-[52px] flex items-center justify-between text-xs"
+        className="mt-3 p-3 bg-[#F8FAFD] border border-[#E5EAF1] rounded-lg min-h-[52px] flex items-center justify-between text-xs font-sans"
       >
         {hoveredCell ? (
           <div className="flex items-center justify-between w-full font-mono">
             <div className="flex items-center space-x-2">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
-              <span className="text-slate-300 font-sans font-semibold">
-                {hoveredCell.diagnosis} &rarr; <span className="text-indigo-300">{hoveredCell.action}</span>
+              <Sparkles className="w-4 h-4 text-[#2F5BFF]" />
+              <span className="text-[#0B1F3A] font-sans font-bold">
+                {hoveredCell.diagnosis} &rarr; <span className="text-[#2454D6]">{hoveredCell.action}</span>
               </span>
             </div>
             {hoveredCell.cellData && hoveredCell.cellData.recovery_probability !== null ? (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 font-numeric">
                 <span>
-                  $P(R \mid X, a)$: <strong className="text-emerald-400">{(hoveredCell.cellData.recovery_probability! * 100).toFixed(1)}%</strong>
+                  P(R | X, a): <strong className="text-[#16A36A]">{(hoveredCell.cellData.recovery_probability! * 100).toFixed(1)}%</strong>
                 </span>
                 <span>
-                  ENRV: <strong className="text-cyan-300">{formatINR(hoveredCell.cellData.enrv)}</strong>
+                  ENRV: <strong className="text-[#2454D6]">{formatINR(hoveredCell.cellData.enrv)}</strong>
                 </span>
                 <span>
-                  Intervention Cost: <strong className="text-amber-300">{formatINR(hoveredCell.cellData.intervention_cost)}</strong>
+                  Intervention Cost: <strong className="text-[#D99A00]">{formatINR(hoveredCell.cellData.intervention_cost)}</strong>
                 </span>
               </div>
             ) : (
-              <span className="text-slate-500 italic">Uncalculated / Fallback Neutral Gray Cell State</span>
+              <span className="text-[#7A8799] italic">Uncalculated / Fallback Neutral Gray Cell State</span>
             )}
           </div>
         ) : (
-          <div className="flex items-center space-x-2 text-slate-500 font-sans italic">
-            <Info className="w-4 h-4 text-slate-600" />
-            <span>Hover over any matrix cell to inspect expected recovery probability $P(R \mid X, a)$, ENRV, and intervention cost details.</span>
+          <div className="flex items-center space-x-2 text-[#53627A] italic">
+            <Info className="w-4 h-4 text-[#7A8799]" />
+            <span>Hover over any matrix cell to inspect expected recovery probability P(R | X, a), ENRV, and intervention cost details.</span>
           </div>
         )}
       </div>
