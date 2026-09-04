@@ -52,7 +52,7 @@ class PaymentLinkCreateResponse(BaseModel):
     amount: int = Field(..., description="Target amount in paise")
     amount_paid: int = Field(default=0, description="Amount paid in paise")
     currency: str = Field(default="INR", description="Currency code")
-    customer: Optional[PaymentLinkCustomer] = Field(default=None, description="Customer details")
+    customer: Optional[Any] = Field(default=None, description="Customer details or empty array")
     reference_id: Optional[str] = Field(default=None, description="Unique reference ID")
     created_at: int = Field(..., description="Unix timestamp of creation")
     notes: Dict[str, Any] = Field(default_factory=dict, description="Custom metadata notes")

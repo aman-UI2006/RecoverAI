@@ -16,6 +16,7 @@ from backend.app.schemas.events import (
     IngestionResponse,
 )
 from backend.app.services.event_ingestion import EventIngestionService
+from backend.app.services.result_processor import ResultProcessor
 
 router = APIRouter(prefix="/webhooks", tags=["Webhooks"])
 
@@ -42,6 +43,9 @@ async def razorpay_webhook_endpoint(
         signature_header=x_razorpay_signature,
         razorpay_event_id=x_razorpay_event_id,
     )
+
+    if not is_duplicate:
+        await ResultProcessor.process_event(session=db, event=event)
 
     status_str = "DUPLICATE_SKIPPED" if is_duplicate else "SUCCESS"
     message_str = "Event already ingested (idempotent skip)" if is_duplicate else "Razorpay webhook event successfully ingested"

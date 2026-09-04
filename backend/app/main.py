@@ -104,6 +104,20 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 
 
+@app.get("/", tags=["Root"])
+async def root():
+    """Root landing endpoint providing system summary and navigation links."""
+    return {
+        "system": settings.PROJECT_NAME,
+        "description": "Enterprise AI Revenue Recovery System for Razorpay Ecosystem",
+        "version": "1.0.0",
+        "status": "online",
+        "docs": "/docs",
+        "health": "/health",
+        "api_v1": settings.API_V1_STR,
+    }
+
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     """System health check endpoint returning HTTP 200 with status ok."""
@@ -114,3 +128,4 @@ async def health_check():
         "environment": settings.ENVIRONMENT,
         "database_connected": db_ok,
     }
+
