@@ -230,6 +230,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <option value="m_alpha_123" className="bg-slate-900 text-slate-200">
                   Merchant Alpha (m_alpha_123)
                 </option>
+                <option value="m_real_2f9b3a" className="bg-slate-900 text-slate-200">
+                  Merchant REAL_TEST (m_real_2f9b3a)
+                </option>
                 <option value="m_beta_456" className="bg-slate-900 text-slate-200">
                   Merchant Beta (m_beta_456)
                 </option>

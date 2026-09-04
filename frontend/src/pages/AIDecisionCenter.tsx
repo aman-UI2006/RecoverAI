@@ -103,9 +103,9 @@ export const AIDecisionCenterPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const activeTxId = paramId || searchParams.get('tx') || searchParams.get('id') || 'tx_alpha_100';
+  const explicitTxId = paramId || searchParams.get('tx') || searchParams.get('id');
 
-  const [searchInput, setSearchInput] = useState<string>(activeTxId);
+  const [searchInput, setSearchInput] = useState<string>(explicitTxId || '');
   const [decisionData, setDecisionData] = useState<AIDecisionResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
@@ -139,8 +139,44 @@ export const AIDecisionCenterPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchAIDecision(activeTxId);
-  }, [activeTxId]);
+    let isMounted = true;
+    const resolveAndFetch = async () => {
+      let targetTxId = explicitTxId;
+
+      if (!targetTxId) {
+        try {
+          const txRes = await api.get('/api/v1/transactions', {
+            params: {
+              merchant_id: currentApiState.merchantId,
+              limit: 1,
+            },
+          });
+          if (txRes.data?.items && txRes.data.items.length > 0) {
+            targetTxId = txRes.data.items[0].transaction_id || txRes.data.items[0].id;
+          }
+        } catch (err) {
+          console.warn('[AIDecisionCenter]: Failed to auto-resolve active transaction:', err);
+        }
+      }
+
+      if (targetTxId) {
+        if (isMounted) setSearchInput(targetTxId);
+        await fetchAIDecision(targetTxId);
+      } else {
+        if (isMounted) {
+          setLoading(false);
+          setErrorStatus(404);
+          setErrorMessage(`No transactions found for active merchant ${currentApiState.merchantId}.`);
+          setDecisionData(null);
+        }
+      }
+    };
+
+    resolveAndFetch();
+    return () => {
+      isMounted = false;
+    };
+  }, [explicitTxId, currentApiState.merchantId]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,7 +285,7 @@ export const AIDecisionCenterPage: React.FC = () => {
               <AlertTriangle className="w-12 h-12 text-amber-400 mx-auto mb-3" />
               <h3 className="text-xl font-bold text-slate-200 mb-2">Decision Context Not Found (HTTP 404)</h3>
               <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
-                No decision context or transaction record was found for ID <code className="text-amber-300 font-mono">{activeTxId}</code>.
+                No decision context or transaction record was found for ID <code className="text-amber-300 font-mono">{explicitTxId || searchInput}</code>.
               </p>
             </div>
           ) : (
@@ -261,13 +297,13 @@ export const AIDecisionCenterPage: React.FC = () => {
           )}
           <div className="flex items-center justify-center space-x-3">
             <button
-              onClick={() => fetchAIDecision(activeTxId)}
+              onClick={() => fetchAIDecision(explicitTxId || searchInput)}
               className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-semibold transition-colors"
             >
               Retry Request
             </button>
             <Link
-              to={`/transactions/${activeTxId}`}
+              to={`/transactions/${explicitTxId || searchInput}`}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition-colors"
             >
               View Transaction Detail

@@ -2,9 +2,9 @@
 
 - **Current Step:** Step 61 (Buildathon Submission) — VERIFIED
 - **Last Verified Step:** Step 61 (Buildathon Submission) — VERIFIED
-- **Current Status:** STEP 61 VERIFIED — 61-STEP RECOVERAI MASTER PLAN 100% COMPLETE
-- **Last Known Good Commit:** 3254498 (`step-60-verified`)
-- **Blocking Issue:** NONE (Step 61 Final Submission Review fully completed and verified. Created `scripts/verify_submission_readiness.py` outputting 'READY FOR SUBMISSION - ALL CHECKS PASSED'. Authored comprehensive `docs/SUBMISSION_CHECKLIST.md` auditing all 102 master plan sections and acceptance criteria. 425/425 backend pytest tests passing, 62/62 Vitest frontend tests passing, clean Vite production build).
+- **Current Status:** STEP 61 VERIFIED — 61-STEP RECOVERAI MASTER PLAN 100% COMPLETE & DASHBOARD DIAGNOSIS RESOLVED
+- **Last Known Good Commit:** da4f3da (`CORS FIX`) + local resolution of AI Decision fallback & tenant dashboard selector
+- **Blocking Issue:** NONE (AI Decision Center hardcoded `tx_alpha_100` fallback removed; dynamically auto-resolves active tenant's transaction via `GET /api/v1/transactions?limit=1`. Added `m_real_2f9b3a` selector option to `Layout.tsx` header for instant real-test dashboard verification. All 428/428 Pytest backend tests passing, all 62/62 Vitest frontend tests passing, zero Vite build errors).
 
 
 - **Environment Status:** Python 3.13.7, Node v25.1.0, npm 11.6.2, Virtualenv `venv` provisioned, PostgreSQL 16 active on port 5432.
